@@ -4,8 +4,6 @@ project ("ccdata")
 #add_library(ccdata )
 add_executable(test 
     src/pandas/datetime.cc
-    src/pandas/series.cc
-    src/pandas/array.cc
     src/pandas/util.cc
     src/test.cc)
 
