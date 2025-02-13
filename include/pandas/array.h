@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <iostream>
 #include <list>
 #include <map>
@@ -91,6 +92,23 @@ public:
     void append(const T& v)
     {
         values.push_back(v);
+    }
+
+    template <class RT>
+    Array map(std::function<RT(const T&)> const& func)
+    {
+        Array<RT> res;
+        res.name = name;
+        for (int i = 0; i < size(); i++) {
+            res.append(func(values[i]));
+        }
+        return res;
+    }
+
+    template <class RT>
+    RT agg(std::function<RT(const Array&)> const& func)
+    {
+        return func(*this);
     }
 
     T max() const
@@ -734,6 +752,11 @@ public:
         {
         }
 
+        Array to_array()
+        {
+            return *this;
+        }
+
         size_t size() const
         {
             return ids.size();
@@ -1189,6 +1212,73 @@ public:
         }
 
         return ArrayPick(*this, ids);
+    }
+
+    template <class KT>
+    class ArrayGroup {
+    public:
+        std::map<KT, Array> ars;
+
+        ArrayGroup() { }
+
+        ArrayGroup(const ArrayGroup& ag)
+        {
+            ars = ag.ars;
+        }
+
+        ArrayGroup(ArrayGroup&& ag)
+        {
+            ars = std::move(ag.ars);
+        }
+
+        void append(const KT& key, const T& value)
+        {
+            if (ars.count(key) == 0) {
+                ars[key] = Array();
+            }
+            ars[key].append(value);
+        }
+
+        std::tuple<Array<KT>, Array<Int>> count()
+        {
+            return agg<Int>([](const Array& ar) -> Int { return Int(ar.size()); });
+        }
+
+        std::tuple<Array<KT>, Array> sum()
+        {
+            return agg<T>([](const Array& ar) -> Int { return ar.sum(); });
+        }
+
+        template <class RT>
+        std::tuple<Array<KT>, Array<RT>> agg(std::function<RT(const Array&)> const& func)
+        {
+            Array<KT> keys;
+            Array<RT> values;
+
+            for (auto it = ars.begin(); it != ars.end(); it++) {
+                KT key = it->first;
+                Array ar = it->second;
+                RT value = func(ar);
+                keys.append(key);
+                values.append(value);
+            }
+
+            return std::make_tuple<>(keys, values);
+        }
+    };
+
+    template <class KT>
+    ArrayGroup<KT> groupby(const Array<KT>& keys) const
+    {
+        if (keys.size() != size()) {
+            throw std::format("size not match: key size {}!={}", size(), keys.size());
+        }
+
+        ArrayGroup<KT> ag;
+        for (int i = 0; i < size(); i++) {
+            ag.append(keys.iloc(i), iloc(i));
+        }
+        return ag;
     }
 };
 

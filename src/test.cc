@@ -36,14 +36,32 @@ int main()
     ar.append(10);
 
     ar.create_index();
-    ar.loc((ar>=5) & (ar<10)) = 100;
-    //ar.iloc(0,2) = 10;
+    ar.loc((ar >= 5) & (ar < 10)) = 100;
+    // ar.iloc(0,2) = 10;
 
-
-    auto br = (ar >= 1);
+    auto br = (ar > 5);
 
     cout << ar.to_string() << endl;
     cout << br.to_string() << endl;
+
+    auto cr = ar.map<Int>([](Int a) -> Int { return a * a; });
+
+    auto af = [](const Array<Int>& ds) -> Int {
+        Int s = 0;
+        for (int i = 0; i < ds.size(); i++) {
+            s += ds.iloc(i);
+        }
+        return s;
+    };
+
+    cout << ar.agg<Int>(af).to_string() << endl;
+
+    cout << cr.to_string() << endl;
+
+    auto res = ar.groupby(br).sum();
+
+    cout << "key: " << std::get<0>(res).to_string() << endl;
+    cout << "value:" << std::get<1>(res).to_string() << endl;
 
     return 0;
 }
