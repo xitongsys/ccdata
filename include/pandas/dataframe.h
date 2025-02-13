@@ -4,11 +4,12 @@
 #include "pandas/pandastype.h"
 
 namespace pandas {
+
+template <class IT>
 class DataFrame {
 public:
-    std::vector<std::shared_ptr<void>> arrs;
-    std::vector<std::string> columns;
-    std::vector<PandasTypeId> dtypes;
+    std::vector<std::shared_ptr<ArrayBase>> arrs;
+    Array<IT> index;
 
     template <class T>
     Array<T>& get_col(int i)
@@ -19,7 +20,10 @@ public:
     template <class T>
     void append_col(Array<T>& ar)
     {
-        std::make_shared
+        auto p_ar = std::make_shared<Array<T>>(ar);
+        arrs.append(p_ar);
     }
+
+    DataFrame sum()
 };
 }

@@ -12,10 +12,33 @@
 
 namespace pandas {
 
-template <class T>
-class Array {
+class ArrayBase {
 public:
     std::string name;
+    PandasTypeId dtype;
+
+    ArrayBase()
+    {
+        name = "array";
+        dtype = None_;
+    }
+
+    ArrayBase(const std::string& name_, PandasTypeId dtype_)
+    {
+        name = name_;
+        dtype = dtype_;
+    }
+
+    ArrayBase(PandasTypeId dtype_)
+    {
+        name = "array";
+        dtype = dtype_;
+    }
+};
+
+template <class T>
+class Array : public ArrayBase {
+public:
     std::vector<T> values;
 
     std::optional<std::map<T, int>> indexs;
@@ -45,25 +68,26 @@ public:
     }
 
     Array()
+        : ArrayBase("array", pandas_type_to_id<T>())
     {
-        name = "Array";
     }
 
     Array(const Array& ar)
+        : ArrayBase(ar.name, ar.dtype)
     {
-        name = ar.name;
         values = ar.values;
     }
 
     Array(Array&& ar)
+        : ArrayBase(std::move(ar.name), ar.dtype)
     {
-        name = std::move(ar.name);
         values = std::move(ar.values);
     }
 
     Array& operator=(const Array& ar)
     {
         name = ar.name;
+        dtype = ar.dtype;
         values = ar.values;
         return *this;
     }
@@ -71,6 +95,7 @@ public:
     Array& operator=(Array&& ar)
     {
         name = std::move(ar.name);
+        dtype = ar.dtype;
         values = std::move(ar.values);
         return *this;
     }
