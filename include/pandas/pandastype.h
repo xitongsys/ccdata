@@ -274,14 +274,25 @@ struct PandasType {
         return PandasType<T>(abs(value));
     }
 
+    // template <class T>
+    // PandasType<T> astype() const
+    // {
+    //     PandasType<T> res;
+    //     res.is_nan = is_nan;
+    //     res.value = value;
+    //     return res;
+    // }
+
     template <class T>
-    PandasType<T> astype() const
+    T astype() const
     {
-        PandasType<T> res;
+        T res;
         res.is_nan = is_nan;
         res.value = value;
+        return res;
     }
 
+    template<>
     PandasType<std::string> astype() const
     {
         if (is_nan) {

@@ -72,6 +72,13 @@ public:
     {
     }
 
+    Array(const std::string& nm, const std::vector<T>& vals)
+    {
+        name = nm;
+        values = vals;
+        dtype = pandas_type_to_id<T>();
+    }
+
     Array(const Array& ar)
         : ArrayBase(ar.name, ar.dtype)
     {
@@ -199,6 +206,17 @@ public:
     {
         Double v = var();
         return v.pow(0.5);
+    }
+
+    template <class CT>
+    Array<CT> astype()
+    {
+        std::vector<CT> vs;
+        for (auto& v : values) {
+            vs.push_back(v.astype<CT>());
+        }
+
+        return Array<CT>(name, std::move(vs));
     }
 
     Array<Int> operator>(Array ar) const

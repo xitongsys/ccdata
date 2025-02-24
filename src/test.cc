@@ -1,4 +1,5 @@
 #include "pandas/array.h"
+#include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/pandastype.h"
 
@@ -62,6 +63,17 @@ int main()
 
     cout << "key: " << std::get<0>(res).to_string() << endl;
     cout << "value:" << std::get<1>(res).to_string() << endl;
+
+    DataFrame df;
+    df.append_col(ar);
+
+    Int aa = 1;
+    Double bb = 2;
+    Int cc = aa + bb.astype<Int>();
+
+    Array<Double> dr = ar.astype<Double>();
+
+    cout << dr.to_string() << endl;
 
     return 0;
 }

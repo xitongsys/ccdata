@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 
 #include "pandas/array.h"
@@ -5,11 +7,15 @@
 
 namespace pandas {
 
-template <class IT>
+template <class IT = Int>
 class DataFrame {
 public:
     std::vector<std::shared_ptr<ArrayBase>> arrs;
     Array<IT> index;
+
+    DataFrame()
+    {
+    }
 
     template <class T>
     Array<T>& get_col(int i)
@@ -18,12 +24,27 @@ public:
     }
 
     template <class T>
-    void append_col(Array<T>& ar)
+    void append_col(const Array<T>& ar)
     {
         auto p_ar = std::make_shared<Array<T>>(ar);
-        arrs.append(p_ar);
+        arrs.push_back(p_ar);
     }
 
     DataFrame sum()
+    {
+    }
+
+    template<class T>
+
+    std::string to_string()
+    {
+        std::stringstream ss;
+
+        for (auto& p : arrs) {
+           
+        }
+
+        return ss.str();
+    }
 };
 }
