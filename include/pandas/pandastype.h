@@ -14,10 +14,17 @@ struct PandasType {
     T value;
 
     template <class T2>
-    PandasType(T2 v)
+    PandasType(const T2& v)
     {
         value = v;
         is_nan = false;
+    }
+
+    template <class T2>
+    PandasType(const PandasType<T2>& v)
+    {
+        value = v.value;
+        is_nan = v.is_nan;
     }
 
     PandasType(T v)

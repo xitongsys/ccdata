@@ -7,6 +7,7 @@
 #include <optional>
 #include <vector>
 
+#include "pandas/array.h"
 #include "pandas/pandastype.h"
 #include "pandas/util.h"
 
@@ -17,19 +18,27 @@ class Index : public Array<T> {
 public:
     std::map<T, int> value2iid;
 
-    Index(const Array& ar)
-        : Array(ar)
+    Index()
+        : Array()
+    {
+    }
+
+    Index(const Array<T>& ar)
+        : Array<T>(ar)
     {
         update_index();
     }
 
     void update_index()
     {
-        for (int i = 0; i < size(); i++) {
-            if (value2iid.count(iloc(i))) {
-                throw std::format("index {} has duplicated value {}", ar.name, ar[i]);
-            }
-            value2iid[ar[i]] = i;
+        for (int i = 0; i < this->size(); i++) {
+            T& v = this->iloc(i);
+            // if (value2iid.count(v)) {
+            //     // throw std::format("index {} has duplicated value {}", this->name, i);
+            //     throw 1;
+            // }
+
+            //value2iid[v] = i;
         }
     }
 
@@ -38,13 +47,14 @@ public:
         return value2iid.count(v) > 0;
     }
 
-    void append(const T& v)
+    template <class T2>
+    void append(const T2& v)
     {
-        if (has(v)) {
+        if (has((T)(v))) {
             continue;
         }
-        value2iid[v] = size();
-        Array<T>::append(v);
+        value2iid[(T)(v)] = this->size();
+        Array<T>::append((T)(v));
     }
 
     int loc(const T& v)
@@ -55,15 +65,6 @@ public:
         } else {
             throw std::format("key not found {}", v);
         }
-    }
-
-    ArrayPick loc(const T& bgn, const T& end)
-    {
-        std::vector<int> ids;
-        for (auto it = value2iid.lower_bound(bgn); it < value2iid.upper_bound(end); it++) {
-            ids.push_back(it->second);
-        }
-        return ArrayPick(*this, ids);
     }
 };
 

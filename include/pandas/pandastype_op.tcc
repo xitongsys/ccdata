@@ -8,6 +8,13 @@
             return PandasType<T>();                       \
         }                                                 \
         return PandasType<T>(value OP v.value);           \
+    }                                                     \
+    PandasType operator OP(const PandasType& v) const     \
+    {                                                     \
+        if (is_nan || v.is_nan) {                         \
+            return PandasType<T>();                       \
+        }                                                 \
+        return PandasType<T>(value OP v.value);           \
     }
 
 DEFINE_PTYPE_OPERATOR(+)
@@ -22,6 +29,14 @@ DEFINE_PTYPE_OPERATOR(^)
 #define DEFINE_PTYPE_OPERATOR(OP)                   \
     template <class T2>                             \
     PandasType operator OP(const PandasType<T2>& v) \
+    {                                               \
+        if (is_nan || v.is_nan) {                   \
+            value = PandasType {};                  \
+        }                                           \
+        value OP v.value;                           \
+        return value;                               \
+    }                                               \
+    PandasType operator OP(const PandasType& v)     \
     {                                               \
         if (is_nan || v.is_nan) {                   \
             value = PandasType {};                  \
@@ -53,6 +68,17 @@ DEFINE_PTYPE_OPERATOR(~)
 #define DEFINE_PTYPE_OPERATOR(OP)                              \
     template <class T2>                                        \
     PandasType<int> operator OP(const PandasType<T2>& v) const \
+    {                                                          \
+        if (is_nan || v.is_nan) {                              \
+            return PandasType<int>();                          \
+        }                                                      \
+        if (value OP v.value) {                                \
+            return PandasType<int>(1);                         \
+        } else {                                               \
+            return PandasType<int>(0);                         \
+        }                                                      \
+    }                                                          \
+    PandasType<int> operator OP(const PandasType & v) const    \
     {                                                          \
         if (is_nan || v.is_nan) {                              \
             return PandasType<int>();                          \

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <initializer_list>
 #include <iostream>
 #include <list>
 #include <map>
@@ -33,7 +34,17 @@ public:
     }
 
     template <class T2>
-    Array(const std::string& nm, const std::vector<T2>& vals)
+    Array(const Array<T2>& ar)
+        : Array()
+    {
+        name = ar.name;
+        for (int i = 0; i < ar.size(); i++) {
+            values.push_back((T)(ar.iloc(i)));
+        }
+    }
+
+    template <class T2>
+    Array(const std::vector<T2>& vals, const std::string& nm = "")
         : Array()
     {
         name = nm;
@@ -43,12 +54,19 @@ public:
     }
 
     template <class T2>
-    Array(const Array<T2>& ar)
+    Array(const std::initializer_list<T2>& vals, const std::string& nm = "")
+    {
+        for (const T2& v : vals) {
+            values.push_back((T)(v));
+        }
+    }
+
+    Array(const Array& ar)
         : Array()
     {
         name = ar.name;
         for (int i = 0; i < ar.size(); i++) {
-            values.push_back((T)(ar.iloc(i)));
+            values.push_back(ar.iloc(i));
         }
     }
 

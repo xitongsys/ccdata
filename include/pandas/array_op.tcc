@@ -4,7 +4,7 @@
     template <class T2>              \
     Array operator OP(T2 val) const  \
     {                                \
-        Array<T> res = *this;        \
+        Array<T> res(*this);         \
         for (auto& v : res.values) { \
             v = v OP val;            \
         }                            \
@@ -58,7 +58,7 @@ DEFINE_ARRAY_OPERATOR(~)
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
         }                                                                   \
-        Array res = *this;                                                  \
+        Array<T> res = *this;                                               \
         for (int i = 0; i < size(); i++) {                                  \
             res.values[i] = res.values[i] OP ar.values[i];                  \
         }                                                                   \

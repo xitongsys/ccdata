@@ -20,7 +20,7 @@ public:
 
     Series(const Array<DT>& vals)
     {
-        pidx = std::make_shared<Index<IT>>();
+        pidx = std::make_shared<Index<Int>>();
         values = vals;
 
         for (int i = 0; i < vals.size(); i++) {
@@ -93,9 +93,6 @@ public:
         }
         return res;
     }
-
-#include "series_op.tcc"
-#include "series_picker.tcc"
 
     DT& loc(const IT& id)
     {
