@@ -37,7 +37,6 @@ public:
         : Array()
     {
         name = nm;
-        dtype = pandas_type_to_id<T>();
         for (int i = 0; i < vals.size(); i++) {
             values.push_back((T)(vals[i]));
         }
@@ -45,18 +44,18 @@ public:
 
     template <class T2>
     Array(const Array<T2>& ar)
+        : Array()
     {
         name = ar.name;
-        dtype = pandas_type_to_id<T>();
         for (int i = 0; i < ar.size(); i++) {
             values.push_back((T)(ar.iloc(i)));
         }
     }
 
     Array(Array&& ar)
+        : Array()
     {
         name = std::move(ar.name);
-        dtype = pandas_type_to_id<T>();
         values = std::move(ar.values);
     }
 
@@ -271,131 +270,6 @@ public:
         return s;
     }
 
-    class ArrayPick {
-    public:
-        Array& ar;
-        std::vector<int> ids;
-
-        ArrayPick(Array& ar_, const std::vector<int>& ids_)
-            : ar(ar_)
-            , ids(ids_)
-        {
-        }
-
-        Array to_array()
-        {
-            Array res(ar.name);
-            for (int i in ids) {
-                res.append(ar.iloc(i));
-            }
-            return res;
-        }
-
-        size_t size() const
-        {
-            return ids.size();
-        }
-
-        template <class T2>
-        void operator=(const T2& v)
-        {
-            for (int i : ids) {
-                ar.iloc(i) = (T)(v);
-            }
-        }
-
-        template <class T2>
-        void operator=(const Array<T2>& ar_)
-        {
-            for (int i = 0; i < ids.size() && i < ar_.size(); i++) {
-                ar.iloc(ids[i]) = ar_.iloc(i);
-            }
-        }
-
-        template <class T2>
-        void operator=(const ArrayPick<T2>& ap)
-        {
-            for (int i = 0; i < ids.size() && i < ap.size(); i++) {
-                ar.iloc(ids[i]) = (T)(ap.ar.iloc(ap.ids[i]));
-            }
-        }
-
-#include "arraypick_op.tcc"
-    };
-
-    Array(const ArrayPick& ap)
-        : Array()
-    {
-        name = ap.ar.name;
-        for (int id : ap.ids) {
-            values.push_back(ap.ar.iloc(id));
-        }
-    }
-
-    Array& operator=(const ArrayPick& ap)
-    {
-        name = ap.ar.name;
-        values.clear();
-        for (int id : ap.ids) {
-            values.push_back(ap.ar.iloc(id));
-        }
-        return *this;
-    }
-
-    ArrayPick iloc(const std::vector<int>& ids)
-    {
-        return ArrayPick(*this, ids);
-    }
-
-    ArrayPick iloc(int bgn, int end, int step = 1)
-    {
-        return iloc(range(bgn, end, step));
-    }
-
-    ArrayPick loc(const T& v)
-    {
-        std::vector<int> ids;
-        if (indexs.has_value()) {
-            auto& mp = indexs.value();
-            ids.push_back(mp[v]);
-        } else {
-            for (int i = 0; i < size(); i++) {
-                if (values[i] == v) {
-                    ids.push_back(i);
-                }
-            }
-        }
-        return ArrayPick(*this, ids);
-    }
-
-    ArrayPick loc(const T& bgn, const T& end)
-    {
-        std::vector<int> ids;
-        for (int i = 0; i < size(); i++) {
-            auto& v = values[i];
-            if (v >= bgn && v <= end) {
-                ids.push_back(i);
-            }
-        }
-        return ArrayPick(*this, ids);
-    }
-
-    ArrayPick loc(const Array<Int>& mask)
-    {
-        std::vector<int> ids;
-        if (size() != mask.size()) {
-            throw std::format("size not match: {}!={}", size(), mask.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            if (mask.iloc(i) == Int(1)) {
-                ids.push_back(i);
-            }
-        }
-
-        return ArrayPick(*this, ids);
-    }
-
     template <class KT>
     class ArrayGroup {
     public:
@@ -462,6 +336,14 @@ public:
         }
         return ag;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Array& ar)
+    {
+        os << ar.to_string();
+        return os;
+    }
+
+#include "pandas/array_op.tcc"
 };
 
 }

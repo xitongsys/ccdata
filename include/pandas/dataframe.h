@@ -18,7 +18,7 @@ public:
     }
 
     template <class DT>
-    Array<DT>& get_col(int i)
+    Array<DT>& iloc(int i)
     {
         return values[i];
     }

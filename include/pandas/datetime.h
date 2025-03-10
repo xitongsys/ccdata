@@ -5,6 +5,42 @@
 #include <string>
 
 namespace pandas {
+
+class TimeDelta {
+public:
+    long long days;
+    long long hours;
+    long long minutes;
+    long long seconds;
+    long long nanosecs;
+
+    const long long NANO = 1000000000LL;
+
+    TimeDelta() { }
+
+    TimeDelta(long long d = 0, long long h = 0, long long m = 0, long long s = 0, long long ns = 0)
+        : days(d)
+        , hours(h)
+        , minutes(m)
+        , seconds(s)
+        , nanosecs(ns)
+    {
+    }
+
+    long long total_nanosecs()
+    {
+        long long nanos = days * 3600 * 24 * NANO + hours * 3600 * NANO + minutes * 60 * NANO + seconds * NANO + nanosecs;
+        return nanos;
+    }
+
+    double total_seconds()
+    {
+        double nanos = total_nanosecs();
+        double secs = nanos / NANO;
+        return secs;
+    }
+};
+
 class Datetime {
 
 public:
@@ -21,6 +57,12 @@ public:
     bool operator==(const Datetime& dt);
     bool operator>(const Datetime& dt);
     bool operator<(const Datetime& dt);
+
+    // Datetime operator+(const TimeDelta& dt);
+    // Datetime operator-(const TimeDelta& dt);
+    // Datetime operator+=(const TimeDelta& dt);
+    // Datetime operator-=(const TimeDelta& dt);
+    // TimeDelta operator-(const Datetime& t);
 };
 
 }
