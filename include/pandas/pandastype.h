@@ -120,6 +120,7 @@ struct PandasType {
 #include "pandas/pandastype_op.tcc"
 };
 
+using Bool = PandasType<bool>;
 using Int = PandasType<int>;
 using Long = PandasType<long long>;
 using Float = PandasType<float>;
@@ -129,6 +130,7 @@ using Dt = PandasType<Datetime>;
 
 enum PandasTypeId {
     Obj_,
+    Bool_,
     Int_,
     Long_,
     Float_,
@@ -140,7 +142,9 @@ enum PandasTypeId {
 template <typename T>
 constexpr PandasTypeId pandas_type_to_id()
 {
-    if constexpr (std::is_same_v<T, Int>) {
+    if constexpr (std::is_same_v<T, Bool>) {
+        return Bool_;
+    } else if constexpr (std::is_same_v<T, Int>) {
         return Int_;
     } else if constexpr (std::is_same_v<T, Long>) {
         return Long_;

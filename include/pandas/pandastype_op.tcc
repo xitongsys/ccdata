@@ -65,29 +65,21 @@ DEFINE_PTYPE_OPERATOR(^=)
 
 DEFINE_PTYPE_OPERATOR(~)
 
-#define DEFINE_PTYPE_OPERATOR(OP)                              \
-    template <class T2>                                        \
-    PandasType<int> operator OP(const PandasType<T2>& v) const \
-    {                                                          \
-        if (is_nan || v.is_nan) {                              \
-            return PandasType<int>();                          \
-        }                                                      \
-        if (value OP v.value) {                                \
-            return PandasType<int>(1);                         \
-        } else {                                               \
-            return PandasType<int>(0);                         \
-        }                                                      \
-    }                                                          \
-    PandasType<int> operator OP(const PandasType & v) const    \
-    {                                                          \
-        if (is_nan || v.is_nan) {                              \
-            return PandasType<int>();                          \
-        }                                                      \
-        if (value OP v.value) {                                \
-            return PandasType<int>(1);                         \
-        } else {                                               \
-            return PandasType<int>(0);                         \
-        }                                                      \
+#define DEFINE_PTYPE_OPERATOR(OP)                   \
+    template <class T2>                             \
+    bool operator OP(const PandasType<T2>& v) const \
+    {                                               \
+        if (is_nan || v.is_nan) {                   \
+            return false;                           \
+        }                                           \
+        return value OP v.value;                    \
+    }                                               \
+    bool operator OP(const PandasType& v) const     \
+    {                                               \
+        if (is_nan || v.is_nan) {                   \
+            return false;                           \
+        }                                           \
+        return value OP v.value;                    \
     }
 
 DEFINE_PTYPE_OPERATOR(>)
@@ -132,11 +124,14 @@ DEFINE_PTYPE_OPERATOR(&=)
 DEFINE_PTYPE_OPERATOR(|=)
 DEFINE_PTYPE_OPERATOR(^=)
 
-#define DEFINE_PTYPE_OPERATOR(OP)                   \
-    template <class T2>                             \
-    PandasType<int> operator OP(const T2 & v) const \
-    {                                               \
-        return value OP v;                          \
+#define DEFINE_PTYPE_OPERATOR(OP)       \
+    template <class T2>                 \
+    bool operator OP(const T2& v) const \
+    {                                   \
+        if (is_nan) {                   \
+            return false;               \
+        }                               \
+        return value OP v;              \
     }
 
 DEFINE_PTYPE_OPERATOR(>)

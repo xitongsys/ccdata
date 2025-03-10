@@ -33,12 +33,10 @@ public:
     {
         for (int i = 0; i < this->size(); i++) {
             T& v = this->iloc(i);
-            // if (value2iid.count(v)) {
-            //     // throw std::format("index {} has duplicated value {}", this->name, i);
-            //     throw 1;
-            // }
-
-            //value2iid[v] = i;
+            if (value2iid.count(v)) {
+                throw std::format("index {} has duplicated value {}", this->name, i);
+            }
+            value2iid[v] = i;
         }
     }
 
