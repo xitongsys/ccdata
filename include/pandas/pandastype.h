@@ -320,7 +320,7 @@ using Str = PandasType<std::string>;
 using Dt = PandasType<Datetime>;
 
 enum PandasTypeId {
-    None_,
+    Obj_,
     Int_,
     Long_,
     Float_,
@@ -345,7 +345,7 @@ constexpr PandasTypeId pandas_type_to_id()
     } else if constexpr (std::is_same_v<T, Dt>) {
         return Dt_;
     } else {
-        static_assert(false, "Unsupported type");
+        return Obj_;
     }
 }
 }

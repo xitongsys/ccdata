@@ -12,97 +12,70 @@
 
 namespace pandas {
 
-class ArrayBase {
+template <class T>
+class Array {
 public:
     std::string name;
     PandasTypeId dtype;
 
-    ArrayBase()
-    {
-        name = "array";
-        dtype = None_;
-    }
-
-    ArrayBase(const std::string& name_, PandasTypeId dtype_)
-    {
-        name = name_;
-        dtype = dtype_;
-    }
-
-    ArrayBase(PandasTypeId dtype_)
-    {
-        name = "array";
-        dtype = dtype_;
-    }
-};
-
-template <class T>
-class Array : public ArrayBase {
-public:
     std::vector<T> values;
 
-    std::optional<std::map<T, int>> indexs;
-
-    void create_index()
-    {
-        indexs = std::move(std::map<T, int>());
-        update_index();
-    }
-
-    void clear_index()
-    {
-        indexs = std::nullopt;
-    }
-
-    void update_index()
-    {
-        if (!indexs.has_value()) {
-            return;
-        }
-
-        auto& mp = indexs.value();
-        mp.clear();
-        for (int i = 0; i < size(); i++) {
-            mp[values[i]] = i;
-        }
-    }
-
     Array()
-        : ArrayBase("array", pandas_type_to_id<T>())
     {
-    }
-
-    Array(const std::string& nm, const std::vector<T>& vals)
-    {
-        name = nm;
-        values = vals;
+        name = "";
         dtype = pandas_type_to_id<T>();
     }
 
-    Array(const Array& ar)
-        : ArrayBase(ar.name, ar.dtype)
+    Array(const std::string& nm)
+        : Array()
     {
-        values = ar.values;
+        name = nm;
+    }
+
+    template <class T2>
+    Array(const std::string& nm, const std::vector<T2>& vals)
+        : Array()
+    {
+        name = nm;
+        dtype = pandas_type_to_id<T>();
+        for (int i = 0; i < vals.size(); i++) {
+            values.push_back((T)(vals[i]));
+        }
+    }
+
+    template <class T2>
+    Array(const Array<T2>& ar)
+    {
+        name = ar.name;
+        dtype = pandas_type_to_id<T>();
+        for (int i = 0; i < ar.size(); i++) {
+            values.push_back((T)(ar.iloc(i)));
+        }
     }
 
     Array(Array&& ar)
-        : ArrayBase(std::move(ar.name), ar.dtype)
     {
+        name = std::move(ar.name);
+        dtype = pandas_type_to_id<T>();
         values = std::move(ar.values);
     }
 
-    Array& operator=(const Array& ar)
+    template <class T2>
+    Array& operator=(const Array<T2>& ar)
     {
         name = ar.name;
-        dtype = ar.dtype;
-        values = ar.values;
+        dtype = pandas_type_to_id<T>();
+        values.clear();
+        for (int i = 0; i < ar.size(); i++) {
+            values.push_back((T)(ar.iloc(i)));
+        }
         return *this;
     }
 
     Array& operator=(Array&& ar)
     {
         name = std::move(ar.name);
-        dtype = ar.dtype;
+        dtype = pandas_type_to_id<T>();
         values = std::move(ar.values);
         return *this;
     }
@@ -124,6 +97,14 @@ public:
     void append(const T& v)
     {
         values.push_back(v);
+    }
+
+    template <class T2>
+    void append(const Array<T2>& ar)
+    {
+        for (int i = 0; i < ar.size(); i++) {
+            append((T)(ar.iloc(i)));
+        }
     }
 
     template <class RT>
@@ -208,559 +189,65 @@ public:
         return v.pow(0.5);
     }
 
-    template <class CT>
-    Array<CT> astype()
-    {
-        std::vector<CT> vs;
-        for (auto& v : values) {
-            vs.push_back(v.astype<CT>());
-        }
-
-        return Array<CT>(name, std::move(vs));
-    }
-
-    Array<Int> operator>(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<Int> res;
-
-        for (int i = 0; i < size(); i++) {
-            if (values[i] > ar.values[i]) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    Array<Int> operator>=(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<Int> res;
-
-        for (int i = 0; i < size(); i++) {
-            if (values[i] >= ar.values[i]) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    Array<Int> operator<(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<Int> res;
-
-        for (int i = 0; i < size(); i++) {
-            if (values[i] < ar.values[i]) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    Array<Int> operator<=(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<Int> res;
-
-        for (int i = 0; i < size(); i++) {
-            if (values[i] <= ar.values[i]) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    Array<Int> operator==(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<Int> res;
-
-        for (int i = 0; i < size(); i++) {
-            if (values[i] == ar.values[i]) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    Array operator&(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<T> res = *this;
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] &= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator&=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] &= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator|(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<T> res = *this;
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] |= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator|=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] |= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator^(Array ar) const
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        Array<T> res = *this;
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] ^= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator^=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] ^= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator~() const
-    {
-        Array<T> res = *this;
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] = ~values[i];
-        }
-        return res;
-    }
-
-    Array operator+(Array ar) const
-    {
-        Array<T> res = *this;
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] += ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator+=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] += ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator-(Array ar) const
-    {
-        Array<T> res = *this;
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] -= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator-=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] -= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator*(Array ar) const
-    {
-        Array<T> res = *this;
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] *= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator*=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] *= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator/(Array ar) const
-    {
-        Array<T> res = *this;
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] /= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator/=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] /= ar.values[i];
-        }
-        return *this;
-    }
-
-    Array operator%(Array ar) const
-    {
-        Array<T> res = *this;
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            res.values[i] %= ar.values[i];
-        }
-        return res;
-    }
-
-    Array operator%=(Array ar)
-    {
-        if (size() != ar.size()) {
-            throw std::format("size not match: {}!={}", size(), ar.size());
-        }
-
-        for (int i = 0; i < size(); i++) {
-            values[i] %= ar.values[i];
-        }
-        return *this;
-    }
-
     template <class T2>
-    Array<Int> operator>(T2 val) const
+    Array<T2> astype()
     {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v > val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array<Int> operator>=(T2 val) const
-    {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v >= val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array<Int> operator<(T2 val) const
-    {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v < val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array<Int> operator<=(T2 val) const
-    {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v <= val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array<Int> operator!=(T2 val) const
-    {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v != val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array<Int> operator==(T2 val) const
-    {
-        Array<Int> res;
-        for (auto& v : values) {
-            if (v == val) {
-                res.append(Int(1));
-            } else {
-                res.append(Int(0));
-            }
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator&(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v &= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator&=(T2 val)
-    {
-        for (auto& v : values) {
-            v &= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator|(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v |= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator|=(T2 val)
-    {
-        for (auto& v : values) {
-            v |= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator^(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v ^= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator^=(T2 val)
-    {
-        for (auto& v : values) {
-            v ^= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator+(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v += val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator+=(T2 val)
-    {
-        for (auto& v : values) {
-            v += val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator-(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v -= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator-=(T2 val)
-    {
-        for (auto& v : values) {
-            v -= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator*(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v *= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator*=(T2 val)
-    {
-        for (auto& v : values) {
-            v *= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator/(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v /= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator/=(T2 val)
-    {
-        for (auto& v : values) {
-            v /= val;
-        }
-        return *this;
-    }
-
-    template <class T2>
-    Array operator%(T2 val) const
-    {
-        Array<T> res = *this;
-        for (auto& v : res.values) {
-            v %= val;
-        }
-        return res;
-    }
-
-    template <class T2>
-    Array operator%=(T2 val)
-    {
-        for (auto& v : values) {
-            v %= val;
-        }
-        return *this;
+        return Array<T2>(*this);
     }
 
     size_t size() const
     {
         return values.size();
+    }
+
+    Array<Int> duplicated(const std::string& keep)
+    {
+        Array<Int> dup;
+        std::map<T, int> mp;
+        if (keep == "first") {
+            for (int i = 0; i < size(); i++) {
+                T& v = iloc(i);
+                if (mp.count(v)) {
+                    dup.append(1);
+                } else {
+                    dup.append(0);
+                }
+                mp[v] = i;
+            }
+        } else if (keep == "last") {
+            for (int i = 0; i < size(); i++) {
+                dup.append(0);
+            }
+            for (int i = size() - 1; i >= 0; i--) {
+                T& v = iloc(i);
+                if (mp.count(v)) {
+                    dup.iloc(i) = 1;
+                } else {
+                    dup.iloc(i) = 0;
+                }
+                mp[v] = i;
+            }
+
+        } else if (keep == "false") {
+            for (int i = 0; i < size(); i++) {
+                T& v = iloc(i);
+                dup.append(0);
+                if (mp.count(v) == 0) {
+                    mp[v] = 0;
+                }
+                mp[v]++;
+            }
+            for (int i = 0; i < size(); i++) {
+                T& v = iloc(i);
+                if (mp.count(v) > 1) {
+                    dup.iloc(i) = 1;
+                }
+            }
+        } else {
+            throw std::format("unknow dedup method: {}", keep);
+        }
+
+        return dup;
     }
 
     std::string to_string(int mx_cnt = 10) const
@@ -797,7 +284,11 @@ public:
 
         Array to_array()
         {
-            return *this;
+            Array res(ar.name);
+            for (int i in ids) {
+                res.append(ar.iloc(i));
+            }
+            return res;
         }
 
         size_t size() const
@@ -805,378 +296,35 @@ public:
             return ids.size();
         }
 
-        void operator=(const T& v)
+        template <class T2>
+        void operator=(const T2& v)
         {
             for (int i : ids) {
-                ar.iloc(i) = v;
+                ar.iloc(i) = (T)(v);
             }
         }
 
-        void operator=(const Array& ar_)
+        template <class T2>
+        void operator=(const Array<T2>& ar_)
         {
             for (int i = 0; i < ids.size() && i < ar_.size(); i++) {
                 ar.iloc(ids[i]) = ar_.iloc(i);
             }
         }
 
-        void operator=(const ArrayPick& ap)
+        template <class T2>
+        void operator=(const ArrayPick<T2>& ap)
         {
             for (int i = 0; i < ids.size() && i < ap.size(); i++) {
-                ar.iloc(ids[i]) = ap.ar.iloc(ap.ids[i]);
+                ar.iloc(ids[i]) = (T)(ap.ar.iloc(ap.ids[i]));
             }
         }
 
-        Array operator&(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] &= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator&=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) &= br.iloc(i);
-            }
-        }
-
-        Array operator|(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] |= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator|=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) |= br.iloc(i);
-            }
-        }
-
-        Array operator^(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] ^= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator^=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) ^= br.iloc(i);
-            }
-        }
-
-        Array operator~() const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] = ~ar.values[i];
-            }
-            return res;
-        }
-
-        Array operator+(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] += ar.values[i];
-            }
-            return res;
-        }
-
-        void operator+=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) += br.iloc(i);
-            }
-        }
-
-        Array operator-(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] -= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator-=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) -= br.iloc(i);
-            }
-        }
-
-        Array operator*(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] *= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator*=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) *= br.iloc(i);
-            }
-        }
-
-        Array operator/(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] /= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator/=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) /= br.iloc(i);
-            }
-        }
-
-        Array operator%(Array ar) const
-        {
-            Array res = *this;
-            if (size() != ar.size()) {
-                throw std::format("size not match: {}!={}", size(), ar.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                res.values[i] %= ar.values[i];
-            }
-            return res;
-        }
-
-        void operator%=(Array br)
-        {
-            if (size() != br.size()) {
-                throw std::format("size not match: {}!={}", size(), br.size());
-            }
-
-            for (int i = 0; i < size(); i++) {
-                ar.iloc(ids[i]) %= br.iloc(i);
-            }
-        }
-
-        template <class T2>
-        Array operator&(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v &= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator&=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) &= val;
-            }
-        }
-
-        template <class T2>
-        Array operator|(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v |= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator|=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) |= val;
-            }
-        }
-
-        template <class T2>
-        Array operator^(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v ^= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator^=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) ^= val;
-            }
-        }
-
-        template <class T2>
-        Array operator+(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v += val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator+=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) += val;
-            }
-        }
-
-        template <class T2>
-        Array operator-(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v -= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator-=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) -= val;
-            }
-        }
-
-        template <class T2>
-        Array operator*(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v *= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator*=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) *= val;
-            }
-        }
-
-        template <class T2>
-        Array operator/(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v /= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator/=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) /= val;
-            }
-        }
-
-        template <class T2>
-        Array operator%(T2 val) const
-        {
-            Array<T> res = *this;
-            for (auto& v : res.values) {
-                v %= val;
-            }
-            return res;
-        }
-
-        template <class T2>
-        void operator%=(T2 val)
-        {
-            for (int id : ids) {
-                ar.iloc(id) %= val;
-            }
-        }
+#include "arraypick_op.tcc"
     };
 
     Array(const ArrayPick& ap)
+        : Array()
     {
         name = ap.ar.name;
         for (int id : ap.ids) {
@@ -1187,6 +335,7 @@ public:
     Array& operator=(const ArrayPick& ap)
     {
         name = ap.ar.name;
+        values.clear();
         for (int id : ap.ids) {
             values.push_back(ap.ar.iloc(id));
         }
@@ -1222,20 +371,10 @@ public:
     ArrayPick loc(const T& bgn, const T& end)
     {
         std::vector<int> ids;
-        if (indexs.has_value()) {
-            auto& mp = indexs.value();
-            auto it = mp.lower_bound(bgn);
-            while (it != mp.end() && it->first < end) {
-                ids.push_back(it->second);
-                it++;
-            }
-
-        } else {
-            for (int i = 0; i < size(); i++) {
-                auto& v = values[i];
-                if (v >= bgn && v < end) {
-                    ids.push_back(i);
-                }
+        for (int i = 0; i < size(); i++) {
+            auto& v = values[i];
+            if (v >= bgn && v <= end) {
+                ids.push_back(i);
             }
         }
         return ArrayPick(*this, ids);

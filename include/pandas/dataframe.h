@@ -7,41 +7,37 @@
 
 namespace pandas {
 
-template <class IT = Int>
+template <class IT = Int, class DT>
 class DataFrame {
 public:
-    std::vector<std::shared_ptr<ArrayBase>> arrs;
+    std::vector<Array<DT>> values;
     Array<IT> index;
-
+    
     DataFrame()
     {
     }
 
-    template <class T>
-    Array<T>& get_col(int i)
+    template <class DT>
+    Array<DT>& get_col(int i)
     {
-        return *std::static_pointer_cast<Array<T>>(arrs[i]);
+        return values[i];
     }
 
-    template <class T>
-    void append_col(const Array<T>& ar)
+    template <class DT>
+    void append_col(const Array<DT>& ar)
     {
-        auto p_ar = std::make_shared<Array<T>>(ar);
-        arrs.push_back(p_ar);
+        arrs.append(ar);
     }
 
-    DataFrame sum()
+    Array<DT> sum()
     {
     }
-
-    template<class T>
 
     std::string to_string()
     {
         std::stringstream ss;
 
         for (auto& p : arrs) {
-           
         }
 
         return ss.str();
