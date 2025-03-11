@@ -23,7 +23,7 @@ public:
     {
         Array<Str> res;
         for (int i = 0; i < values.size(); i++) {
-            res.append(values[i].name);
+            res.append(values[i].name());
         }
         return res;
     }
@@ -65,7 +65,6 @@ public:
     }
 
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
-    template <class DT2>                          \
     Series<Str, DT2> FUN()                        \
     {                                             \
         Index<Str> idx(columns());                \
@@ -76,7 +75,6 @@ public:
         return Series(idx, vals);                 \
     }
 
-    DEFINE_DATAFRAME_FUNCS(Int, size)
     DEFINE_DATAFRAME_FUNCS(Int, count)
     DEFINE_DATAFRAME_FUNCS(DT, sum)
     DEFINE_DATAFRAME_FUNCS(DT, max)
