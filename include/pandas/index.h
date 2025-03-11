@@ -121,4 +121,15 @@ public:
     }
 };
 
+template <class IT1, class IT2>
+Index<IT1> concat(const Index<IT1>& idx1, const Index<IT2>& idx2)
+{
+    Index<IT1> idx_merge = idx1;
+    for (int i = 0; i < idx2.size(); i++) {
+        const IT2& id = idx2.iloc(i);
+        idx_merge.append(id);
+    }
+    return idx_merge;
+}
+
 }

@@ -65,6 +65,7 @@ public:
         for (const T2& v : vals) {
             values.push_back((T)(v));
         }
+        name = nm;
     }
 
     Array(const Array& ar)

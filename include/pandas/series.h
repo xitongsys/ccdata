@@ -99,6 +99,16 @@ public:
         return values.size();
     }
 
+    std::string name() const
+    {
+        return values.name;
+    }
+
+    void set_name(const std::string& name)
+    {
+        values.name = name;
+    }
+
     template <class IT2>
     Series<IT2, DT> reindex(const Index<IT2>& index) const
     {
@@ -114,6 +124,7 @@ public:
             }
             res.append(id, val);
         }
+        res.set_name(name());
         return res;
     }
 
