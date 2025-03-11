@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <ostream>
 #include <sstream>
 #include <vector>
@@ -216,5 +217,64 @@ public:
 
         return SeriesPicker<IT, DT>(*this, iids);
     }
+
+    Series sort_index(bool ascending = true)
+    {
+        using Pair = std::tuple<IT, DT>;
+
+        std::vector<Pair> ps;
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            DT val = values.iloc(i);
+            ps.push_back(std::make_tuple<IT, DT>(std::move(id), std::move(val)));
+        }
+
+        std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
+            if (ascending) {
+                return std::get<0>(pa) < std::get<0>(pb);
+            } else {
+                return std::get<0>(pb) < std::get<0>(pa);
+            }
+        });
+
+        Series res;
+        for (int i = 0; i < ps.size(); i++) {
+            const IT& id = std::get<0>(ps[i]);
+            const DT& val = std::get<1>(ps[i]);
+            res.append(id, val);
+        }
+        return res;
+    }
+
+    Series sort_values(bool ascending = true)
+    {
+        using Pair = std::tuple<IT, DT>;
+
+        std::vector<Pair> ps;
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            DT val = values.iloc(i);
+            ps.push_back(std::make_tuple<IT, DT>(std::move(id), std::move(val)));
+        }
+
+        std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
+            if (ascending) {
+                return std::get<1>(pa) < std::get<1>(pb);
+            } else {
+                return std::get<1>(pb) < std::get<1>(pa);
+            }
+        });
+
+        Series res;
+        for (int i = 0; i < ps.size(); i++) {
+            const IT& id = std::get<0>(ps[i]);
+            const DT& val = std::get<1>(ps[i]);
+            res.append(id, val);
+        }
+        return res;
+    }
+
+#include "pandas/series_functional.tcc"
+#include "pandas/series_group.tcc"
 };
 }

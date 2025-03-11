@@ -135,88 +135,6 @@ public:
         }
     }
 
-    template <class RT>
-    Array map(std::function<RT(const T&)> const& func)
-    {
-        Array<RT> res;
-        res.name = name;
-        for (int i = 0; i < size(); i++) {
-            res.append(func(values[i]));
-        }
-        return res;
-    }
-
-    template <class RT>
-    RT agg(std::function<RT(const Array&)> const& func)
-    {
-        return func(*this);
-    }
-
-    T max() const
-    {
-        T res;
-        for (auto& v : values) {
-            if (res.is_nan || v > res) {
-                res = v;
-            }
-        }
-        return res;
-    }
-
-    T min() const
-    {
-        T res;
-        for (auto& v : values) {
-            if (res.is_nan || v < res) {
-                res = v;
-            }
-        }
-        return res;
-    }
-
-    long long count() const
-    {
-        long long cnt = 0;
-        for (auto& v : values) {
-            cnt += v.is_nan;
-        }
-        return cnt;
-    }
-
-    T sum() const
-    {
-        T s = 0;
-        for (auto& v : values) {
-            s = s + v;
-        }
-        return s;
-    }
-
-    Double mean() const
-    {
-        Double c(double(count()));
-        Double s = sum().astype<Double>();
-        return s / c;
-    }
-
-    Double var() const
-    {
-        double s = 0;
-        double mn = mean().value;
-        for (auto& v : values) {
-            double vv = double(v.value);
-            s += (vv - s) * (vv - s);
-        }
-        double v = s / count();
-        return Double(v);
-    }
-
-    Double std() const
-    {
-        Double v = var();
-        return v.pow(0.5);
-    }
-
     template <class T2>
     Array<T2> astype()
     {
@@ -278,6 +196,25 @@ public:
         return dup;
     }
 
+    Array<T> reverse()
+    {
+        Array<T> ar = *this;
+        for (int i = 0, j = size() - 1; i < j; i++, j--) {
+            std::swap(ar.values[i], ar.values[j]);
+        }
+        return ar;
+    }
+
+    Array<T> sort(bool ascending = true)
+    {
+        Array<T> ar = *this;
+        sort(ar.values.begin(), ar.values.end());
+        if (!ascending) {
+            return ar.reverse();
+        }
+        return ar;
+    }
+
     std::string to_string(int mx_cnt = 10) const
     {
         std::string vs = "";
@@ -297,73 +234,6 @@ public:
 
         std::string s = std::format("{}:[{}]", name, vs);
         return s;
-    }
-
-    template <class KT>
-    class ArrayGroup {
-    public:
-        std::map<KT, Array> ars;
-
-        ArrayGroup() { }
-
-        ArrayGroup(const ArrayGroup& ag)
-        {
-            ars = ag.ars;
-        }
-
-        ArrayGroup(ArrayGroup&& ag)
-        {
-            ars = std::move(ag.ars);
-        }
-
-        void append(const KT& key, const T& value)
-        {
-            if (ars.count(key) == 0) {
-                ars[key] = Array();
-            }
-            ars[key].append(value);
-        }
-
-        std::tuple<Array<KT>, Array<Int>> count()
-        {
-            return agg<Int>([](const Array& ar) -> Int { return Int(ar.size()); });
-        }
-
-        std::tuple<Array<KT>, Array> sum()
-        {
-            return agg<T>([](const Array& ar) -> Int { return ar.sum(); });
-        }
-
-        template <class RT>
-        std::tuple<Array<KT>, Array<RT>> agg(std::function<RT(const Array&)> const& func)
-        {
-            Array<KT> keys;
-            Array<RT> values;
-
-            for (auto it = ars.begin(); it != ars.end(); it++) {
-                KT key = it->first;
-                Array ar = it->second;
-                RT value = func(ar);
-                keys.append(key);
-                values.append(value);
-            }
-
-            return std::make_tuple<>(keys, values);
-        }
-    };
-
-    template <class KT>
-    ArrayGroup<KT> groupby(const Array<KT>& keys) const
-    {
-        if (keys.size() != size()) {
-            throw std::format("size not match: key size {}!={}", size(), keys.size());
-        }
-
-        ArrayGroup<KT> ag;
-        for (int i = 0; i < size(); i++) {
-            ag.append(keys.iloc(i), iloc(i));
-        }
-        return ag;
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Array& ar)

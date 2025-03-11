@@ -67,7 +67,7 @@ struct PandasType {
     PandasType pow(double n) const
     {
 
-        if (is_nan) {
+        if (isnan()) {
             return PandasType<T>();
         }
 
@@ -76,11 +76,16 @@ struct PandasType {
 
     PandasType abs() const
     {
-        if (is_nan) {
+        if (isnan()) {
             return PandasType<T>();
         }
 
         return PandasType<T>(abs(value));
+    }
+
+    bool isnan() const
+    {
+        return is_nan;
     }
 
     template <class T>
@@ -95,7 +100,7 @@ struct PandasType {
     template <>
     PandasType<std::string> astype() const
     {
-        if (is_nan) {
+        if (isnan()) {
             return PandasType<std::string>();
         }
 
@@ -104,7 +109,7 @@ struct PandasType {
 
     std::string to_string() const
     {
-        if (is_nan) {
+        if (isnan()) {
             return "nan";
         }
 
