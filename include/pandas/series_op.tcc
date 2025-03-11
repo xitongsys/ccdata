@@ -1,5 +1,8 @@
 #pragma once
 
+// template<class IT, class DT>
+// class Series {
+
 #define DEFINE_SERIES_OPERATOR(OP)                       \
     template <class T2>                                  \
     Series operator OP(T2 val) const                     \
@@ -79,7 +82,7 @@ DEFINE_SERIES_OPERATOR(~)
     template <class T2>                                            \
     Series<IT, Bool> operator OP(T2 val) const                     \
     {                                                              \
-        Index<IT> index = this->index;                             \
+        Index<IT> index = this->index();                           \
         Array<Bool> values = this->values OP val;                  \
         return Series(index, values);                              \
     }                                                              \
@@ -94,8 +97,8 @@ DEFINE_SERIES_OPERATOR(~)
         for (int i = 0; i < sr.size(); i++) {                      \
             index.append(sr.pidx->iloc(i));                        \
         }                                                          \
-        auto sr1 = this->reindex(index);                           \
-        auto sr2 = sr.reindex(index);                              \
+        Series<IT, DT> sr1 = this->reindex(index);                 \
+        Series<IT, DT2> sr2 = sr.reindex(index);                   \
         Array<Bool> vals = sr1.values OP sr2.values;               \
         return Series(index, vals);                                \
     }

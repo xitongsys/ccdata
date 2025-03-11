@@ -85,6 +85,11 @@ public:
         return *pidx;
     }
 
+    const Index<IT>& index() const
+    {
+        return *pidx;
+    }
+
     size_t size() const
     {
         return values.size();
@@ -108,30 +113,6 @@ public:
         return res;
     }
 
-    const DT& loc(const IT& id) const
-    {
-        return values.iloc(pidx->loc(id));
-    }
-
-    DT& loc(const IT& id)
-    {
-        if (!pidx->has(id)) {
-            pidx->append(id);
-            values.append(DT {});
-        }
-
-        return values.iloc(pidx->loc(id));
-    }
-
-    DT& iloc(int iid)
-    {
-        if (iid >= size()) {
-            throw std::format("index overflow {} > {}", iid, size());
-        }
-
-        return values.iloc(iid);
-    }
-
     std::string to_string() const
     {
         std::stringstream ss;
@@ -149,5 +130,82 @@ public:
     }
 
 #include "pandas/series_op.tcc"
+#include "pandas/series_picker.tcc"
+
+    const DT& loc(const IT& id) const
+    {
+        return values.iloc(pidx->loc(id));
+    }
+
+    DT& loc(const IT& id)
+    {
+        if (!pidx->has(id)) {
+            pidx->append(id);
+            values.append(DT {});
+        }
+
+        return values.iloc(pidx->loc(id));
+    }
+
+       DT& iloc(int iid)
+    {
+        if (iid >= size()) {
+            throw std::format("index overflow {} > {}", iid, size());
+        }
+
+        return values.iloc(iid);
+    }
+
+    DT iloc(int iid) const
+    {
+        if (iid >= size()) {
+            throw std::format("index overflow {} > {}", iid, size());
+        }
+
+        return values.iloc(iid);
+    }
+
+    SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1)
+    {
+        return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
+    }
+
+    SeriesPicker<IT, DT> loc(const DT& bgn, const DT& end)
+    {
+        std::vector<int> iids = pidx->loc(bgn, end);
+        return SeriesPicker<IT, DT>(*this, iids);
+    }
+
+    SeriesPicker<IT, DT> loc(const Index<IT>& idx)
+    {
+        std::vector<int> iids;
+        for (int i = 0; i < idx.size(); i++) {
+            IT& id = idx.iloc(i);
+            if (!has(id)) {
+                throw std::format("key not found {}", id.to_string());
+            }
+            iids.push_back(pidx->loc(id));
+        }
+
+        return SeriesPicker<IT, DT>(*this, iids);
+    }
+
+    SeriesPicker<IT, DT> loc(const Series<IT, Bool>& mask)
+    {
+        if (mask.size() != size()) {
+            throw std::format("size not match: {}!={}", mask.size(), size());
+        }
+        std::vector<int> iids;
+
+        for (int i = 0; i < mask.size(); i++) {
+            Bool flag = mask.iloc(i);
+            IT& id = mask.pidx->iloc(i);
+            if (flag == true) {
+                iids.push_back(pidx->loc(id));
+            }
+        }
+
+        return SeriesPicker<IT, DT>(*this, iids);
+    }
 };
 }

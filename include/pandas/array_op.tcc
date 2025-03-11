@@ -80,32 +80,24 @@ DEFINE_ARRAY_OPERATOR(~)
 
 #define DEFINE_ARRAY_OPERATOR(OP)                                           \
     template <class T2>                                                     \
-    Array<Int> operator OP(const T2 & val) const                            \
+    Array<Bool> operator OP(const T2 & val) const                           \
     {                                                                       \
-        Array<Int> res;                                                     \
+        Array<Bool> res;                                                    \
         for (auto& v : values) {                                            \
-            if (v OP val) {                                                 \
-                res.append(Int(1));                                         \
-            } else {                                                        \
-                res.append(Int(0));                                         \
-            }                                                               \
+            res.append(v OP val);                                           \
         }                                                                   \
         return res;                                                         \
     }                                                                       \
                                                                             \
     template <class T2>                                                     \
-    Array<Int> operator OP(const Array<T2>& ar) const                       \
+    Array<Bool> operator OP(const Array<T2>& ar) const                      \
     {                                                                       \
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
         }                                                                   \
-        Array<Int> res;                                                     \
+        Array<Bool> res;                                                    \
         for (int i = 0; i < size(); i++) {                                  \
-            if (values[i] OP ar.values[i]) {                                \
-                res.append(Int(1));                                         \
-            } else {                                                        \
-                res.append(Int(0));                                         \
-            }                                                               \
+            res.append(values[i] OP ar.values[i]);                          \
         }                                                                   \
         return res;                                                         \
     }

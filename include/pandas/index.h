@@ -86,7 +86,7 @@ public:
         if (has((T)(v))) {
             return;
         }
-        
+
         value2iid[(T)(v)] = this->size();
         Array<T>::append((T)(v));
     }
@@ -99,6 +99,19 @@ public:
         } else {
             throw std::format("key not found");
         }
+    }
+
+    std::vector<int> loc(const T& bgn, const T& end)
+    {
+        std::vector<int> iids;
+        if (end < bgn) {
+            return iids;
+        }
+        auto upper = value2iid.upper_bound(end);
+        for (auto it = value2iid.lower_bound(bgn); it != upper; it++) {
+            iids.push_back(it->second);
+        }
+        return iids;
     }
 };
 

@@ -1,22 +1,24 @@
 #pragma once
 
 // template<class IT, class DT>
-// class Series
+// class Series {
+
+template <class IT, class DT>
 class SeriesPicker {
 public:
-    Series& sr;
+    Series<IT, DT>& sr;
     std::vector<int> iids;
 
-    SeriesPicker(Series& sr_, const std::vector<int>& iids_)
+    SeriesPicker(Series<IT, DT>& sr_, const std::vector<int>& iids_)
         : sr(sr_)
         , iids(iids_)
     {
     }
 
-    Series to_series()
+    Series<IT, DT> to_series()
     {
-        Series res;
-        for (int i in iids) {
+        Series<IT, DT> res;
+        for (int i : iids) {
             IT& id = sr.index.iloc(i);
             DT& val = sr.values.iloc(i);
             res.append(id, val);
@@ -33,30 +35,30 @@ public:
     void operator=(const T2& v)
     {
         for (int i : iids) {
-            sr.iloc(i) = (T)(v);
+            sr.iloc(i) = (DT)(v);
         }
     }
 
     template <class DT2>
-    void operator=(const Array<DT2>& ar2)
+    void operator=(const Array<DT2>& ar)
     {
-        if (ar2.size() != size()) {
-            throw std::format("size not match: {} != {}", ar2.size(), size());
+        if (ar.size() != size()) {
+            throw std::format("size not match: {} != {}", ar.size(), size());
         }
         for (int i = 0; i < iids.size(); i++) {
-            sr.iloc(iids[i]) = (DT)(ar2.iloc(i));
+            sr.iloc(iids[i]) = (DT)(ar.iloc(i));
         }
     }
 
-    template <class IT2, DT2>
+    template <class IT2, class DT2>
     void operator=(const Series<IT2, DT2>& sr2)
     {
         if (sr2.size() != size()) {
-            throw std::format("size not match: {} != {}", sr.size(), size());
+            throw std::format("size not match: {} != {}", sr2.size(), size());
         }
 
         for (int i = 0; i < iids.size(); i++) {
-            IT2& id = sr.pidx->iloc(iids[i]);
+            IT& id = sr.pidx->iloc(iids[i]);
             if (!sr2.has(id)) {
                 throw std::format("key not found: {}", id);
             }
