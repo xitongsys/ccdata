@@ -15,12 +15,12 @@ public:
     {
     }
 
-    Series<IT, DT> to_series()
+    Series<IT, DT> to_series() const
     {
         Series<IT, DT> res;
         for (int i : iids) {
-            IT& id = sr.index.iloc(i);
-            DT& val = sr.values.iloc(i);
+            const IT& id = sr.pidx->iloc(i);
+            const DT& val = sr.values.iloc(i);
             res.append(id, val);
         }
         return res;

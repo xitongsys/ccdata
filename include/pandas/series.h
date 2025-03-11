@@ -178,6 +178,11 @@ public:
         return values.iloc(iid);
     }
 
+    SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1) const
+    {
+        return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
+    }
+
     SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1)
     {
         return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
@@ -331,5 +336,6 @@ public:
 
 #include "pandas/series_functional.tcc"
 #include "pandas/series_group.tcc"
+#include "pandas/series_rolling.tcc"
 };
 }
