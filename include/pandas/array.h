@@ -84,7 +84,18 @@ public:
         dtype = pandas_type_to_id<T>();
         values.clear();
         for (int i = 0; i < ar.size(); i++) {
-            values.push_back((T)(ar.iloc(i)));
+            values.push_back(ar.iloc(i));
+        }
+        return *this;
+    }
+
+    Array& operator=(const Array& ar)
+    {
+        name = ar.name;
+        dtype = pandas_type_to_id<T>();
+        values.clear();
+        for (int i = 0; i < ar.size(); i++) {
+            values.push_back(ar.iloc(i));
         }
         return *this;
     }

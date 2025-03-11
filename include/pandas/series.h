@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+#include <sstream>
 #include <vector>
 
 #include "pandas/array.h"
@@ -8,7 +10,7 @@
 
 namespace pandas {
 
-template <class IT = Int, class DT>
+template <class IT, class DT>
 class Series {
 public:
     std::shared_ptr<Index<IT>> pidx = nullptr;
@@ -30,6 +32,9 @@ public:
 
     Series(const Index<IT>& idx, const Array<DT>& vals)
     {
+        if (idx.size() != vals.size()) {
+            throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
+        }
         pidx = std::make_shared<Index<IT>>(idx);
         values = vals;
     }
@@ -42,6 +47,12 @@ public:
 
     template <class IT2, class DT2>
     Series(const Series<IT2, DT2>& sr)
+    {
+        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        values = sr.values;
+    }
+
+    Series(const Series& sr)
     {
         pidx = std::make_shared<Index<IT>>(*sr.pidx);
         values = sr.values;
@@ -68,7 +79,7 @@ public:
         return *this;
     }
 
-    Index& index()
+    Index<IT>& index()
     {
         return *pidx;
     }
@@ -79,12 +90,12 @@ public:
     }
 
     template <class IT2>
-    Series<IT2, DT> reindex(const Index<IT2>& index)
+    Series<IT2, DT> reindex(const Index<IT2>& index) const
     {
         Series<IT2, DT> res;
 
         for (int i = 0; i < index.size(); i++) {
-            IT2& id = index.iloc(i);
+            IT2 id = index.iloc(i);
             DT val = DT {};
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
@@ -94,11 +105,16 @@ public:
         return res;
     }
 
+    const DT& loc(const IT& id) const
+    {
+        return values.iloc(pidx->loc(id));
+    }
+
     DT& loc(const IT& id)
     {
         if (!pidx->has(id)) {
             pidx->append(id);
-            values.append(T {});
+            values.append(DT {});
         }
 
         return values.iloc(pidx->loc(id));
@@ -112,5 +128,23 @@ public:
 
         return values.iloc(iid);
     }
+
+    std::string to_string() const
+    {
+        std::stringstream ss;
+        for (int i = 0; i < size(); i++) {
+            ss << pidx->iloc(i) << " " << values.iloc(i) << std::endl;
+        }
+        ss << "Name: " << values.name << " Size: " << size() << std::endl;
+        return ss.str();
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const Series& sr)
+    {
+        os << sr.to_string();
+        return os;
+    }
+
+#include "pandas/series_op.tcc"
 };
 }
