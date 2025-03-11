@@ -75,7 +75,7 @@ public:
         }
     }
 
-    bool has(const T& v)
+    bool has(const T& v) const
     {
         return value2iid.count(v) > 0;
     }

@@ -115,7 +115,7 @@ public:
         return values[iid];
     }
 
-    T iloc(int iid) const
+    const T& iloc(int iid) const
     {
         int n = values.size();
         iid = ((iid % n) + n) % n;

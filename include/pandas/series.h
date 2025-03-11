@@ -113,6 +113,15 @@ public:
         return res;
     }
 
+    template <class IT2, class DT2>
+    Series<IT2, DT2> astype()
+    {
+        auto idx = pidx->astype<IT2>();
+        auto vals = values.astype<DT2>();
+
+        return Series<IT2, DT2>(idx, vals);
+    }
+
     std::string to_string() const
     {
         std::stringstream ss;
@@ -147,7 +156,7 @@ public:
         return values.iloc(pidx->loc(id));
     }
 
-       DT& iloc(int iid)
+    DT& iloc(int iid)
     {
         if (iid >= size()) {
             throw std::format("index overflow {} > {}", iid, size());
@@ -156,7 +165,7 @@ public:
         return values.iloc(iid);
     }
 
-    DT iloc(int iid) const
+    const DT& iloc(int iid) const
     {
         if (iid >= size()) {
             throw std::format("index overflow {} > {}", iid, size());
