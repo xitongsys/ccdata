@@ -81,6 +81,13 @@ public:
         return *this;
     }
 
+    Series& operator=(const Series& sr)
+    {
+        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        values = sr.values;
+        return *this;
+    }
+
     Index<IT>& index()
     {
         return *pidx;
@@ -218,7 +225,7 @@ public:
         return SeriesPicker<IT, DT>(*this, iids);
     }
 
-    Series sort_index(bool ascending = true)
+    Series sort_index(bool ascending = true) const
     {
         using Pair = std::tuple<IT, DT>;
 
@@ -246,7 +253,7 @@ public:
         return res;
     }
 
-    Series sort_values(bool ascending = true)
+    Series sort_values(bool ascending = true) const
     {
         using Pair = std::tuple<IT, DT>;
 
@@ -270,6 +277,36 @@ public:
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
             res.append(id, val);
+        }
+        return res;
+    }
+
+    Series dropna() const
+    {
+        Series res;
+        for (int i = 0; i < size(); i++) {
+            if (iloc(i).isnan()) {
+                continue;
+            }
+            const IT& id = pidx->iloc(i);
+            const DT& val = values.iloc(i);
+            res.append(id, val);
+        }
+        return res;
+    }
+
+    template <class DT2>
+    Series fillna(const DT2& v) const
+    {
+        Series res;
+        for (int i = 0; i < size(); i++) {
+            const IT& id = pidx->iloc(i);
+            const DT& val = values.iloc(i);
+            if (val.isnan()) {
+                res.append(id, v);
+            } else {
+                res.append(id, val);
+            }
         }
         return res;
     }

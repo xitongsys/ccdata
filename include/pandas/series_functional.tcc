@@ -96,3 +96,24 @@ Double var() const
     }
     return s / count();
 }
+
+Double std() const
+{
+    Double v = var();
+    return v.pow(0.5);
+}
+
+Double median() const
+{
+    Series<IT,DT> sr = sort_values();
+    int n = sr.size();
+    if (n == 0) {
+        return Double {};
+    }
+
+    if (n % 2 == 0) {
+        return (sr.iloc(n / 2) + sr.iloc(n / 2 - 1)) / 2;
+    } else {
+        return sr.iloc(n / 2);
+    }
+}

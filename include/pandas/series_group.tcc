@@ -42,20 +42,20 @@ public:
         return res;
     }
 
-    Series<KT, Int> count()
-    {
-        return agg<Int>([](const Series& sr) -> Int { return Int(sr.count()); });
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                               \
+    Series<KT, TYPE> FUN()                                                   \
+    {                                                                        \
+        return agg<TYPE>([](const Series& sr) -> TYPE { return sr.FUN(); }); \
     }
-
-    Series<KT, Int> size()
-    {
-        return agg<Int>([](const Series& sr) -> Int { return Int(sr.size()); });
-    }
-
-    Series<KT, DT> sum()
-    {
-        return agg<DT>([](const Series& sr) -> DT { return sr.sum(); });
-    }
+    DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
+    DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
+    DEFINE_SERIESGROUP_AGG_FUNC(DT, min)
+    DEFINE_SERIESGROUP_AGG_FUNC(Int, size)
+    DEFINE_SERIESGROUP_AGG_FUNC(Int, count)
+    DEFINE_SERIESGROUP_AGG_FUNC(Double, mean)
+    DEFINE_SERIESGROUP_AGG_FUNC(Double, var)
+    DEFINE_SERIESGROUP_AGG_FUNC(Double, std)
+    DEFINE_SERIESGROUP_AGG_FUNC(Double, median)
 };
 
 template <class KT>
