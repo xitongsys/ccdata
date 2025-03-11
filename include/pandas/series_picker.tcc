@@ -73,4 +73,6 @@ public:
         Series<IT2, DT2> ds = sp2.to_series();
         (*this) = ds;
     }
+
+#include "pandas/series_picker_op.tcc"
 };
