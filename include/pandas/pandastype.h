@@ -165,4 +165,7 @@ constexpr PandasTypeId pandas_type_to_id()
         return Obj_;
     }
 }
+
+#include "pandas/pandastype_str.tcc"
+
 }
