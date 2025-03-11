@@ -22,23 +22,19 @@ public:
         pidx = std::make_shared<Index<IT>>();
     }
 
-    Series(const Array<DT>& vals)
-    {
-        pidx = std::make_shared<Index<Int>>();
-        values = vals;
-
-        for (int i = 0; i < vals.size(); i++) {
-            pidx->append(i);
-        }
-    }
-
     Series(const Index<IT>& idx, const Array<DT>& vals)
     {
-        if (idx.size() != vals.size()) {
+        if (vals.size() == 0) {
+            pidx = std::make_shared<Index<IT>>(idx);
+            values = Array<DT>(idx.size(), DT {});
+
+        } else if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
+
+        } else {
+            pidx = std::make_shared<Index<IT>>(idx);
+            values = vals;
         }
-        pidx = std::make_shared<Index<IT>>(idx);
-        values = vals;
     }
 
     void append(const IT& id, const DT& val)
@@ -277,6 +273,28 @@ public:
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
             res.append(id, val);
+        }
+        return res;
+    }
+
+    Series shift(int offset) const
+    {
+        Series res = *this;
+        for (int i = 0; i < size(); i++) {
+            res.iloc(i) = DT {};
+        }
+
+        if (abs(offset) >= size()) {
+            // nothing to do
+        } else if (offset > 0) {
+            for (int i = offset; i < size(); i++) {
+                res.iloc(i) = iloc(i - offset);
+            }
+
+        } else if (offset < 0) {
+            for (int i = 0; i < size() + offset; i++) {
+                res.iloc(i) = iloc(i - offset);
+            }
         }
         return res;
     }

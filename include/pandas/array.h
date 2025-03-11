@@ -27,6 +27,12 @@ public:
         dtype = pandas_type_to_id<T>();
     }
 
+    Array(size_t size, const T& init_val)
+        : Array()
+    {
+        values = std::vector<T>(size, init_val);
+    }
+
     Array(const std::string& nm)
         : Array()
     {

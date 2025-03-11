@@ -23,6 +23,12 @@ public:
     {
     }
 
+    Index(size_t n, const T& init_val)
+        : Array(n, init_val)
+    {
+        update_index();
+    }
+
     Index(const Index& ir)
         : Array<T>(ir)
     {
