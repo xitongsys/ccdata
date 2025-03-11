@@ -86,6 +86,7 @@ public:
         if (has((T)(v))) {
             return;
         }
+        
         value2iid[(T)(v)] = this->size();
         Array<T>::append((T)(v));
     }

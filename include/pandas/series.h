@@ -18,6 +18,7 @@ public:
 
     Series()
     {
+        pidx = std::make_shared<Index<IT>>();
     }
 
     Series(const Array<DT>& vals)
@@ -95,8 +96,10 @@ public:
         Series<IT2, DT> res;
 
         for (int i = 0; i < index.size(); i++) {
+
             IT2 id = index.iloc(i);
             DT val = DT {};
+
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
             }
