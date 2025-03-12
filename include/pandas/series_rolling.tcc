@@ -17,7 +17,7 @@ public:
     template <class DT2>
     Series<IT, DT2> agg(std::function<DT2(const Series&)> const& func) const
     {
-        Series<IT, DT2> res;
+        Series<IT, DT2> res(sr.pidx->new_empty());
         for (int i = 0; i < sr.size(); i++) {
             const IT& id = sr.pidx->iloc(i);
             int b = std::max(0, i - window + 1), e = i;
@@ -39,7 +39,6 @@ public:
     DEFINE_SERIESROLLING_AGG_FUNC(DT, sum)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, max)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, min)
-    DEFINE_SERIESROLLING_AGG_FUNC(Int, size)
     DEFINE_SERIESROLLING_AGG_FUNC(Int, count)
     DEFINE_SERIESROLLING_AGG_FUNC(Double, mean)
     DEFINE_SERIESROLLING_AGG_FUNC(Double, var)

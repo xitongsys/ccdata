@@ -17,7 +17,8 @@ public:
 
     Series<IT, DT> to_series() const
     {
-        Series<IT, DT> res;
+        auto pidx = sr.pidx->new_empty();
+        Series<IT, DT> res(pidx);
         for (int i : iids) {
             const IT& id = sr.pidx->iloc(i);
             const DT& val = sr.values.iloc(i);
