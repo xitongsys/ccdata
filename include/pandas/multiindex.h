@@ -22,25 +22,157 @@ class _MultiIndex<level> { };
 template <size_t level, class T, class... Ts>
 class _MultiIndex<level, T, Ts...> : public _MultiIndex<level + 1, Ts...> {
 public:
+    using PARENT = _MultiIndex<level + 1, Ts...>;
+
     _MultiIndex(const Array<T>& vs, const Array<Ts>&... vss)
-        : values(vs)
-        , _MultiIndex<level + 1, Ts...>(vss...)
+        : _values(vs)
+        , PARENT(vss...)
     {
+        if constexpr (level == 0) {
+            update_index();
+        }
     }
 
-    std::tuple<T, Ts...> iloc(int i)
+    void update_index()
     {
-        const size_t n_tail = sizeof...(Ts);
-        std::tuple<T> t(values.iloc(i));
-        if constexpr (n_tail > 0) {
-            std::tuple<Ts...> ts = _MultiIndex<level + 1, Ts...>::iloc(i);
+        value2iid.clear();
+        for (int i = 0; i < size(); i++) {
+            std::tuple<T, Ts...> key = iloc(i);
+            if (value2iid.count(key) > 0) {
+                throw std::format("MultiIndex has duplicated key");
+            }
+            int n = value2iid.size();
+            value2iid[key] = n;
+        }
+    }
+
+    int loc(const std::tuple<T, Ts...>& key) const
+    {
+        if (!has(key)) {
+            throw std::format("key not found");
+        }
+        return value2iid[key];
+    }
+
+    int loc(const T& k, const Ts&... ks)
+    {
+        std::tuple<T, Ts...> key(k, ks...);
+        return has(key);
+    }
+
+    bool has(const std::tuple<T, Ts...>& key) const
+    {
+        return value2iid.count(key) > 0;
+    }
+
+    bool has(const T& k, const Ts&... ks) const
+    {
+        std::tuple<T, Ts...> key(k, ks...);
+        return value2iid.count(key) > 0;
+    }
+
+    int append_values(const T& k, const Ts&... ks)
+    {
+        if constexpr (level == 0) {
+            if (has(k, ks...)) {
+                return -1;
+            }
+        }
+
+        _values.append(k);
+
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        if constexpr (N_TAIL > 0) {
+            PARENT::append_values(ks...);
+        }
+
+        std::tuple<T, Ts...> key(k, ks...);
+        int n = value2iid.size();
+        value2iid[key] = n;
+
+        return 0;
+    }
+
+    int append_key(const std::tuple<T, Ts...>& key)
+    {
+        if constexpr (level == 0) {
+            if (has(key)) {
+                return -1;
+            }
+        }
+
+        T k = std::get<0>(key);
+        _values.append(k);
+
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        if constexpr (N_TAIL > 0) {
+            PARENT::append_key(remove_first_element(key));
+        }
+
+        return 0;
+    }
+
+    std::tuple<T&, Ts&...> iloc(int i)
+    {
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        std::tuple<T&> t(_values.iloc(i));
+        if constexpr (N_TAIL > 0) {
+            std::tuple<Ts&...> ts = PARENT::iloc(i);
             return std::tuple_cat(t, ts);
         } else {
             return t;
         }
     }
 
-    Array<T> values;
+    std::tuple<Array<T>&, Array<Ts>&...> values()
+    {
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        std::tuple<Array<T>&> v(_values);
+        if constexpr (N_TAIL > 0) {
+            std::tuple<Array<Ts>&...> vs = PARENT::values();
+            return std::tuple_cat(v, vs);
+
+        } else {
+            return v;
+        }
+    }
+
+    template <size_t l, class T2>
+    Array<T2>& get_level_values()
+    {
+        auto vs = values();
+        return std::get<l>(vs);
+    }
+
+    size_t size() const
+    {
+        return _values.size();
+    }
+
+    Array<T> _values;
+
+    std::map<std::tuple<T, Ts...>, int> value2iid;
+
+    std::string to_string() const
+    {
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        std::stringstream ss;
+
+        if constexpr (level == 0) {
+            ss << "MultiIndex: {\n";
+        }
+
+        ss << _values.to_string() << "\n";
+        if constexpr (N_TAIL > 0) {
+            ss << PARENT::to_string();
+        }
+
+        if constexpr (level == 0) {
+            ss << "}";
+        }
+
+        return ss.str();
+    }
 };
 
 template <class... Ts>
@@ -50,6 +182,26 @@ public:
         : _MultiIndex<0, Ts...>(vss...)
     {
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const MultiIndex<Ts...>& mi)
+    {
+        os << mi.to_string();
+        return os;
+    }
 };
+
+template <class... Ts>
+MultiIndex<Ts...> concat(const MultiIndex<Ts...>& ma, const MultiIndex<Ts...>& mb)
+{
+    MultiIndex<Ts...> mc = ma;
+    for (int i = 0; i < mb.size(); i++) {
+        std::tuple<Ts...> key = mb.iloc(i);
+        if (ma.has(key)) {
+            continue;
+        }
+        mc.append_key(key);
+    }
+    return mc;
+}
 
 }
