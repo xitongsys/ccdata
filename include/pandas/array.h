@@ -134,6 +134,11 @@ public:
         values.push_back(v);
     }
 
+    void clear()
+    {
+        values.clear();
+    }
+
     template <class T2>
     void append(const Array<T2>& ar)
     {

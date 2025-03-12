@@ -14,6 +14,9 @@
 
 namespace pandas {
 
+template <class T>
+class Index;
+
 template <size_t, class... Ts>
 class _MultiIndex;
 
@@ -143,6 +146,16 @@ public:
         }
 
         return 0;
+    }
+
+    void clear()
+    {
+        _values.clear();
+        value2iid.clear();
+        constexpr size_t N_TAIL = sizeof...(Ts);
+        if constexpr (N_TAIL > 0) {
+            PARENT::clear();
+        }
     }
 
     int loc(const std::tuple<T, Ts...>& key)
@@ -298,6 +311,11 @@ public:
         return PARENT::append_key(key);
     }
 
+    void clear()
+    {
+        PARENT::clear();
+    }
+
     std::tuple<Ts...> iloc(int i)
     {
         return PARENT::iloc(i);
@@ -321,6 +339,19 @@ public:
     std::vector<int> loc(const std::tuple<Ts...>& bgn, const std::tuple<Ts...>& end)
     {
         return PARENT::loc(bgn, end);
+    }
+
+    std::shared_ptr<Index<std::tuple<Ts...>>> clone() const
+    {
+        auto ptr = std::make_shared<MultiIndex<Ts...>>(*this);
+        return ptr;
+    }
+
+    std::shared_ptr<Index<std::tuple<Ts...>>> new_empty() const
+    {
+        auto ptr = clone();
+        ptr->clear();
+        return ptr;
     }
 
     std::string to_string() const

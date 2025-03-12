@@ -31,17 +31,20 @@ public:
         }
     }
 
-    Series(const Index<IT>& idx, const Array<DT>& vals)
+    template <class T>
+    Series(const T& idx, const Array<DT>& vals)
     {
         if (vals.size() == 0) {
-            pidx = std::make_shared<Index<IT>>(idx);
+            auto ptr = std::make_shared<T>(idx);
+            pidx = std::static_pointer_cast<Index<IT>>(ptr);
             values = Array<DT>(idx.size(), DT {});
 
         } else if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
 
         } else {
-            pidx = std::make_shared<Index<IT>>(idx);
+            auto ptr = std::make_shared<T>(idx);
+            pidx = std::static_pointer_cast<Index<IT>>(ptr);
             values = vals;
         }
     }
@@ -55,13 +58,13 @@ public:
     template <class IT2, class DT2>
     Series(const Series<IT2, DT2>& sr)
     {
-        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        pidx = sr.pidx->clone();
         values = sr.values;
     }
 
     Series(const Series& sr)
     {
-        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        pidx = sr.pidx->clone();
         values = sr.values;
     }
 
@@ -74,7 +77,7 @@ public:
     template <class IT2, class DT2>
     Series& operator=(const Series<IT2, DT2>& sr)
     {
-        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        pidx = sr.pidx->clone();
         values = sr.values;
         return *this;
     }
@@ -88,19 +91,15 @@ public:
 
     Series& operator=(const Series& sr)
     {
-        pidx = std::make_shared<Index<IT>>(*sr.pidx);
+        pidx = sr.pidx->clone();
         values = sr.values;
         return *this;
     }
 
-    Index<IT>& index()
+    template <class T>
+    T& index()
     {
-        return *pidx;
-    }
-
-    const Index<IT>& index() const
-    {
-        return *pidx;
+        return *std::static_pointer_cast<T>(pidx);
     }
 
     size_t size() const

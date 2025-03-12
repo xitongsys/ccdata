@@ -15,6 +15,9 @@
 namespace pandas {
 
 template <class T>
+class Index;
+
+template <class T>
 class SingleIndex : public Index<T> {
 public:
     Array<T> _values;
@@ -70,6 +73,12 @@ public:
     size_t size() const
     {
         return _values.size();
+    }
+
+    void clear()
+    {
+        _values.clear();
+        value2iid.clear();
     }
 
     void update_index()
@@ -161,6 +170,19 @@ public:
             }
         }
         return si;
+    }
+
+    std::shared_ptr<Index<T>> clone() const
+    {
+        auto ptr = std::make_shared<SingleIndex>(*this);
+        return ptr;
+    }
+
+    std::shared_ptr<Index<T>> new_empty() const
+    {
+        auto ptr = clone();
+        ptr->clear();
+        return ptr;
     }
 
     std::string to_string() const
