@@ -21,7 +21,7 @@ public:
         for (int i = 0; i < sr.size(); i++) {
             const IT& id = sr.pidx->iloc(i);
             int b = std::max(0, i - window + 1), e = i;
-            Series ds = sr.iloc(b, e + 1).to_series();
+            Series ds = sr.iloc(b, e + 1).to_emptyindex_series();
             if (ds.count() < min_periods) {
                 res.append(id, DT2 {});
             } else {

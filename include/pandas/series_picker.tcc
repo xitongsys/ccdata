@@ -27,6 +27,17 @@ public:
         return res;
     }
 
+    Series<IT, DT> to_emptyindex_series() const
+    {
+        std::shared_ptr<Index<IT>> pidx = std::make_shared<EmptyIndex<IT>>();
+        Series<IT, DT> res(pidx);
+        for (int i : iids) {
+            const DT& val = sr.values.iloc(i);
+            res.append(IT {}, val);
+        }
+        return res;
+    }
+
     size_t size() const
     {
         return iids.size();

@@ -14,9 +14,6 @@
 
 namespace pandas {
 
-template <class T>
-class Index;
-
 template <size_t, class... Ts>
 class _MultiIndex;
 

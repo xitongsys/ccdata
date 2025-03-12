@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 
+#include "emptyindex.h"
 #include "pandas/array.h"
 #include "pandas/index.h"
 #include "pandas/pandastype.h"

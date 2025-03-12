@@ -15,9 +15,6 @@
 namespace pandas {
 
 template <class T>
-class Index;
-
-template <class T>
 class SingleIndex : public Index<T> {
 public:
     Array<T> _values;
