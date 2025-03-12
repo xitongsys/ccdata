@@ -19,7 +19,13 @@ public:
 
     Series()
     {
-        pidx = std::make_shared<Index<IT>>();
+    }
+
+    template <class T>
+    Series(const T& idx)
+    {
+        auto ptr = std::make_shared<T>(idx);
+        pidx = std::static_pointer_cast<Index<IT>>(ptr);
     }
 
     Series(const Index<IT>& idx, const Array<DT>& vals)

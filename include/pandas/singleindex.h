@@ -15,7 +15,7 @@
 namespace pandas {
 
 template <class T>
-class SingleIndex : Index<T> {
+class SingleIndex : public Index<T> {
 public:
     Array<T> _values;
     std::map<T, int> value2iid;
@@ -28,6 +28,12 @@ public:
         : _values(n, init_val)
     {
         update_index();
+    }
+
+    SingleIndex(const SingleIndex& si)
+    {
+        _values = si._values;
+        value2iid = si.value2iid;
     }
 
     SingleIndex(SingleIndex&& ir)
