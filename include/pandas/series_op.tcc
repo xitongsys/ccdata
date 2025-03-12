@@ -107,9 +107,8 @@ DEFINE_SERIES_OPERATOR(~)
     template <class T2>                                                     \
     Series<IT, Bool> operator OP(const T2 & val) const                      \
     {                                                                       \
-        Index<IT> index = this->index();                                    \
         Array<Bool> values = this->values OP val;                           \
-        return Series(index, values);                                       \
+        return Series(this->pidx, values);                                  \
     }                                                                       \
                                                                             \
     template <class DT2>                                                    \
@@ -119,7 +118,7 @@ DEFINE_SERIES_OPERATOR(~)
             throw std::format("size not match: {}!={}", ar.size(), size()); \
         }                                                                   \
         Array<Bool> vals = values OP ar;                                    \
-        return Series(index(), vals);                                       \
+        return Series(pidx, vals);                                          \
     }                                                                       \
                                                                             \
     template <class IT2, class DT2>                                         \

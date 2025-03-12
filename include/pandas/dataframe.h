@@ -4,8 +4,10 @@
 #include <vector>
 
 #include "pandas/array.h"
+#include "pandas/index.h"
 #include "pandas/pandastype.h"
 #include "pandas/series.h"
+#include "pandas/singleindex.h"
 
 namespace pandas {
 
