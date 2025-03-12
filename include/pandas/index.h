@@ -14,122 +14,21 @@
 namespace pandas {
 
 template <class T>
-class Index : public Array<T> {
+class Index {
 public:
-    std::map<T, int> value2iid;
+    virtual std::string name() const = 0;
+    virtual size_t size() const = 0;
+    virtual void update_index() = 0;
+    virtual bool has(const T& key) const = 0;
+    virtual int append(const T& key) = 0;
 
-    Index()
-        : Array<T>()
-    {
-    }
+    virtual int loc(const T& key) = 0;
+    virtual std::vector<int> loc(const T& bgn, const T& end) = 0;
 
-    Index(size_t n, const T& init_val)
-        : Array(n, init_val)
-    {
-        update_index();
-    }
-
-    Index(const Index& ir)
-        : Array<T>(ir)
-    {
-        update_index();
-    }
-
-    Index(Index&& ir)
-        : Array<T>(ir)
-    {
-        value2iid = std::move(ir.value2iid);
-    }
-
-    template <class T2>
-    Index& operator=(const Index<T2>& ir)
-    {
-        Array<T>::operator=(ir);
-        update_index();
-        return *this;
-    }
-
-    Index& operator=(const Index& ir)
-    {
-        Array<T>::operator=(ir);
-        update_index();
-        return *this;
-    }
-
-    Index& operator=(Index&& ir)
-    {
-        update_index();
-        return *this;
-    }
-
-    template <class T2>
-    Index(const Array<T2>& ar)
-        : Array<T>(ar)
-    {
-        update_index();
-    }
-
-    void update_index()
-    {
-        value2iid.clear();
-        for (int i = 0; i < this->size(); i++) {
-            T& v = this->iloc(i);
-            if (value2iid.count(v)) {
-                throw std::format("index '{}' has duplicated value {}", this->name, v.to_string());
-            }
-            value2iid[v] = i;
-        }
-    }
-
-    bool has(const T& v) const
-    {
-        return value2iid.count(v) > 0;
-    }
-
-    template <class T2>
-    void append(const T2& v)
-    {
-        if (has((T)(v))) {
-            return;
-        }
-
-        value2iid[(T)(v)] = this->size();
-        Array<T>::append((T)(v));
-    }
-
-    int loc(const T& v)
-    {
-        if (value2iid.count(v)) {
-            int i = value2iid[v];
-            return i;
-        } else {
-            throw std::format("key not found");
-        }
-    }
-
-    std::vector<int> loc(const T& bgn, const T& end)
-    {
-        std::vector<int> iids;
-        if (end < bgn) {
-            return iids;
-        }
-        auto upper = value2iid.upper_bound(end);
-        for (auto it = value2iid.lower_bound(bgn); it != upper; it++) {
-            iids.push_back(it->second);
-        }
-        return iids;
-    }
+    virtual T iloc(int i) = 0;
+    virtual std::vector<T> iloc(int bgn, int end, int step = 1) = 0;
+    
+    virtual std::string to_string() const = 0;
 };
-
-template <class IT1, class IT2>
-Index<IT1> concat(const Index<IT1>& idx1, const Index<IT2>& idx2)
-{
-    Index<IT1> idx_merge = idx1;
-    for (int i = 0; i < idx2.size(); i++) {
-        const IT2& id = idx2.iloc(i);
-        idx_merge.append(id);
-    }
-    return idx_merge;
-}
 
 }
