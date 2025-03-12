@@ -21,6 +21,23 @@ public:
     {
     }
 
+    Series(std::shared_ptr<Index<IT>> pidx)
+    {
+        this->pidx = pidx;
+        for (int i = 0; i < pidx->size(); i++) {
+            values.append(DT {});
+        }
+    }
+
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals)
+    {
+        if (pidx->size() != vals.size()) {
+            throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
+        }
+        this->pidx = pidx;
+        values = vals;
+    }
+
     template <class T>
     Series(const T& idx)
     {
@@ -34,19 +51,12 @@ public:
     template <class T>
     Series(const T& idx, const Array<DT>& vals)
     {
-        if (vals.size() == 0) {
-            auto ptr = std::make_shared<T>(idx);
-            pidx = std::static_pointer_cast<Index<IT>>(ptr);
-            values = Array<DT>(idx.size(), DT {});
-
-        } else if (idx.size() != vals.size()) {
+        if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
-
-        } else {
-            auto ptr = std::make_shared<T>(idx);
-            pidx = std::static_pointer_cast<Index<IT>>(ptr);
-            values = vals;
         }
+        auto ptr = std::make_shared<T>(idx);
+        pidx = std::static_pointer_cast<Index<IT>>(ptr);
+        values = vals;
     }
 
     void append(const IT& id, const DT& val)
@@ -94,12 +104,6 @@ public:
         pidx = sr.pidx->clone();
         values = sr.values;
         return *this;
-    }
-
-    template <class T>
-    T& index()
-    {
-        return *std::static_pointer_cast<T>(pidx);
     }
 
     size_t size() const
