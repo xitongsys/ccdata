@@ -24,6 +24,11 @@ class _MultiIndex<level, T, Ts...> : public _MultiIndex<level + 1, Ts...> {
 public:
     using PARENT = _MultiIndex<level + 1, Ts...>;
 
+    _MultiIndex()
+        : PARENT()
+    {
+    }
+
     _MultiIndex(const Array<T>& vs, const Array<Ts>&... vss)
         : _values(vs)
         , PARENT(vss...)
@@ -46,7 +51,7 @@ public:
         }
     }
 
-    int loc(const std::tuple<T, Ts...>& key) const
+    int loc(const std::tuple<T, Ts...>& key)
     {
         if (!has(key)) {
             throw std::format("key not found");
@@ -57,7 +62,7 @@ public:
     int loc(const T& k, const Ts&... ks)
     {
         std::tuple<T, Ts...> key(k, ks...);
-        return has(key);
+        return loc(key);
     }
 
     bool has(const std::tuple<T, Ts...>& key) const
@@ -110,6 +115,27 @@ public:
         }
 
         return 0;
+    }
+
+    _MultiIndex<level, T, Ts...> iloc(int bgn, int end, int step = 1)
+    {
+        _MultiIndex<level, T, Ts...> mi;
+        for (int i = bgn; i < end; i += step) {
+            std::tuple<T, Ts...> key = iloc(i);
+            mi.append_key(key);
+        }
+        return mi;
+    }
+
+    _MultiIndex<level, T, Ts...> loc(const std::tuple<T, Ts...>& bgn, const std::tuple<T, Ts...>& end)
+    {
+        _MultiIndex<level, T, Ts...> mi;
+        auto up = value2iid.upper_bound(end);
+        for (auto it = value2iid.lower_bound(bgn); it != up & it != value2iid.end(); it++) {
+            std::tuple<T, Ts...> key = iloc(it->second);
+            mi.append_key(key);
+        }
+        return mi;
     }
 
     std::tuple<T&, Ts&...> iloc(int i)
@@ -178,9 +204,47 @@ public:
 template <class... Ts>
 class MultiIndex : public _MultiIndex<0, Ts...> {
 public:
+    using PARENT = _MultiIndex<0, Ts...>;
+    MultiIndex()
+        : _MultiIndex<0, Ts...>()
+    {
+    }
+
+    MultiIndex(const PARENT& p)
+        : PARENT(p)
+    {
+    }
+
     MultiIndex(const Array<Ts>&... vss)
         : _MultiIndex<0, Ts...>(vss...)
     {
+    }
+
+    MultiIndex<Ts...> iloc(int bgn, int end, int step = 1)
+    {
+        _MultiIndex<0, Ts...> mi = PARENT::iloc(bgn, end, step);
+        return MultiIndex<Ts...>(mi);
+    }
+
+    std::tuple<Ts&...> iloc(int i)
+    {
+        return PARENT::iloc(i);
+    }
+
+    MultiIndex<Ts...> loc(const std::tuple<Ts...>& bgn, const std::tuple<Ts...>& end)
+    {
+        _MultiIndex<0, Ts...> mi = PARENT::loc(bgn, end);
+        return MultiIndex<Ts...>(mi);
+    }
+
+    int loc(const std::tuple<Ts...>& key)
+    {
+        return PARENT::loc(key);
+    }
+
+    int loc(const Ts... vs)
+    {
+        return PARENT::loc(vs...);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const MultiIndex<Ts...>& mi)

@@ -103,8 +103,8 @@ void test1()
 
 void test2()
 {
-    Array<Int> id1({ 1, 2, 2 });
-    Array<Int> id2({ 2, 3, 4 });
+    Array<Int> id1({ 1, 2, 2 }, "id1");
+    Array<Int> id2({ 2, 3, 4 }, "id2");
     MultiIndex<Int, Int> idx(id1, id2);
 
     std::tuple<Int, Int> a = idx.iloc(1);
@@ -119,11 +119,17 @@ void test2()
     cout << b << endl;
 
     idx.append_values(3, 3);
-    idx.append_key(std::tuple<Int,Int>(4,4));
+    idx.append_key(std::tuple<Int, Int>(4, 4));
 
     cout << idx << endl;
 
     cout << idx.loc(2, 3) << endl;
+
+    cout << "===================" << endl;
+
+    cout << idx.iloc(0, 2) << endl;
+
+    cout << idx.loc(std::tuple<Int, Int>(2, 3), std::tuple<Int, Int>(1000, 1000)) << endl;
 }
 
 int main()
