@@ -26,6 +26,9 @@ public:
     {
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<Index<IT>>(ptr);
+        for (int i = 0; i < pidx->size(); i++) {
+            values.append(DT {});
+        }
     }
 
     Series(const Index<IT>& idx, const Array<DT>& vals)
@@ -146,10 +149,8 @@ public:
     std::string to_string() const
     {
         std::stringstream ss;
-        for (int i = 0; i < size(); i++) {
-            ss << pidx->iloc(i) << " " << values.iloc(i) << std::endl;
-        }
-        ss << "Name: " << values.name << " Size: " << size() << std::endl;
+        ss << pidx->to_string() << "\n";
+        ss << values.to_string() << "\n";
         return ss.str();
     }
 
