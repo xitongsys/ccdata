@@ -61,6 +61,9 @@ public:
 
     void append(const IT& id, const DT& val)
     {
+        if (pidx->has(id)) {
+            throw std::format("append failed: duplicated key");
+        }
         pidx->append(id);
         values.append(val);
     }

@@ -349,9 +349,7 @@ public:
 
     std::shared_ptr<Index<std::tuple<Ts...>>> new_empty() const
     {
-        auto ptr = clone();
-        ptr->clear();
-        return ptr;
+        return std::make_shared<MultiIndex<Ts...>>();
     }
 
     std::string to_string() const

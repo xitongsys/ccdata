@@ -180,9 +180,7 @@ public:
 
     std::shared_ptr<Index<T>> new_empty() const
     {
-        auto ptr = clone();
-        ptr->clear();
-        return ptr;
+        return std::make_shared<SingleIndex<T>>();
     }
 
     std::string to_string() const
