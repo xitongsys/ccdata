@@ -76,12 +76,24 @@ public:
         return value2iid.count(key) > 0;
     }
 
+    _MultiIndex<level, T, Ts...> sort() const
+    {
+        _MultiIndex<level, T, Ts...> mi;
+        for (auto it = value2iid.begin(); it != value2iid.end(); it++) {
+            mi.append_key(it->first);
+        }
+        return mi;
+    }
+
     int append_values(const T& k, const Ts&... ks)
     {
         if constexpr (level == 0) {
             if (has(k, ks...)) {
                 return -1;
             }
+            std::tuple<T, Ts...> key(k, ks...);
+            int n = value2iid.size();
+            value2iid[key] = n;
         }
 
         _values.append(k);
@@ -90,10 +102,6 @@ public:
         if constexpr (N_TAIL > 0) {
             PARENT::append_values(ks...);
         }
-
-        std::tuple<T, Ts...> key(k, ks...);
-        int n = value2iid.size();
-        value2iid[key] = n;
 
         return 0;
     }
@@ -104,6 +112,8 @@ public:
             if (has(key)) {
                 return -1;
             }
+            int n = value2iid.size();
+            value2iid[key] = n;
         }
 
         T k = std::get<0>(key);
@@ -175,10 +185,6 @@ public:
         return _values.size();
     }
 
-    Array<T> _values;
-
-    std::map<std::tuple<T, Ts...>, int> value2iid;
-
     std::string to_string() const
     {
         constexpr size_t N_TAIL = sizeof...(Ts);
@@ -199,6 +205,27 @@ public:
 
         return ss.str();
     }
+
+    std::tuple<T, Ts...> min()
+    {
+        if (value2iid.size() == 0) {
+            throw std::format("Empty MultiIndex");
+        }
+        return value2iid.begin()->first;
+    }
+
+    std::tuple<T, Ts...> max()
+    {
+        if (value2iid.size() == 0) {
+            throw std::format("Empty MultiIndex");
+        }
+        return value2iid.rbegin()->first;
+    }
+
+public:
+    Array<T> _values;
+
+    std::map<std::tuple<T, Ts...>, int> value2iid;
 };
 
 template <class... Ts>
@@ -234,6 +261,12 @@ public:
     MultiIndex<Ts...> loc(const std::tuple<Ts...>& bgn, const std::tuple<Ts...>& end)
     {
         _MultiIndex<0, Ts...> mi = PARENT::loc(bgn, end);
+        return MultiIndex<Ts...>(mi);
+    }
+
+    MultiIndex<Ts...> sort()
+    {
+        _MultiIndex<0, Ts...> mi = PARENT::sort();
         return MultiIndex<Ts...>(mi);
     }
 
