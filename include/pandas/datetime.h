@@ -67,16 +67,4 @@ public:
     // TimeDelta operator-(const Datetime& t);
 };
 
-template <>
-std::string to_string(const Datetime& dt)
-{
-    return "datetime";
-}
-
-template <>
-bool isnan(const Datetime& dt)
-{
-    return false;
-}
-
 }

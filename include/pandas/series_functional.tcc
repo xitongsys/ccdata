@@ -32,7 +32,7 @@ DT sum() const
     DT s(0);
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
-        if (v.isnan()) {
+        if (isnan(v)) {
             continue;
         }
         s += v;
@@ -45,7 +45,7 @@ DT max() const
     DT res;
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
-        if (res.isnan() || v > res) {
+        if (isnan(res) || v > res) {
             res = v;
         }
     }
@@ -57,7 +57,7 @@ DT min() const
     DT res;
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
-        if (res.isnan() || v < res) {
+        if (isnan(res) || v < res) {
             res = v;
         }
     }
@@ -69,7 +69,7 @@ Int count() const
     Int cnt = 0;
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
-        if (!v.isnan()) {
+        if (!isnan(v)) {
             cnt += 1;
         }
     }
@@ -89,7 +89,7 @@ Double var() const
     Double s = 0;
     for (int i = 0; i < size(); i++) {
         const Double& v = iloc(i);
-        if (v.isnan()) {
+        if (isnan(v)) {
             continue;
         }
         s += (v - mn) * (v - mn);

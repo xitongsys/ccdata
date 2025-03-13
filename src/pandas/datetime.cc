@@ -66,4 +66,18 @@ void Datetime::strptime(const std::string& s, const std::string& fmt)
     t = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }
 
+/////////////////////////
+
+template <>
+std::string to_string(const Datetime& dt)
+{
+    return "datetime";
+}
+
+template <>
+bool isnan(const Datetime& dt)
+{
+    return false;
+}
+
 }

@@ -333,7 +333,7 @@ public:
     {
         Series res;
         for (int i = 0; i < size(); i++) {
-            if (iloc(i).isnan()) {
+            if (isnan(iloc(i))) {
                 continue;
             }
             const IT& id = pidx->iloc(i);
@@ -350,7 +350,7 @@ public:
         for (int i = 0; i < size(); i++) {
             const IT& id = pidx->iloc(i);
             const DT& val = values.iloc(i);
-            if (val.isnan()) {
+            if (isnan(val)) {
                 res.append(id, v);
             } else {
                 res.append(id, val);

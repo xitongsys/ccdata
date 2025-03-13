@@ -14,13 +14,10 @@ bool isnan(const T& v)
 template <class T>
 std::string to_string(const T& v)
 {
+    if (isnan(v)) {
+        return "nan";
+    }
     return std::to_string(v);
-}
-
-template <>
-std::string to_string(const std::string& v)
-{
-    return v;
 }
 
 } // namespace pandas
