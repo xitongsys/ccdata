@@ -115,17 +115,13 @@ public:
         return *this;
     }
 
-    T& iloc(int iid)
+    inline T& iloc(int iid)
     {
-        int n = values.size();
-        iid = ((iid % n) + n) % n;
         return values[iid];
     }
 
-    const T& iloc(int iid) const
+    inline const T& iloc(int iid) const
     {
-        int n = values.size();
-        iid = ((iid % n) + n) % n;
         return values[iid];
     }
 
