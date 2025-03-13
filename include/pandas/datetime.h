@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+#include "pandas/ops.h"
+
 namespace pandas {
 
 class TimeDelta {
@@ -64,5 +66,17 @@ public:
     // Datetime operator-=(const TimeDelta& dt);
     // TimeDelta operator-(const Datetime& t);
 };
+
+template <>
+std::string to_string(const Datetime& dt)
+{
+    return "datetime";
+}
+
+template <>
+bool isnan(const Datetime& dt)
+{
+    return false;
+}
 
 }

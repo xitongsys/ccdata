@@ -225,22 +225,22 @@ public:
 
     std::string to_string(int mx_cnt = 10) const
     {
-        std::string vs = "";
+        std::stringstream ss;
         if (size() > mx_cnt) {
             for (int i = 0; i < mx_cnt / 2; i++) {
-                vs += values[i].to_string() + ",";
+                ss << values[i] << ",";
             }
-            vs += "...";
+            ss << "...";
             for (int i = size() - mx_cnt / 2; i < size(); i++) {
-                vs += values[i].to_string() + ",";
+                ss << values[i] << ",";
             }
         } else {
             for (int i = 0; i < size(); i++) {
-                vs += values[i].to_string() + ",";
+                ss << values[i] << ",";
             }
         }
 
-        std::string s = std::format("{}:[{}]", name, vs);
+        std::string s = std::format("{}:[{}]", name, ss.str());
         return s;
     }
 
