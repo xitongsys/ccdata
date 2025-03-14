@@ -1,6 +1,5 @@
 #pragma once
 
-#include "pandas/visitor.h"
 
 // template<class IT, class DT>
 // class Series {
@@ -33,7 +32,9 @@ public:
     template <class DT2>
     Series<KT, DT2> agg(std::function<DT2(const Visitor<DT>&)> const& func)
     {
-        Series<KT, DT2> res;
+        SingleIndex<KT> id;
+        Series<KT, DT2> res(id);
+
         for (auto it = srs.begin(); it != srs.end(); it++) {
             KT key = it->first;
             Array<DT>& sr = it->second;
@@ -44,9 +45,9 @@ public:
         return res;
     }
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                               \
-    Series<KT, TYPE> FUN()                                                   \
-    {                                                                        \
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                    \
+    Series<KT, TYPE> FUN()                                                        \
+    {                                                                             \
         return agg<TYPE>([](const Visitor<DT>& sr) -> TYPE { return sr.FUN(); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
@@ -83,9 +84,9 @@ SeriesGroup<KT> groupby(const Series<IT, KT>& sr) const
         throw std::format("size not match: {}!={}", sr.size(), size());
     }
     for (int i = 0; i < sr.size(); i++) {
-        const IT& id = sr.pidx->iloc(i);
-        const KT& key = sr.iloc(i);
+        const IT& id = pidx->iloc(i);
         const DT& val = loc(id);
+        const KT& key = sr.iloc(i);
         sg.append(key, val);
     }
     return sg;

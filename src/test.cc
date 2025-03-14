@@ -18,9 +18,9 @@ void test2()
 {
     SingleIndex<int> si1;
     Series<int, double> sr1(si1);
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 300000; i++) {
 
-        sr1.append(i + 10, 10.5);
+        sr1.append(i + 10, i);
     }
 
     cout << sr1 << endl;
