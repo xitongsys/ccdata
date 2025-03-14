@@ -71,13 +71,13 @@ public:
         return {};
     }
 
-    std::shared_ptr<Index<T>> clone() const
+    std::shared_ptr<Index<T>> new_clone() const
     {
         auto ptr = std::make_shared<EmptyIndex<T>>(*this);
         return ptr;
     }
 
-    std::shared_ptr<Index<T>> new_empty() const
+    std::shared_ptr<Index<T>> new_index() const
     {
         return std::make_shared<EmptyIndex<T>>();
     }
@@ -93,5 +93,7 @@ public:
         return os;
     }
 };
+
+
 
 }

@@ -20,11 +20,13 @@ public:
     std::shared_ptr<Index<IT>> pidx = nullptr;
     Array<DT> values;
 
-    Series()
+    Series(const std::string& name = "")
     {
+        pidx = std::make_shared<SingleIndex<IT>>();
+        values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx)
+    Series(std::shared_ptr<Index<IT>> pidx, const std::string& name = "")
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
@@ -41,18 +43,25 @@ public:
         values = vals;
     }
 
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name)
+        : Series(pidx, vals)
+    {
+        values.name = name;
+    }
+
     template <class T>
-    Series(const T& idx)
+    Series(const T& idx, const std::string& name = "")
     {
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<Index<IT>>(ptr);
         for (int i = 0; i < pidx->size(); i++) {
             values.append(DT {});
         }
+        values.name = name;
     }
 
     template <class T>
-    Series(const T& idx, const Array<DT>& vals)
+    Series(const T& idx, const Array<DT>& vals, const std::string& name = "")
     {
         if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
@@ -60,6 +69,7 @@ public:
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<Index<IT>>(ptr);
         values = vals;
+        values.name = name;
     }
 
     void append(const IT& id, const DT& val)
@@ -80,7 +90,7 @@ public:
 
     Series(const Series& sr)
     {
-        pidx = sr.pidx->clone();
+        pidx = sr.pidx->new_clone();
         values = sr.values;
     }
 
@@ -130,13 +140,11 @@ public:
     template <class IT2>
     Series<IT2, DT> reindex(const Index<IT2>& index) const
     {
-        Series<IT2, DT> res;
+        Series<IT2, DT> res(index.new_index());
 
         for (int i = 0; i < index.size(); i++) {
-
             IT2 id = index.iloc(i);
-            DT val = DT {};
-
+            DT val = pandas::nan<DT>();
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
             }
@@ -369,6 +377,5 @@ Series<IT1, DT1> concat_0(const Series<IT1, DT1>& sr1, const Series<IT2, DT2>& s
     }
     return sr1;
 }
-
 
 }

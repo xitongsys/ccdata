@@ -34,8 +34,8 @@ public:
 
     virtual std::string to_string() const = 0;
 
-    virtual std::shared_ptr<Index<T>> clone() const = 0;
-    virtual std::shared_ptr<Index<T>> new_empty() const = 0;
+    virtual std::shared_ptr<Index<T>> new_index() const = 0;
+    virtual std::shared_ptr<Index<T>> new_clone() const = 0;
 };
 
 }

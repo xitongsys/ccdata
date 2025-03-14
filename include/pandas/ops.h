@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <format>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -20,12 +21,14 @@ template <class T>
 T nan()
 {
     if constexpr (std::is_same_v<T, double>) {
-        return std::nan();
+        return std::nan("");
     }
     if constexpr (std::is_same_v<T, float>) {
         return std::nanf();
     }
-    static_assert(false, "type has no nan");
+
+    throw std::format("type has no nan");
+    return T {};
 }
 
 template <class T>

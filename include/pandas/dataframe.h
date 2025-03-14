@@ -57,19 +57,16 @@ public:
             ss << values[i].name() << ",";
         }
         ss << "]\n";
-        for (int i = 0; i < size(); i++) {
-            for (int j = 0; j < size(1); j++) {
-                ss << values[j].iloc(i) << ",";
-            }
-            ss << "\n";
+        for (int i = 0; i < size(1); i++) {
+            ss << pandas::to_string(values[i]) << "\n";
         }
         return ss.str();
     }
 
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
-    Series<Str, DT2> FUN()                        \
+    Series<std::string, DT2> FUN()                \
     {                                             \
-        Index<Str> idx(columns());                \
+        SingleIndex<std::string> idx(columns());  \
         Array<DT2> vals;                          \
         for (int i = 0; i < values.size(); i++) { \
             vals.append(values[i].FUN());         \
@@ -77,26 +74,38 @@ public:
         return Series(idx, vals);                 \
     }
 
-    DEFINE_DATAFRAME_FUNCS(Int, count)
+    DEFINE_DATAFRAME_FUNCS(int, count)
     DEFINE_DATAFRAME_FUNCS(DT, sum)
     DEFINE_DATAFRAME_FUNCS(DT, max)
     DEFINE_DATAFRAME_FUNCS(DT, min)
-    DEFINE_DATAFRAME_FUNCS(Double, mean)
-    DEFINE_DATAFRAME_FUNCS(Double, var)
-    DEFINE_DATAFRAME_FUNCS(Double, std)
-    DEFINE_DATAFRAME_FUNCS(Double, median)
+    DEFINE_DATAFRAME_FUNCS(double, mean)
+    DEFINE_DATAFRAME_FUNCS(double, var)
+    DEFINE_DATAFRAME_FUNCS(double, std)
+
+
+    friend std::ostream& operator<<(std::ostream& os, const DataFrame& df)
+    {
+        os << df.to_string();
+        return os;
+    }
 };
 
 template <class IT, class DT>
 DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 {
-    Index<IT> idx = concat(sr1.index(), sr2.index());
+    SingleIndex<IT> idx;
+    for (int i = 0; i < sr1.size(); i++) {
+        idx.append(sr1.pidx->iloc(i));
+    }
+    for (int i = 0; i < sr2.size(); i++) {
+        idx.append(sr2.pidx->iloc(i));
+    }
 
     Series<IT, DT> sr1_new = sr1.reindex(idx);
     Series<IT, DT> sr2_new = sr2.reindex(idx);
 
     DataFrame<IT, DT> df;
-    df.pidx = std::make_shared<Index<IT>>(idx);
+    df.pidx = std::make_shared<SingleIndex<IT>>(idx);
     sr1_new.pidx = df.pidx;
     sr2_new.pidx = df.pidx;
 
