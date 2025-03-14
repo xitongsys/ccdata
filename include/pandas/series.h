@@ -357,4 +357,18 @@ public:
 #include "pandas/series_group.tcc"
 #include "pandas/series_rolling.tcc"
 };
+
+template <class IT1, class DT1, class IT2, class DT2>
+Series<IT1, DT1> concat_0(const Series<IT1, DT1>& sr1, const Series<IT2, DT2>& sr2)
+{
+    Series<IT1, DT1> sr = sr1;
+    for (int i = 0; i < sr2.size(); i++) {
+        const IT2& id = sr2.pidx->iloc(i);
+        const DT2& val = sr2.iloc(i);
+        sr1.append(id, val);
+    }
+    return sr1;
+}
+
+
 }

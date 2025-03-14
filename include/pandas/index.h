@@ -23,11 +23,14 @@ public:
     virtual int append(const T& key) = 0;
     virtual void clear() = 0;
 
+    // pos by value
     virtual int loc(const T& key) = 0;
     virtual std::vector<int> loc(const T& bgn, const T& end) = 0;
 
-    virtual T iloc(int i) = 0;
-    virtual std::vector<T> iloc(int bgn, int end, int step = 1) = 0;
+    // value by pos
+    virtual T iloc(int i) const = 0;
+    virtual T& iloc(int i) = 0;
+    virtual std::vector<T> iloc(int bgn, int end, int step = 1) const = 0;
 
     virtual std::string to_string() const = 0;
 

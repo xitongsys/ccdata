@@ -46,7 +46,7 @@ public:
     {
         name = ar.name;
         for (int i = 0; i < ar.size(); i++) {
-            values.push_back((T)(ar.iloc(i)));
+            values.push_back(ar.iloc(i));
         }
     }
 
@@ -229,15 +229,15 @@ public:
         std::stringstream ss;
         if (size() > mx_cnt) {
             for (int i = 0; i < mx_cnt / 2; i++) {
-                ss << values[i] << ",";
+                ss << pandas::to_string(values[i]) << ",";
             }
             ss << "...";
             for (int i = size() - mx_cnt / 2; i < size(); i++) {
-                ss << values[i] << ",";
+                ss << pandas::to_string(values[i]) << ",";
             }
         } else {
             for (int i = 0; i < size(); i++) {
-                ss << values[i] << ",";
+                ss << pandas::to_string(values[i]) << ",";
             }
         }
 
@@ -253,5 +253,47 @@ public:
 
 #include "pandas/array_op.tcc"
 };
+
+template <class T>
+Array<T> concat_0(const Array<T>& ar)
+{
+    Array<T> res = ar;
+    return res;
+}
+
+template <class T, class... Ts>
+Array<T> concat_0(const Array<T>& ar, const Array<Ts...>& ars)
+{
+    Array<T> res = ar;
+    Array<T> res_tail = concat_0(ars);
+    for (int i = 0; i < res_tail.size(); i++) {
+        res.append(res_tail.iloc(i));
+    }
+    return res;
+}
+
+template <class T>
+Array<std::tuple<T>> concat_1(const Array<T>& ar)
+{
+    Array<std::tuple<T>> res;
+    for (int i = 0; i < ar.size(); i++) {
+        res.append(std::tuple(ar.iloc(i)));
+    }
+    return res;
+}
+
+template <class T, class... Ts>
+Array<std::tuple<T, Ts...>> concat_1(const Array<T>& ar, const Array<Ts...>& ars)
+{
+    Array<std::tuple<T, Ts...>> res;
+    Array<std::tuple<Ts...>> res_tail = concat_1(ars);
+
+    for (int i = 0; i < res_tail.size(); i++) {
+        const T& v = ar.iloc(i);
+        std::tuple<Ts...> v_tail = res_tail.iloc(i);
+        res.append(add_first_element(v, v_tail));
+    }
+    return res;
+}
 
 }

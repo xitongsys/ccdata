@@ -129,12 +129,17 @@ public:
         return iids;
     }
 
-    T iloc(int i)
+    T iloc(int i) const
     {
         return _values.iloc(i);
     }
 
-    std::vector<T> iloc(int bgn, int end, int step = 1)
+    T& iloc(int i)
+    {
+        return _values.iloc(i);
+    }
+
+    std::vector<T> iloc(int bgn, int end, int step = 1) const
     {
         std::vector<T> vs;
         for (int i = bgn; i < end; i += step) {

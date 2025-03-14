@@ -88,7 +88,7 @@ public:
 };
 
 template <class IT, class DT>
-DataFrame<IT, DT> concat(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
+DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 {
     Index<IT> idx = concat(sr1.index(), sr2.index());
 
