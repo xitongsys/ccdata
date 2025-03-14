@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.8)
 
+add_compile_options(/W0)
+
+
 project ("ccdata")
 #add_library(ccdata )
 add_executable(test 
