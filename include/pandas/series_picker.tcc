@@ -53,11 +53,6 @@ public:
         return sr.iloc(iids[i]);
     }
 
-    int count() const
-    {
-        return size();
-    }
-
     template <class T2>
     void operator=(const T2& v)
     {

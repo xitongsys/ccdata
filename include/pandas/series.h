@@ -14,7 +14,7 @@
 namespace pandas {
 
 template <class IT, class DT>
-class Series {
+class Series : public Visitor<DT> {
 public:
     std::shared_ptr<Index<IT>> pidx = nullptr;
     Array<DT> values;
@@ -186,22 +186,14 @@ public:
         return values.iloc(pidx->loc(id));
     }
 
-    DT& iloc(int iid)
+    DT& iloc(int i)
     {
-        if (iid >= size()) {
-            throw std::format("index overflow {} > {}", iid, size());
-        }
-
-        return values.iloc(iid);
+        return values.iloc(i);
     }
 
-    const DT& iloc(int iid) const
+    DT iloc(int i) const
     {
-        if (iid >= size()) {
-            throw std::format("index overflow {} > {}", iid, size());
-        }
-
-        return values.iloc(iid);
+        return values.iloc(i);
     }
 
     SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1) const

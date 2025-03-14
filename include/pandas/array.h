@@ -10,11 +10,12 @@
 
 #include "pandas/pandastype.h"
 #include "pandas/util.h"
+#include "pandas/visitor.h"
 
 namespace pandas {
 
 template <class T>
-class Array {
+class Array : public Visitor<T> {
 public:
     std::string name;
     PandasTypeId dtype;
@@ -115,14 +116,14 @@ public:
         return *this;
     }
 
-    inline T& iloc(int iid)
+    T& iloc(int i)
     {
-        return values[iid];
+        return values[i];
     }
 
-    inline const T& iloc(int iid) const
+    T iloc(int i) const
     {
-        return values[iid];
+        return values[i];
     }
 
     void append(const T& v)
