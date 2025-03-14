@@ -4,7 +4,7 @@
 // class Series {
 
 template <class IT, class DT>
-class SeriesPicker {
+class SeriesPicker : public Visitor<DT> {
 public:
     Series<IT, DT>& sr;
     std::vector<int> iids;
@@ -32,7 +32,7 @@ public:
         std::shared_ptr<Index<IT>> pidx = std::make_shared<EmptyIndex<IT>>();
         Series<IT, DT> res(pidx);
         for (int i : iids) {
-            const DT& val = sr.values.iloc(i);
+            const DT& val = sr.iloc(i);
             res.append(IT {}, val);
         }
         return res;
@@ -41,6 +41,21 @@ public:
     size_t size() const
     {
         return iids.size();
+    }
+
+    DT iloc(int i) const
+    {
+        return sr.iloc(iids[i]);
+    }
+
+    DT& iloc(int i)
+    {
+        return sr.iloc(iids[i]);
+    }
+
+    int count() const
+    {
+        return size();
     }
 
     template <class T2>

@@ -17,7 +17,7 @@ using namespace std::chrono;
 void test2()
 {
     SingleIndex<int> si1;
-    Series<int,double> sr1(si1);
+    Series<int, double> sr1(si1);
     for (int i = 0; i < 300000; i++) {
 
         sr1.append(i + 10, 10.5);
@@ -33,20 +33,22 @@ void test2()
     for (int i = 0; i < sr1.size(); i++) {
         for (int j = max(0, i - 10000); j <= i; j++) {
             s += sr1.iloc(j);
-            //s += sr1.values.values[j];
-            // s += vs[j];
+            // s += sr1.values.values[j];
+            //  s += vs[j];
         }
     }
-
+    cout << s << endl;
     auto end = high_resolution_clock::now();
 
     duration<double, nano> dt = end - start;
+    cout << double(dt.count()) / 1e6 << endl;
 
-    cout << double(dt.count())/1e6 << endl;
+    auto start2 = high_resolution_clock::now();
+    cout << sr1.rolling(10000, 1).sum() << endl;
+    auto end2 = high_resolution_clock::now();
 
-    cout << s << endl;
-
-    cout<<std::isnan(10)<<endl;
+    duration<double, nano> dt2 = end2 - start2;
+    cout << double(dt2.count()) / 1e6 << endl;
 }
 
 int main()
