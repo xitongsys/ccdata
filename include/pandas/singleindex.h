@@ -14,8 +14,8 @@
 
 namespace pandas {
 
-template <class T>
-class SingleIndex : public Index<T> {
+template <class T, class NT = std::string>
+class SingleIndex : public Index<T, NT> {
 public:
     Array<T> values;
     std::map<T, int> value2iid;
@@ -65,14 +65,14 @@ public:
         _update_index();
     }
 
-    std::string name() const
+    NT get_name() const
     {
         return values.name;
     }
 
-    void rename(const std::string& nm)
+    void _rename(const NT& nm)
     {
-        values.name = nm;
+        values._rename(nm);
     }
 
     size_t size() const
@@ -92,7 +92,7 @@ public:
         for (int i = 0; i < this->size(); i++) {
             T v = this->iloc(i);
             if (value2iid.count(v)) {
-                throw std::format("index '{}' has duplicated value {}", this->name(), v);
+                throw std::format("index '{}' has duplicated value {}", this->get_name(), v);
             }
             value2iid[v] = i;
         }
@@ -156,13 +156,14 @@ public:
         return vs;
     }
 
-    template <class T2>
-    SingleIndex<T2> astype()
+    template <class T2, class NT2>
+    SingleIndex<T2, NT2> astype()
     {
-        SingleIndex<T2> si2;
+        SingleIndex<T2, NT2> si2;
         for (int i = 0; i < size(); i++) {
             si2.append(iloc(i));
         }
+        si2._rename(get_name());
         return si2;
     }
 
@@ -207,12 +208,12 @@ public:
     }
 };
 
-template <class IT1, class IT2>
-SingleIndex<IT1> concat(const SingleIndex<IT1>& idx1, const SingleIndex<IT2>& idx2)
+template <class IT, class NT>
+SingleIndex<IT> concat_0(const SingleIndex<IT, NT>& idx1, const SingleIndex<IT, NT>& idx2)
 {
-    SingleIndex<IT1> idx_merge = idx1;
+    SingleIndex<IT, NT> idx_merge = idx1;
     for (int i = 0; i < idx2.size(); i++) {
-        const IT2& id = idx2.iloc(i);
+        const IT& id = idx2.iloc(i);
         idx_merge.append(id);
     }
     return idx_merge;

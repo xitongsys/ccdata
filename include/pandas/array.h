@@ -323,6 +323,7 @@ auto zip(const Array<T, NT>& ar, const Ts&... ars)
             auto v = add_first_element(std::get<0>(res.iloc(i)), res_tail.iloc(i));
             res_new._append(v);
         }
+
         return res_new;
 
     } else {

@@ -1,21 +1,23 @@
 #pragma once
 
-// template<class IT, class DT>
+// template<class IT, class DT, class NT>
 // class Series {
 
-template <class IT, class DT>
+template <class IT2, class DT2, class NT2>
+class SeriesPicker;
+
 class SeriesPicker : public Visitor<DT> {
 public:
-    Series<IT, DT>& sr;
+    Series<IT, DT, NT>& sr;
     std::vector<int> iids;
 
-    SeriesPicker(Series<IT, DT>& sr_, const std::vector<int>& iids_)
+    SeriesPicker(Series<IT, DT, NT>& sr_, const std::vector<int>& iids_)
         : sr(sr_)
         , iids(iids_)
     {
     }
 
-    Series<IT, DT> to_series() const
+    Series<IT, DT, NT> to_series() const
     {
         auto pidx = sr.pidx->new_empty();
         Series<IT, DT> res(pidx);
@@ -27,7 +29,7 @@ public:
         return res;
     }
 
-    Series<IT, DT> to_emptyindex_series() const
+    Series<IT, DT, NT> to_emptyindex_series() const
     {
         std::shared_ptr<Index<IT>> pidx = std::make_shared<EmptyIndex<IT>>();
         Series<IT, DT> res(pidx);
@@ -61,8 +63,8 @@ public:
         }
     }
 
-    template <class DT2>
-    void operator=(const Array<DT2>& ar)
+    template <class DT2, class NT2>
+    void operator=(const Array<DT2, NT2>& ar)
     {
         if (ar.size() != size()) {
             throw std::format("size not match: {} != {}", ar.size(), size());
@@ -72,8 +74,8 @@ public:
         }
     }
 
-    template <class IT2, class DT2>
-    void operator=(const Series<IT2, DT2>& sr2)
+    template <class IT2, class DT2, class NT2>
+    void operator=(const Series<IT2, DT2, NT2>& sr2)
     {
         if (sr2.size() != size()) {
             throw std::format("size not match: {} != {}", sr2.size(), size());
@@ -89,10 +91,10 @@ public:
         }
     }
 
-    template <class IT2, class DT2>
-    void operator=(const SeriesPicker<IT2, DT2>& sp2)
+    template <class IT2, class DT2, class NT2>
+    void operator=(const SeriesPicker<IT2, DT2, NT2>& sp2)
     {
-        Series<IT2, DT2> ds = sp2.to_series();
+        Series<IT2, DT2, NT2> ds = sp2.to_series();
         (*this) = ds;
     }
 

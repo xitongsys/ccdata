@@ -18,7 +18,7 @@ template <class IT, class DT, class NT = std::string>
 class Series : public Visitor<DT> {
 public:
     std::shared_ptr<Index<IT>> pidx = nullptr;
-    Array<DT,NT> values;
+    Array<DT, NT> values;
 
     Series()
     {
@@ -39,7 +39,7 @@ public:
         }
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT,NT>& vals)
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT, NT>& vals)
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
@@ -48,7 +48,7 @@ public:
         values = vals;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT,NT>& vals, const NT& name)
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT, NT>& vals, const NT& name)
         : Series(pidx, vals)
     {
         _rename(name);
@@ -66,7 +66,7 @@ public:
     }
 
     template <class T>
-    Series(const T& idx, const Array<DT,NT>& vals, const NT& name)
+    Series(const T& idx, const Array<DT, NT>& vals, const NT& name)
     {
         if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
@@ -86,8 +86,8 @@ public:
         values._append(val);
     }
 
-    template <class IT2, class DT2>
-    Series(const Series<IT2, DT2>& sr)
+    template <class IT2, class DT2, class NT2>
+    Series(const Series<IT2, DT2, NT2>& sr)
     {
         pidx = sr.pidx->clone();
         values = sr.values;
@@ -210,23 +210,23 @@ public:
         return values.iloc(i);
     }
 
-    SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1) const
+    SeriesPicker<IT, DT, NT> iloc(int bgn, int end, int step = 1) const
     {
         return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
     }
 
-    SeriesPicker<IT, DT> iloc(int bgn, int end, int step = 1)
+    SeriesPicker<IT, DT, NT> iloc(int bgn, int end, int step = 1)
     {
-        return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
+        return SeriesPicker<IT, DT, NT>(*this, range(bgn, end, step));
     }
 
-    SeriesPicker<IT, DT> loc(const DT& bgn, const DT& end)
+    SeriesPicker<IT, DT, NT> loc(const DT& bgn, const DT& end)
     {
         std::vector<int> iids = pidx->loc(bgn, end);
         return SeriesPicker<IT, DT>(*this, iids);
     }
 
-    SeriesPicker<IT, DT> loc(const Index<IT>& idx)
+    SeriesPicker<IT, DT, NT> loc(const Index<IT>& idx)
     {
         std::vector<int> iids;
         for (int i = 0; i < idx.size(); i++) {
@@ -240,7 +240,7 @@ public:
         return SeriesPicker<IT, DT>(*this, iids);
     }
 
-    SeriesPicker<IT, DT> loc(const Series<IT, Bool>& mask)
+    SeriesPicker<IT, DT, NT> loc(const Series<IT, Bool>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
@@ -255,7 +255,7 @@ public:
             }
         }
 
-        return SeriesPicker<IT, DT>(*this, iids);
+        return SeriesPicker<IT, DT, NT>(*this, iids);
     }
 
     Series sort_index(bool ascending = true) const
