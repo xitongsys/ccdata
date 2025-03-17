@@ -36,7 +36,7 @@ public:
         }
     }
 
-    DataFrame(const std::vector<Series<IT, DT, DNT>>& srs)
+    DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& srs)
     {
         for (int i = 0; i < srs.size(); i++) {
             *this = concat_1(*this, srs[i]);

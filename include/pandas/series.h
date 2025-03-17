@@ -31,11 +31,19 @@ public:
         _rename(name);
     }
 
+    Series(const Index<IT, INT>& idx)
+    {
+        this->pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
+        for (int i = 0; i < idx.size(); i++) {
+            values._append(pandas::nan<DT>());
+        }
+    }
+
     Series(std::shared_ptr<Index<IT, INT>> pidx)
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
-            values.append(DT {});
+            values._append(pandas::nan<DT>());
         }
     }
 

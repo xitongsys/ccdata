@@ -17,13 +17,13 @@ using namespace std::chrono;
 
 void test2()
 {
-    /*
+    
     Array<int> ar1({ 1, 2, 3 });
     Array<int> ar2({ 4, 5 });
     Array<int> ar3 = concat_0<int>(ar1, ar2);
     Array<double> ar4({ 0.1, 0.2, 0.3, 0.4, 0.5 });
 
-    Array<std::tuple<int, int>> ar5 = concat_1(ar3, ar3);
+    Array<std::tuple<int, int>> ar5 = zip(ar3, ar3);
 
     cout << ar5 << endl;
 
@@ -60,7 +60,7 @@ void test2()
     auto end3 = high_resolution_clock::now();
     duration<double, nano> dt3 = end3 - start3;
     cout << double(dt3.count()) / 1e6 << endl;
-    */
+    
 }
 
 void test1()
@@ -84,7 +84,7 @@ int main()
 {
 
     try {
-        test1();
+        test2();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

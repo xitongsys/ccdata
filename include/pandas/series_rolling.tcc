@@ -15,7 +15,7 @@ public:
     }
 
     template <class DT2>
-    Series<IT, DT2> agg(std::function<DT2(const Visitor<DT>&)> const& func) const
+    Series<IT, DT2, INT, DNT> agg(std::function<DT2(const Visitor<DT>&)> const& func) const
     {
         Series<IT, DT2> res(sr.pidx->new_clone());
 
@@ -32,7 +32,6 @@ public:
         return res;
     }
 
-    
 #define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                                  \
     Series<IT, TYPE> FUN()                                                        \
     {                                                                             \
