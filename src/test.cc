@@ -30,7 +30,7 @@ void test2()
     Series<int, double> sr1(si1);
     for (int i = 0; i < 300000; i++) {
 
-        sr1.append(i + 10, i);
+        sr1._append(i + 10, i);
     }
 
     cout << sr1 << endl;

@@ -35,14 +35,13 @@ public:
         values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name = "")
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals)
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
         }
         this->pidx = pidx;
         values = vals;
-        values.name = name;
     }
 
     Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name = "")
@@ -151,7 +150,7 @@ public:
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
             }
-            res.append(id, val);
+            res._append(id, val);
         }
         res._rename(name());
         return res;

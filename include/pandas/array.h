@@ -140,7 +140,7 @@ public:
 
     void _clear()
     {
-        values._clear();
+        values.clear();
     }
 
     template <class T2>

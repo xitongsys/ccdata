@@ -28,14 +28,14 @@ public:
     {
         values.name = idx.name();
         for (int i = 0; i < idx.size(); i++) {
-            append(idx.iloc(i));
+            _append(idx.iloc(i));
         }
     }
 
     SingleIndex(size_t n, const T& init_val)
         : values(n, init_val)
     {
-        update_index();
+        _update_index();
     }
 
     SingleIndex(const SingleIndex& si)
@@ -54,7 +54,7 @@ public:
     {
         values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
-        update_index();
+        _update_index();
         return *this;
     }
 
@@ -62,7 +62,7 @@ public:
     SingleIndex(const Array<T2>& ar)
     {
         values = ar;
-        update_index();
+        _update_index();
     }
 
     std::string name() const
@@ -80,13 +80,13 @@ public:
         return values.size();
     }
 
-    void clear()
+    void _clear()
     {
-        values.clear();
+        values._clear();
         value2iid.clear();
     }
 
-    void update_index()
+    void _update_index()
     {
         value2iid.clear();
         for (int i = 0; i < this->size(); i++) {
@@ -103,14 +103,14 @@ public:
         return value2iid.count(v) > 0;
     }
 
-    int append(const T& v)
+    int _append(const T& v)
     {
         if (has(v)) {
             return -1;
         }
         int n = value2iid.size();
         value2iid[v] = n;
-        values.append(v);
+        values._append(v);
         return 0;
     }
 

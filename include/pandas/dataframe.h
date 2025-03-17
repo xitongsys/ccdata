@@ -46,7 +46,7 @@ public:
 
     void _reindex(const Index<IT>& idx)
     {
-        pidx = std::make<SingleIndex<IT>>(idx);
+        pidx = std::make_shared<SingleIndex<IT>>(idx);
         for (int i = 0; i < values.size(); i++) {
             values[i]._reindex(idx);
         }
@@ -206,10 +206,10 @@ DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 
     SingleIndex<IT> idx;
     for (int i = 0; i < sr1.size(); i++) {
-        idx.append(sr1.pidx->iloc(i));
+        idx._append(sr1.pidx->iloc(i));
     }
     for (int i = 0; i < sr2.size(); i++) {
-        idx.append(sr2.pidx->iloc(i));
+        idx._append(sr2.pidx->iloc(i));
     }
 
     Series<IT, DT> sr1_new = sr1.reindex(idx);
@@ -217,6 +217,7 @@ DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 
     DataFrame<IT, DT> df;
     df.pidx = std::make_shared<SingleIndex<IT>>(idx);
+
     sr1_new.pidx = df.pidx;
     sr2_new.pidx = df.pidx;
 
@@ -237,15 +238,15 @@ DataFrame<IT, DT> concat_1(const DataFrame<IT, DT>& df, const Series<IT, DT>& sr
 
     SingleIndex<IT> idx;
     for (int i = 0; i < df.size(); i++) {
-        idx.append(df.pidx->iloc(i));
+        idx._append(df.pidx->iloc(i));
     }
     for (int i = 0; i < sr.size(); i++) {
-        idx.append(sr.pidx->iloc(i));
+        idx._append(sr.pidx->iloc(i));
     }
 
     DataFrame<IT, DT> df_new = df.reindex(idx);
     Series<IT, DT> sr_new = sr.reindex(idx);
-    df_new.values.append(sr_new);
+    df_new.values._append(sr_new);
 
     return df_new;
 }

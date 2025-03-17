@@ -39,7 +39,7 @@ public:
             KT key = it->first;
             Array<DT>& sr = it->second;
             DT2 value = func(sr);
-            res.append(key, value);
+            res._append(key, value);
         }
 
         return res;
