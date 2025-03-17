@@ -142,10 +142,10 @@ public:
         values._rename(name);
     }
 
-    template <class IT2>
-    Series<IT2, DT> reindex(const Index<IT2>& index) const
+    template <class IT2, class INT2>
+    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
     {
-        Series<IT2, DT> res(index.new_index());
+        Series<IT2, DT, INT2, DNT> res(index.new_index());
 
         for (int i = 0; i < index.size(); i++) {
             IT2 id = index.iloc(i);
@@ -159,11 +159,11 @@ public:
         return res;
     }
 
-    template <class IT2, class DT2>
-    Series<IT2, DT2> astype()
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series<IT2, DT2, INT2, DNT2> astype()
     {
-        auto idx = pidx->astype<IT2>();
-        auto vals = values.astype<DT2>();
+        auto idx = pidx->astype<IT2, INT2>();
+        auto vals = values.astype<DT2, DNT2>();
 
         return Series<IT2, DT2>(idx, vals);
     }
