@@ -32,18 +32,20 @@ public:
         for (int i = 0; i < pidx->size(); i++) {
             values.append(DT {});
         }
+        values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals)
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name = "")
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
         }
         this->pidx = pidx;
         values = vals;
+        values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name)
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name = "")
         : Series(pidx, vals)
     {
         values.name = name;

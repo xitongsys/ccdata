@@ -62,6 +62,16 @@ public:
         }
     }
 
+    int get_column_name_index(const std::string& name) const
+    {
+        for (int i = 0; i < values.size(); i++) {
+            if (values[i].name() == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     int append_row(const IT& id, const Array<DT>& ar)
     {
         if (ar.size() != values.size()) {
@@ -103,16 +113,40 @@ public:
                 throw std::format("{} not found", values[i].name());
             }
         }
+        return size();
     }
 
-    Index<IT> index() const
+    int append_col(const Array<DT>& ar)
     {
-        return *pidx;
+        if (ar.size() != size()) {
+            throw std::format("append size not match: {}!={}", ar.size(), size());
+        }
+        if (get_column_name_index(ar.name) >= 0) {
+            throw std::format("duplicated column name: {}", ar.name);
+        }
+
+        auto sr = Series(pidx, ar, ar.name);
+        values.push_back(sr);
+        return values.size();
     }
 
-    Index<IT>& index()
+    int append_col(const Series<IT, DT>& sr)
     {
-        return *pidx;
+        if (get_column_name_index(sr.name()) >= 0) {
+            throw std::format("duplicated column name: {}", sr.name);
+        }
+        for (int i = 0; i < sr.size(); i++) {
+            pidx->append(sr.pidx->iloc(i));
+        }
+
+        for (int i = 0; i < values.size(); i++) {
+            values[i] = values[i].reindex(*pidx);
+            values[i].pidx = pidx;
+        }
+
+        auto sr2 = sr.reindex(*pidx);
+        values.push_back(sr2);
+        return values.size();
     }
 
     std::string to_string() const
