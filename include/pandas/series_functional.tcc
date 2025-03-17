@@ -1,29 +1,17 @@
 #pragma once
 
-// template<class IT, class DT>
+// template<class IT, class DT, class INT, class DNT>
 // class Series {
 template <class DT2>
-Series<IT, DT2> map(std::function<DT2(const DT&)> const& func)
+Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func)
 {
-    Array<DT2> vals;
+    Array<DT2, DNT> vals;
     for (int i = 0; i < size(); i++) {
         const DT& val = values.iloc(i);
         DT2 mval = func(val);
         vals.append(mval);
     }
-    return Series(*pidx, vals);
-}
-
-template <class DT2>
-Series<IT, DT2> map(std::function<DT2(const IT&, const DT&)> const& func)
-{
-    Array<DT2> vals;
-    for (int i = 0; i < size(); i++) {
-        const IT& id = pidx->iloc(i);
-        const DT& val = values.iloc(i);
-        DT2 mval = func(id, val);
-        vals.append(mval);
-    }
+    vals._rename(this->get_name());
     return Series(*pidx, vals);
 }
 
@@ -105,7 +93,7 @@ Double std() const
 
 Double median() const
 {
-    Series<IT,DT> sr = sort_values();
+    Series<IT, DT> sr = sort_values();
     int n = sr.size();
     if (n == 0) {
         return Double {};

@@ -3,21 +3,21 @@
 // template<class IT, class DT, class NT>
 // class Series {
 
-template <class IT2, class DT2, class NT2>
+template <class IT2, class DT2, class INT2, class DNT2>
 class SeriesPicker;
 
 class SeriesPicker : public Visitor<DT> {
 public:
-    Series<IT, DT, NT>& sr;
+    Series<IT, DT, INT, DNT>& sr;
     std::vector<int> iids;
 
-    SeriesPicker(Series<IT, DT, NT>& sr_, const std::vector<int>& iids_)
+    SeriesPicker(Series<IT, DT, INT, DNT>& sr_, const std::vector<int>& iids_)
         : sr(sr_)
         , iids(iids_)
     {
     }
 
-    Series<IT, DT, NT> to_series() const
+    Series<IT, DT, INT, DNT> to_series() const
     {
         auto pidx = sr.pidx->new_empty();
         Series<IT, DT> res(pidx);
@@ -29,7 +29,7 @@ public:
         return res;
     }
 
-    Series<IT, DT, NT> to_emptyindex_series() const
+    Series<IT, DT, INT, DNT> to_emptyindex_series() const
     {
         std::shared_ptr<Index<IT>> pidx = std::make_shared<EmptyIndex<IT>>();
         Series<IT, DT> res(pidx);
@@ -74,8 +74,8 @@ public:
         }
     }
 
-    template <class IT2, class DT2, class NT2>
-    void operator=(const Series<IT2, DT2, NT2>& sr2)
+    template <class IT2, class DT2, class INT2, class DNT2>
+    void operator=(const Series<IT2, DT2, NT2, DNT2>& sr2)
     {
         if (sr2.size() != size()) {
             throw std::format("size not match: {} != {}", sr2.size(), size());
@@ -91,10 +91,10 @@ public:
         }
     }
 
-    template <class IT2, class DT2, class NT2>
-    void operator=(const SeriesPicker<IT2, DT2, NT2>& sp2)
+    template <class IT2, class DT2, class INT2, class DNT2>
+    void operator=(const SeriesPicker<IT2, DT2, INT2, DNT2>& sp2)
     {
-        Series<IT2, DT2, NT2> ds = sp2.to_series();
+        Series<IT2, DT2, INT2, DNT2> ds = sp2.to_series();
         (*this) = ds;
     }
 

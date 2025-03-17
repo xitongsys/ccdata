@@ -132,7 +132,7 @@ public:
         return values.size();
     }
 
-    NT get_name() const
+    DNT get_name() const
     {
         return values.get_name();
     }
@@ -159,7 +159,7 @@ public:
         return res;
     }
 
-    template <class IT2, class DT2, class INT2, class DNT2>
+    template <class IT2, class DT2, class INT2 = INT, class DNT2 = DNT>
     Series<IT2, DT2, INT2, DNT2> astype()
     {
         auto idx = pidx->astype<IT2, INT2>();
@@ -210,23 +210,24 @@ public:
         return values.iloc(i);
     }
 
-    SeriesPicker<IT, DT, NT> iloc(int bgn, int end, int step = 1) const
+    SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1) const
     {
-        return SeriesPicker<IT, DT>(*this, range(bgn, end, step));
+        return SeriesPicker<IT, DT, INT, DNT>(*this, range(bgn, end, step));
     }
 
-    SeriesPicker<IT, DT, NT> iloc(int bgn, int end, int step = 1)
+    SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1)
     {
-        return SeriesPicker<IT, DT, NT>(*this, range(bgn, end, step));
+        return SeriesPicker<IT, DT, INT, DNT>(*this, range(bgn, end, step));
     }
 
-    SeriesPicker<IT, DT, NT> loc(const DT& bgn, const DT& end)
+    SeriesPicker<IT, DT, INT, DNT> loc(const DT& bgn, const DT& end)
     {
         std::vector<int> iids = pidx->loc(bgn, end);
-        return SeriesPicker<IT, DT>(*this, iids);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
     }
 
-    SeriesPicker<IT, DT, NT> loc(const Index<IT>& idx)
+    template <class INT2>
+    SeriesPicker<IT, DT, INT, DNT> loc(const Index<IT, INT2>& idx)
     {
         std::vector<int> iids;
         for (int i = 0; i < idx.size(); i++) {
@@ -237,10 +238,11 @@ public:
             iids.push_back(pidx->loc(id));
         }
 
-        return SeriesPicker<IT, DT>(*this, iids);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
     }
 
-    SeriesPicker<IT, DT, NT> loc(const Series<IT, Bool>& mask)
+    template <class INT2, class DNT2>
+    SeriesPicker<IT, DT, INT, DNT> loc(const Series<IT, bool, INT2, DNT2>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
@@ -255,7 +257,7 @@ public:
             }
         }
 
-        return SeriesPicker<IT, DT, NT>(*this, iids);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
     }
 
     Series sort_index(bool ascending = true) const
@@ -371,10 +373,14 @@ public:
 #include "pandas/series_rolling.tcc"
 };
 
-template <class IT1, class DT1, class NT1, class IT2, class DT2, class NT2>
-Series<IT1, DT1> concat_0(const Series<IT1, DT1, NT1>& sr1, const Series<IT2, DT2, NT2>& sr2)
+template <
+    class IT1, class DT1, class INT1, class DNT1,
+    class IT2, class DT2, class INT2, class DNT2>
+Series<IT1, DT1, INT1, DNT1> concat_0(
+    const Series<IT1, DT1, INT1, DNT1>& sr1,
+    const Series<IT2, DT2, INT2, DNT2>& sr2)
 {
-    Series<IT1, DT1, NT1> sr = sr1;
+    Series<IT1, DT1, INT1, DNT1> sr = sr1;
     for (int i = 0; i < sr2.size(); i++) {
         const IT2& id = sr2.pidx->iloc(i);
         const DT2& val = sr2.iloc(i);

@@ -1,13 +1,12 @@
 #pragma once
 
-
-// template<class IT, class DT>
+// template<class IT, class DT, class INT, class NDT>
 // class Series {
 
 template <class KT>
 class SeriesGroup {
 public:
-    std::map<KT, Array<DT>> srs;
+    std::map<KT, Array<DT, DNT>> srs;
 
     SeriesGroup() { }
 
@@ -24,20 +23,20 @@ public:
     void append(const KT& key, const DT& value)
     {
         if (srs.count(key) == 0) {
-            srs[key] = Array<DT>();
+            srs[key] = Array<DT, DNT>();
         }
         srs[key].append(value);
     }
 
     template <class DT2>
-    Series<KT, DT2> agg(std::function<DT2(const Visitor<DT>&)> const& func)
+    Series<KT, DT2, INT, DNT> agg(std::function<DT2(const Visitor<DT>&)> const& func)
     {
-        SingleIndex<KT> id;
-        Series<KT, DT2> res(id);
+        SingleIndex<KT, INT> id;
+        Series<KT, DT2, INT, DNT> res(id);
 
         for (auto it = srs.begin(); it != srs.end(); it++) {
             KT key = it->first;
-            Array<DT>& sr = it->second;
+            Array<DT, DNT>& sr = it->second;
             DT2 value = func(sr);
             res._append(key, value);
         }
@@ -59,8 +58,8 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
 };
 
-template <class KT>
-SeriesGroup<KT> groupby(const Array<KT>& sr) const
+template <class KT, class DNT2>
+SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr) const
 {
     SeriesGroup<KT> sg;
 
@@ -75,8 +74,8 @@ SeriesGroup<KT> groupby(const Array<KT>& sr) const
     return sg;
 }
 
-template <class KT>
-SeriesGroup<KT> groupby(const Series<IT, KT>& sr) const
+template <class KT, class INT2, class DNT2>
+SeriesGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr) const
 {
     SeriesGroup<KT> sg;
 

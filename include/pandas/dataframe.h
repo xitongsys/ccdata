@@ -208,14 +208,18 @@ public:
     }
 };
 
-template <class IT, class DT, class NT>
-DataFrame<IT, DT, INT, DNT> concat_1(const Series<IT, DT, NT>& sr1, const Series<IT, DT, NT>& sr2)
+template <
+    class IT, class DT, class INT, class DNT,
+    class IT2, class DT2, class INT2, class DNT2>
+DataFrame<IT, DT, INT, DNT> concat_1(
+    const Series<IT, DT, INT, DNT>& sr1,
+    const Series<IT2, DT2, INT2, DNT2>& sr2)
 {
     if (sr1.get_name() == sr2.get_name()) {
         throw std::format("columns have same name: {}", sr1.get_name());
     }
 
-    SingleIndex<IT> idx;
+    SingleIndex<IT, INT> idx;
     for (int i = 0; i < sr1.size(); i++) {
         idx._append(sr1.pidx->iloc(i));
     }
@@ -223,11 +227,11 @@ DataFrame<IT, DT, INT, DNT> concat_1(const Series<IT, DT, NT>& sr1, const Series
         idx._append(sr2.pidx->iloc(i));
     }
 
-    Series<IT, DT> sr1_new = sr1.reindex(idx);
-    Series<IT, DT> sr2_new = sr2.reindex(idx);
+    Series<IT, DT, INT, DNT> sr1_new = sr1.reindex(idx);
+    Series<IT, DT2, INT, DNT2> sr2_new = sr2.reindex(idx);
 
-    DataFrame<IT, DT> df;
-    df.pidx = std::make_shared<SingleIndex<IT>>(idx);
+    DataFrame<IT, DT, INT, DNT> df;
+    df.pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
 
     sr1_new.pidx = df.pidx;
     sr2_new.pidx = df.pidx;
@@ -238,8 +242,12 @@ DataFrame<IT, DT, INT, DNT> concat_1(const Series<IT, DT, NT>& sr1, const Series
     return df;
 }
 
-template <class IT, class DT>
-DataFrame<IT, DT> concat_1(const DataFrame<IT, DT>& df, const Series<IT, DT>& sr)
+template <
+    class IT, class DT, class INT, class DNT,
+    class IT2, class DT2, class INT2, class DNT2>
+DataFrame<IT, DT, INT, DNT> concat_1(
+    const DataFrame<IT, DT, INT, DNT>& df,
+    const Series<IT2, DT2, INT2, DNT2>& sr)
 {
     for (int i = 0; i < df.values.size(); i++) {
         if (df.values[i].name() == sr.name()) {
@@ -247,7 +255,7 @@ DataFrame<IT, DT> concat_1(const DataFrame<IT, DT>& df, const Series<IT, DT>& sr
         }
     }
 
-    SingleIndex<IT> idx;
+    SingleIndex<IT, INT> idx;
     for (int i = 0; i < df.size(); i++) {
         idx._append(df.pidx->iloc(i));
     }
@@ -255,8 +263,8 @@ DataFrame<IT, DT> concat_1(const DataFrame<IT, DT>& df, const Series<IT, DT>& sr
         idx._append(sr.pidx->iloc(i));
     }
 
-    DataFrame<IT, DT> df_new = df.reindex(idx);
-    Series<IT, DT> sr_new = sr.reindex(idx);
+    DataFrame<IT, DT, INT, DNT> df_new = df.reindex(idx);
+    Series<IT, DT2, INT, DNT2> sr_new = sr.reindex(idx);
     df_new.values._append(sr_new);
 
     return df_new;
