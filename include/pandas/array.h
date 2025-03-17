@@ -126,21 +126,28 @@ public:
         return values[i];
     }
 
-    void append(const T& v)
+    void _append(const T& v)
     {
         values.push_back(v);
     }
 
-    void clear()
+    Array<T> append(const T& v)
     {
-        values.clear();
+        Array<T> ar = *this;
+        ar._append(v);
+        return ar;
+    }
+
+    void _clear()
+    {
+        values._clear();
     }
 
     template <class T2>
-    void append(const Array<T2>& ar)
+    void _append(const Array<T2>& ar)
     {
         for (int i = 0; i < ar.size(); i++) {
-            append((T)(ar.iloc(i)));
+            _append((T)(ar.iloc(i)));
         }
     }
 
@@ -214,6 +221,13 @@ public:
         return ar;
     }
 
+    void _reverse()
+    {
+        for (int i = 0, j = size() - 1; i < j; i++, j--) {
+            std::swap(values[i], values[j]);
+        }
+    }
+
     Array<T> sort(bool ascending = true)
     {
         Array<T> ar = *this;
@@ -222,6 +236,14 @@ public:
             return ar.reverse();
         }
         return ar;
+    }
+
+    void _sort(bool ascending = true)
+    {
+        sort(values.begin(), values.end());
+        if (!ascending) {
+            _reverse();
+        }
     }
 
     std::string to_string(int mx_cnt = 10) const

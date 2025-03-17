@@ -79,8 +79,8 @@ public:
         if (pidx->has(id)) {
             throw std::format("append failed: duplicated key");
         }
-        pidx->append(id);
-        values.append(val);
+        pidx->_append(id);
+        values._append(val);
     }
 
     template <class IT2, class DT2>

@@ -18,10 +18,11 @@ class Index {
 public:
     virtual std::string name() const = 0;
     virtual size_t size() const = 0;
-    virtual void update_index() = 0;
     virtual bool has(const T& key) const = 0;
-    virtual int append(const T& key) = 0;
     virtual void clear() = 0;
+
+    virtual void _update_index() = 0;
+    virtual int _append(const T& key) = 0;
 
     // pos by value
     virtual int loc(const T& key) = 0;
