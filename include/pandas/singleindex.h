@@ -26,7 +26,7 @@ public:
 
     SingleIndex(const Index<T>& idx)
     {
-        values.name = idx.name();
+        values.name = idx.get_name();
         for (int i = 0; i < idx.size(); i++) {
             _append(idx.iloc(i));
         }

@@ -17,11 +17,11 @@ public:
     template <class DT2>
     Series<IT, DT2, INT, DNT> agg(std::function<DT2(const Visitor<DT>&)> const& func) const
     {
-        Series<IT, DT2> res(sr.pidx->new_clone());
+        Series<IT, DT2, INT, DNT> res(sr.pidx->new_clone());
 
         for (int i = 0; i < sr.size(); i++) {
             int b = std::max(0, i - window + 1), e = i;
-            SeriesPicker vis(sr, range(b, e + 1, 1));
+            SeriesPicker<IT, DT, INT, DNT> vis(sr, range(b, e + 1, 1));
             if (vis.count() < min_periods) {
                 res.iloc(i) = DT2 {};
 

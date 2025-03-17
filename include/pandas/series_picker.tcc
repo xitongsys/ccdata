@@ -6,7 +6,8 @@
 template <class IT2, class DT2, class INT2, class DNT2>
 class SeriesPicker;
 
-class SeriesPicker : public Visitor<DT> {
+template <>
+class SeriesPicker<IT, DT, INT, DNT> : public Visitor<DT> {
 public:
     Series<IT, DT, INT, DNT>& sr;
     std::vector<int> iids;
@@ -20,7 +21,7 @@ public:
     Series<IT, DT, INT, DNT> to_series() const
     {
         auto pidx = sr.pidx->new_empty();
-        Series<IT, DT> res(pidx);
+        Series<IT, DT, INT, DNT> res(pidx);
         for (int i : iids) {
             const IT& id = sr.pidx->iloc(i);
             const DT& val = sr.values.iloc(i);
@@ -31,11 +32,11 @@ public:
 
     Series<IT, DT, INT, DNT> to_emptyindex_series() const
     {
-        std::shared_ptr<Index<IT>> pidx = std::make_shared<EmptyIndex<IT>>();
-        Series<IT, DT> res(pidx);
+        std::shared_ptr<Index<IT, INT>> pidx = std::make_shared<EmptyIndex<IT, INT>>();
+        Series<IT, DT, INT, DNT> res(pidx);
         for (int i : iids) {
             const DT& val = sr.iloc(i);
-            res.append(IT {}, val);
+            res._append(IT {}, val);
         }
         return res;
     }
@@ -75,7 +76,7 @@ public:
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
-    void operator=(const Series<IT2, DT2, NT2, DNT2>& sr2)
+    void operator=(const Series<IT2, DT2, INT2, DNT2>& sr2)
     {
         if (sr2.size() != size()) {
             throw std::format("size not match: {} != {}", sr2.size(), size());
