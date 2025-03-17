@@ -74,9 +74,10 @@ void test1()
 
     Array<int> ar1({ 1, 2, 3 });
     Array<double> ar2({ 2, 3, 4 });
-    auto ar3 = zip(ar1,ar2);
+    Array<std::string> ar3({ "a", "b", "c" });
+    auto ar4 = zip(ar1, ar2, ar3).rename("hehe");
 
-    cout << ar3.to_string() << endl;
+    cout << ar4.to_string() << endl;
 }
 
 int main()

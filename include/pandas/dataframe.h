@@ -12,58 +12,58 @@
 
 namespace pandas {
 
-template <class IT, class DT, class NT = std::string>
+template <class IT, class DT, class INT = std::string, class DNT = std::string>
 class DataFrame {
 public:
-    std::shared_ptr<Index<IT>> pidx;
-    std::vector<Series<IT, DT, NT>> values;
+    std::shared_ptr<Index<IT, INT>> pidx;
+    std::vector<Series<IT, DT, DNT>> values;
 
     DataFrame()
     {
-        pidx = std::make_shared<SingleIndex<IT>>();
+        pidx = std::make_shared<SingleIndex<IT, INT>>();
     }
 
-    DataFrame(const Index<IT>& idx)
+    DataFrame(const Index<IT, INT>& idx)
     {
-        pidx = std::make_shared<SingleIndex<IT>>(idx);
+        pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
     }
 
     DataFrame(const std::vector<std::string>& columns)
     {
-        pidx = std::make_shared<SingleIndex<IT>>();
+        pidx = std::make_shared<SingleIndex<IT, INT>>();
         for (int i = 0; i < columns.size(); i++) {
-            values.push_back(Series<IT, DT>(columns[i]));
+            values.push_back(Series<IT, DT, DNT>(columns[i]));
         }
     }
 
-    DataFrame(const std::vector<Series<IT, DT>>& srs)
+    DataFrame(const std::vector<Series<IT, DT, DNT>>& srs)
     {
         for (int i = 0; i < srs.size(); i++) {
             *this = concat_1(*this, srs[i]);
         }
     }
 
-    DataFrame<IT, DT> reindex(const Index<IT>& idx)
+    DataFrame<IT, DT, DNT> reindex(const Index<IT, INT>& idx)
     {
         DataFrame df = DataFrame(idx);
         for (int i = 0; i < values.size(); i++) {
-            Series<IT, DT> sr = values[i].reindex(idx);
+            Series<IT, DT, DNT> sr = values[i].reindex(idx);
             df.values.append(sr);
         }
         return df;
     }
 
-    void _reindex(const Index<IT>& idx)
+    void _reindex(const Index<IT, INT>& idx)
     {
-        pidx = std::make_shared<SingleIndex<IT>>(idx);
+        pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
         for (int i = 0; i < values.size(); i++) {
             values[i]._reindex(idx);
         }
     }
 
-    Array<Str> columns() const
+    Array<DNT> columns() const
     {
-        Array<Str> res;
+        Array<DNT> res;
         for (int i = 0; i < values.size(); i++) {
             res.append(values[i].get_name());
         }
@@ -79,7 +79,7 @@ public:
         }
     }
 
-    int get_column_name_index(const std::string& name) const
+    int get_column_name_index(const DNT& name) const
     {
         for (int i = 0; i < values.size(); i++) {
             if (values[i].get_name() == name) {
@@ -89,7 +89,7 @@ public:
         return -1;
     }
 
-    int _append_row(const IT& id, const Array<DT>& ar)
+    int _append_row(const IT& id, const Array<DT, DNT>& ar)
     {
         if (ar.size() != values.size()) {
             throw std::format("row size not match: {}!={}", ar.size(), values.size());
@@ -107,7 +107,7 @@ public:
         return size();
     }
 
-    int _append_row(const Series<NT, DT, IT>& sr)
+    int _append_row(const Series<DNT, DT, IT>& sr)
     {
         if (sr.size() != values.size()) {
             throw std::format("row size not match: {}!={}", sr.size(), values.size());
@@ -135,7 +135,7 @@ public:
         return size();
     }
 
-    int _append_col(const Array<DT>& ar)
+    int _append_col(const Array<DT, DNT>& ar)
     {
         if (ar.size() != size()) {
             throw std::format("append size not match: {}!={}", ar.size(), size());
@@ -149,10 +149,10 @@ public:
         return values.size();
     }
 
-    int _append_col(const Series<IT, DT, NT>& sr)
+    int _append_col(const Series<IT, DT, DNT>& sr)
     {
-        if (get_column_name_index(sr.name()) >= 0) {
-            throw std::format("duplicated column name: {}", sr.name);
+        if (get_column_name_index(sr.get_name()) >= 0) {
+            throw std::format("duplicated column name: {}", sr.get_name());
         }
         for (int i = 0; i < sr.size(); i++) {
             pidx->append(sr.pidx->iloc(i));
@@ -208,8 +208,8 @@ public:
     }
 };
 
-template <class IT, class DT>
-DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
+template <class IT, class DT, class NT>
+DataFrame<IT, DT, INT, DNT> concat_1(const Series<IT, DT, NT>& sr1, const Series<IT, DT, NT>& sr2)
 {
     if (sr1.get_name() == sr2.get_name()) {
         throw std::format("columns have same name: {}", sr1.get_name());
