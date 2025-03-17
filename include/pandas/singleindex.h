@@ -17,34 +17,42 @@ namespace pandas {
 template <class T>
 class SingleIndex : public Index<T> {
 public:
-    Array<T> _values;
+    Array<T> values;
     std::map<T, int> value2iid;
 
     SingleIndex()
     {
     }
 
+    SingleIndex(const Index<T>& idx)
+    {
+        values.name = idx.name();
+        for (int i = 0; i < idx.size(); i++) {
+            append(idx.iloc(i));
+        }
+    }
+
     SingleIndex(size_t n, const T& init_val)
-        : _values(n, init_val)
+        : values(n, init_val)
     {
         update_index();
     }
 
     SingleIndex(const SingleIndex& si)
     {
-        _values = si._values;
+        values = si.values;
         value2iid = si.value2iid;
     }
 
     SingleIndex(SingleIndex&& ir)
     {
-        _values = std::move(ir._values);
+        values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
     }
 
     SingleIndex& operator=(SingleIndex&& ir)
     {
-        _values = std::move(ir._values);
+        values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
         update_index();
         return *this;
@@ -53,28 +61,28 @@ public:
     template <class T2>
     SingleIndex(const Array<T2>& ar)
     {
-        _values = ar;
+        values = ar;
         update_index();
     }
 
     std::string name() const
     {
-        return _values.name;
+        return values.name;
     }
 
     void rename(const std::string& nm)
     {
-        _values.name = nm;
+        values.name = nm;
     }
 
     size_t size() const
     {
-        return _values.size();
+        return values.size();
     }
 
     void clear()
     {
-        _values.clear();
+        values.clear();
         value2iid.clear();
     }
 
@@ -102,7 +110,7 @@ public:
         }
         int n = value2iid.size();
         value2iid[v] = n;
-        _values.append(v);
+        values.append(v);
         return 0;
     }
 
@@ -131,19 +139,19 @@ public:
 
     T iloc(int i) const
     {
-        return _values.iloc(i);
+        return values.iloc(i);
     }
 
     T& iloc(int i)
     {
-        return _values.iloc(i);
+        return values.iloc(i);
     }
 
     std::vector<T> iloc(int bgn, int end, int step = 1) const
     {
         std::vector<T> vs;
         for (int i = bgn; i < end; i += step) {
-            vs.push_back(_values.iloc(i));
+            vs.push_back(values.iloc(i));
         }
         return vs;
     }
@@ -188,7 +196,7 @@ public:
     std::string to_string() const
     {
         std::stringstream ss;
-        ss << "SingleIndex: {" << _values.to_string() << "}";
+        ss << "SingleIndex: {" << values.to_string() << "}";
         return ss.str();
     }
 

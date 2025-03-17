@@ -19,6 +19,29 @@ public:
 
     DataFrame()
     {
+        pidx = std::make_shared<SingleIndex<IT>>();
+    }
+
+    DataFrame(const Index<IT>& idx)
+    {
+        pidx = std::make_shared<SingleIndex<IT>>(idx);
+    }
+
+    DataFrame(const std::vector<Series<IT, DT>>& srs)
+    {
+        for (int i = 0; i < srs.size(); i++) {
+            *this = concat_1(*this, srs[i]);
+        }
+    }
+
+    DataFrame<IT, DT> reindex(const Index<IT>& idx)
+    {
+        DataFrame df = DataFrame(idx);
+        for (int i = 0; i < values.size(); i++) {
+            Series<IT, DT> sr = values[i].reindex(idx);
+            df.values.append(sr);
+        }
+        return df;
     }
 
     Array<Str> columns() const
@@ -36,6 +59,49 @@ public:
             return pidx->size();
         } else {
             return values.size();
+        }
+    }
+
+    int append_row(const IT& id, const Array<DT>& ar)
+    {
+        if (ar.size() != values.size()) {
+            throw std::format("row size not match: {}!={}", ar.size(), values.size());
+        }
+
+        if (pidx->has(id)) {
+            throw std::format("duplicated id: {}", to_string(id));
+        }
+
+        pidx->append(id);
+        for (int i = 0; i < values.size(); i++) {
+            values[i].values.append(ar.iloc(i));
+        }
+
+        return size();
+    }
+
+    int append_row(const IT& id, const Series<std::string, DT>& sr)
+    {
+        if (sr.size() != values.size()) {
+            throw std::format("row size not match: {}!={}", sr.size(), values.size());
+        }
+
+        if (pidx->has(id)) {
+            throw std::format("duplicated id: {}", to_string(id));
+        }
+
+        pidx->append(id);
+        for (int i = 0; i < values.size(); i++) {
+            bool ok = false;
+            for (int j = 0; j < sr.size(); j++) {
+                if (sr.pidx->iloc(j) == values[i].name) {
+                    values[i].values.append(sr.iloc(j));
+                    ok = true;
+                }
+            }
+            if (!ok) {
+                throw std::format("{} not found", values[i].name());
+            }
         }
     }
 
@@ -82,7 +148,6 @@ public:
     DEFINE_DATAFRAME_FUNCS(double, var)
     DEFINE_DATAFRAME_FUNCS(double, std)
 
-
     friend std::ostream& operator<<(std::ostream& os, const DataFrame& df)
     {
         os << df.to_string();
@@ -93,6 +158,10 @@ public:
 template <class IT, class DT>
 DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 {
+    if (sr1.name() == sr2.name()) {
+        throw std::format("columns have same name: {}", sr1.name());
+    }
+
     SingleIndex<IT> idx;
     for (int i = 0; i < sr1.size(); i++) {
         idx.append(sr1.pidx->iloc(i));
@@ -113,6 +182,30 @@ DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
     df.values.emplace_back(std::move(sr2_new));
 
     return df;
+}
+
+template <class IT, class DT>
+DataFrame<IT, DT> concat_1(const DataFrame<IT, DT>& df, const Series<IT, DT>& sr)
+{
+    for (int i = 0; i < df.values.size(); i++) {
+        if (df.values[i].name() == sr.name()) {
+            throw std::format("columns have same name: {}", sr.name());
+        }
+    }
+
+    SingleIndex<IT> idx;
+    for (int i = 0; i < df.size(); i++) {
+        idx.append(df.pidx->iloc(i));
+    }
+    for (int i = 0; i < sr.size(); i++) {
+        idx.append(sr.pidx->iloc(i));
+    }
+
+    DataFrame<IT, DT> df_new = df.reindex(idx);
+    Series<IT, DT> sr_new = sr.reindex(idx);
+    df_new.values.append(sr_new);
+
+    return df_new;
 }
 
 }
