@@ -14,28 +14,32 @@
 
 namespace pandas {
 
-template <class IT, class DT>
+template <class IT, class DT, class NT = std::string>
 class Series : public Visitor<DT> {
 public:
     std::shared_ptr<Index<IT>> pidx = nullptr;
-    Array<DT> values;
+    Array<DT,NT> values;
 
-    Series(const std::string& name = "")
+    Series()
     {
         pidx = std::make_shared<SingleIndex<IT>>();
-        values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const std::string& name = "")
+    Series(const NT& name)
+    {
+        pidx = std::make_shared<SingleIndex<IT>>();
+        _rename(name);
+    }
+
+    Series(std::shared_ptr<Index<IT>> pidx)
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
             values.append(DT {});
         }
-        values.name = name;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals)
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT,NT>& vals)
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
@@ -44,25 +48,25 @@ public:
         values = vals;
     }
 
-    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT>& vals, const std::string& name = "")
+    Series(std::shared_ptr<Index<IT>> pidx, const Array<DT,NT>& vals, const NT& name)
         : Series(pidx, vals)
     {
-        values.name = name;
+        _rename(name);
     }
 
     template <class T>
-    Series(const T& idx, const std::string& name = "")
+    Series(const T& idx, const NT& name)
     {
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<Index<IT>>(ptr);
         for (int i = 0; i < pidx->size(); i++) {
             values.append(DT {});
         }
-        values.name = name;
+        _rename(name);
     }
 
     template <class T>
-    Series(const T& idx, const Array<DT>& vals, const std::string& name = "")
+    Series(const T& idx, const Array<DT,NT>& vals, const NT& name)
     {
         if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
@@ -70,7 +74,7 @@ public:
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<Index<IT>>(ptr);
         values = vals;
-        values.name = name;
+        _rename(name);
     }
 
     void _append(const IT& id, const DT& val)
@@ -128,15 +132,14 @@ public:
         return values.size();
     }
 
-    std::string name() const
+    NT get_name() const
     {
-        return values.name;
+        return values.get_name();
     }
 
-    
     void _rename(const std::string& name)
     {
-        values.name = name;
+        values._rename(name);
     }
 
     template <class IT2>
@@ -152,7 +155,7 @@ public:
             }
             res._append(id, val);
         }
-        res._rename(name());
+        res._rename(get_name());
         return res;
     }
 
@@ -368,10 +371,10 @@ public:
 #include "pandas/series_rolling.tcc"
 };
 
-template <class IT1, class DT1, class IT2, class DT2>
-Series<IT1, DT1> concat_0(const Series<IT1, DT1>& sr1, const Series<IT2, DT2>& sr2)
+template <class IT1, class DT1, class NT1, class IT2, class DT2, class NT2>
+Series<IT1, DT1> concat_0(const Series<IT1, DT1, NT1>& sr1, const Series<IT2, DT2, NT2>& sr2)
 {
-    Series<IT1, DT1> sr = sr1;
+    Series<IT1, DT1, NT1> sr = sr1;
     for (int i = 0; i < sr2.size(); i++) {
         const IT2& id = sr2.pidx->iloc(i);
         const DT2& val = sr2.iloc(i);

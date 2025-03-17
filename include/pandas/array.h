@@ -14,106 +14,112 @@
 
 namespace pandas {
 
-template <class T>
+template <class T, class NT = std::string>
 class Array : public Visitor<T> {
 public:
-    std::string name;
-    PandasTypeId dtype;
-
     std::vector<T> values;
+    NT name;
 
     Array()
     {
-        name = "";
-        dtype = pandas_type_to_id<T>();
     }
 
-    Array(size_t size, const T& init_val)
-        : Array()
+    Array(const NT& name)
+    {
+        this->name = name;
+    }
+
+    Array(size_t size, const T& init_val, const NT& name = NT {})
+        : Array(name)
     {
         values = std::vector<T>(size, init_val);
     }
 
-    Array(const std::string& nm)
-        : Array()
-    {
-        name = nm;
-    }
-
     template <class T2>
-    Array(const Array<T2>& ar)
-        : Array()
+    Array(const Array<T2>& ar, const NT& name = NT {})
+        : Array(name)
     {
-        name = ar.name;
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
     }
 
     template <class T2>
-    Array(const std::vector<T2>& vals, const std::string& nm = "")
-        : Array()
+    Array(const std::vector<T2>& vals, const NT& name = NT {})
+        : Array(name)
     {
-        name = nm;
         for (int i = 0; i < vals.size(); i++) {
             values.push_back((T)(vals[i]));
         }
     }
 
     template <class T2>
-    Array(const std::initializer_list<T2>& vals, const std::string& nm = "")
+    Array(const std::initializer_list<T2>& vals)
     {
         for (const T2& v : vals) {
             values.push_back((T)(v));
         }
-        name = nm;
     }
 
     Array(const Array& ar)
         : Array()
     {
-        name = ar.name;
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
+        name = ar.get_name();
     }
 
     Array(Array&& ar)
         : Array()
     {
-        name = std::move(ar.name);
         values = std::move(ar.values);
+        name = std::move(ar.name);
     }
 
     template <class T2>
     Array& operator=(const Array<T2>& ar)
     {
-        name = ar.name;
-        dtype = pandas_type_to_id<T>();
         values.clear();
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
+        name = ar.name;
         return *this;
     }
 
     Array& operator=(const Array& ar)
     {
-        name = ar.name;
-        dtype = pandas_type_to_id<T>();
         values.clear();
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
+        name = ar.name;
         return *this;
     }
 
     Array& operator=(Array&& ar)
     {
-        name = std::move(ar.name);
-        dtype = pandas_type_to_id<T>();
         values = std::move(ar.values);
+        name = ar.name;
         return *this;
+    }
+
+    NT get_name() const
+    {
+        return name;
+    }
+
+    Array rename(const NT& name) const
+    {
+        Array res = *this;
+        res._rename(name);
+        return res;
+    }
+
+    void _rename(const NT& name)
+    {
+        this->name = name;
     }
 
     T& iloc(int i)
@@ -151,10 +157,10 @@ public:
         }
     }
 
-    template <class T2>
-    Array<T2> astype()
+    template <class T2, class NT2 = std::string>
+    Array<T2, NT2> astype()
     {
-        return Array<T2>(*this);
+        return Array<T2, NT2>(*this);
     }
 
     size_t size() const
@@ -162,9 +168,9 @@ public:
         return values.size();
     }
 
-    Array<Int> duplicated(const std::string& keep)
+    Array<Int, NT> duplicated(const std::string& keep)
     {
-        Array<Int> dup;
+        Array<Int, NT> dup;
         std::map<T, int> mp;
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
@@ -212,9 +218,9 @@ public:
         return dup;
     }
 
-    Array<T> reverse()
+    Array<T, NT> reverse()
     {
-        Array<T> ar = *this;
+        Array<T, NT> ar = *this;
         for (int i = 0, j = size() - 1; i < j; i++, j--) {
             std::swap(ar.values[i], ar.values[j]);
         }
@@ -228,9 +234,9 @@ public:
         }
     }
 
-    Array<T> sort(bool ascending = true)
+    Array<T, NT> sort(bool ascending = true)
     {
-        Array<T> ar = *this;
+        Array<T, NT> ar = *this;
         sort(ar.values.begin(), ar.values.end());
         if (!ascending) {
             return ar.reverse();
@@ -263,7 +269,7 @@ public:
             }
         }
 
-        std::string s = std::format("{}:[{}]", name, ss.str());
+        std::string s = std::format("{}:[{}]", get_name(), ss.str());
         return s;
     }
 
@@ -276,46 +282,52 @@ public:
 #include "pandas/array_op.tcc"
 };
 
-template <class T>
-Array<T> concat_0(const Array<T>& ar)
+template <class T, class NT>
+Array<T, NT> concat_0(const Array<T, NT>& ar1, const Array<T, NT>& ar2)
 {
-    Array<T> res = ar;
-    return res;
-}
-
-template <class T, class... Ts>
-Array<T> concat_0(const Array<T>& ar, const Array<Ts...>& ars)
-{
-    Array<T> res = ar;
-    Array<T> res_tail = concat_0(ars);
-    for (int i = 0; i < res_tail.size(); i++) {
-        res.append(res_tail.iloc(i));
+    Array<T, NT> res = ar1;
+    for (int i = 0; i < ar2.size(); i++) {
+        res._append(ar2.iloc(i));
     }
     return res;
 }
 
-template <class T>
-Array<std::tuple<T>> concat_1(const Array<T>& ar)
+template <class T, class NT>
+Array<std::tuple<T>, NT> zip(const Array<T, NT>& ar)
 {
-    Array<std::tuple<T>> res;
+    Array<std::tuple<T>, NT> res;
     for (int i = 0; i < ar.size(); i++) {
-        res.append(std::tuple(ar.iloc(i)));
+        res._append(std::tuple(ar.iloc(i)));
     }
     return res;
 }
 
-template <class T, class... Ts>
-Array<std::tuple<T, Ts...>> concat_1(const Array<T>& ar, const Array<Ts...>& ars)
+template <class T, class NT, class... Ts>
+auto zip(const Array<T, NT>& ar, const Ts&... ars)
 {
-    Array<std::tuple<T, Ts...>> res;
-    Array<std::tuple<Ts...>> res_tail = concat_1(ars);
-
-    for (int i = 0; i < res_tail.size(); i++) {
-        const T& v = ar.iloc(i);
-        std::tuple<Ts...> v_tail = res_tail.iloc(i);
-        res.append(add_first_element(v, v_tail));
+    Array<std::tuple<T>, NT> res;
+    for (int i = 0; i < ar.size(); i++) {
+        res._append(std::tuple(ar.iloc(i)));
     }
-    return res;
+    constexpr int N_TAIL = sizeof...(ars);
+    if constexpr (N_TAIL > 0) {
+        auto res_tail = zip(ars...);
+
+        if (res_tail.size() != res.size()) {
+            throw std::format("size not match: {}!={}", res_tail.size(), res.size());
+        }
+
+        Array<decltype(add_first_element(std::get<0>(res.iloc(0)), res_tail.iloc(0))), NT> res_new;
+
+        for (int i = 0; i < res_tail.size(); i++) {
+            auto v = add_first_element(std::get<0>(res.iloc(i)), res_tail.iloc(i));
+            res_new._append(v);
+        }
+        return res_new;
+
+    } else {
+        return res;
+    }
 }
 
 }

@@ -17,6 +17,7 @@ using namespace std::chrono;
 
 void test2()
 {
+    /*
     Array<int> ar1({ 1, 2, 3 });
     Array<int> ar2({ 4, 5 });
     Array<int> ar3 = concat_0<int>(ar1, ar2);
@@ -59,6 +60,7 @@ void test2()
     auto end3 = high_resolution_clock::now();
     duration<double, nano> dt3 = end3 - start3;
     cout << double(dt3.count()) / 1e6 << endl;
+    */
 }
 
 void test1()
@@ -69,6 +71,12 @@ void test1()
     DataFrame<int, double> df = concat_1(ds1, ds2);
 
     cout << df << endl;
+
+    Array<int> ar1({ 1, 2, 3 });
+    Array<double> ar2({ 2, 3, 4 });
+    auto ar3 = zip(ar1,ar2);
+
+    cout << ar3.to_string() << endl;
 }
 
 int main()

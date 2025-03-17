@@ -46,15 +46,16 @@ public:
 };
 
 template <class KT>
-DataFrameGroup<KT> groupby(const Array<KT>& sr) const
+DataFrameGroup<KT> groupby(const Array<KT>& ar) const
 {
-    SeriesGroup<KT> sg;
+    DataFrameGroup<KT> sg;
 
     if (size() != sr.size()) {
         throw std::format("size not match: {}!={}", sr.size(), size());
     }
-    for (int i = 0; i < sr.size(); i++) {
-        const KT& key = sr.iloc(i);
+
+    for (int i = 0; i < ar.size(); i++) {
+        const KT& key = ar.iloc(i);
         const DT& val = iloc(i);
         sg.append(key, val);
     }

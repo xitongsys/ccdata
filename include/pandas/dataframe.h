@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <string>
 #include <vector>
 
 #include "pandas/array.h"
@@ -11,11 +12,11 @@
 
 namespace pandas {
 
-template <class IT, class DT>
+template <class IT, class DT, class NT = std::string>
 class DataFrame {
 public:
     std::shared_ptr<Index<IT>> pidx;
-    std::vector<Series<IT, DT>> values;
+    std::vector<Series<IT, DT, NT>> values;
 
     DataFrame()
     {
@@ -25,6 +26,14 @@ public:
     DataFrame(const Index<IT>& idx)
     {
         pidx = std::make_shared<SingleIndex<IT>>(idx);
+    }
+
+    DataFrame(const std::vector<std::string>& columns)
+    {
+        pidx = std::make_shared<SingleIndex<IT>>();
+        for (int i = 0; i < columns.size(); i++) {
+            values.push_back(Series<IT, DT>(columns[i]));
+        }
     }
 
     DataFrame(const std::vector<Series<IT, DT>>& srs)
@@ -56,7 +65,7 @@ public:
     {
         Array<Str> res;
         for (int i = 0; i < values.size(); i++) {
-            res.append(values[i].name());
+            res.append(values[i].get_name());
         }
         return res;
     }
@@ -73,7 +82,7 @@ public:
     int get_column_name_index(const std::string& name) const
     {
         for (int i = 0; i < values.size(); i++) {
-            if (values[i].name() == name) {
+            if (values[i].get_name() == name) {
                 return i;
             }
         }
@@ -98,11 +107,13 @@ public:
         return size();
     }
 
-    int _append_row(const IT& id, const Series<std::string, DT>& sr)
+    int _append_row(const Series<NT, DT, IT>& sr)
     {
         if (sr.size() != values.size()) {
             throw std::format("row size not match: {}!={}", sr.size(), values.size());
         }
+
+        IT id = sr.get_name();
 
         if (pidx->has(id)) {
             throw std::format("duplicated id: {}", to_string(id));
@@ -112,13 +123,13 @@ public:
         for (int i = 0; i < values.size(); i++) {
             bool ok = false;
             for (int j = 0; j < sr.size(); j++) {
-                if (sr.pidx->iloc(j) == values[i].name) {
+                if (sr.pidx->iloc(j) == values[i].get_name()) {
                     values[i].values.append(sr.iloc(j));
                     ok = true;
                 }
             }
             if (!ok) {
-                throw std::format("{} not found", values[i].name());
+                throw std::format("{} not found", values[i].get_name());
             }
         }
         return size();
@@ -138,7 +149,7 @@ public:
         return values.size();
     }
 
-    int _append_col(const Series<IT, DT>& sr)
+    int _append_col(const Series<IT, DT, NT>& sr)
     {
         if (get_column_name_index(sr.name()) >= 0) {
             throw std::format("duplicated column name: {}", sr.name);
@@ -162,7 +173,7 @@ public:
         std::stringstream ss;
         ss << "columns:[";
         for (int i = 0; i < size(1); i++) {
-            ss << values[i].name() << ",";
+            ss << values[i].get_name() << ",";
         }
         ss << "]\n";
         for (int i = 0; i < size(1); i++) {
@@ -200,8 +211,8 @@ public:
 template <class IT, class DT>
 DataFrame<IT, DT> concat_1(const Series<IT, DT>& sr1, const Series<IT, DT>& sr2)
 {
-    if (sr1.name() == sr2.name()) {
-        throw std::format("columns have same name: {}", sr1.name());
+    if (sr1.get_name() == sr2.get_name()) {
+        throw std::format("columns have same name: {}", sr1.get_name());
     }
 
     SingleIndex<IT> idx;
