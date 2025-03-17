@@ -74,7 +74,7 @@ public:
         values.name = name;
     }
 
-    void append(const IT& id, const DT& val)
+    void _append(const IT& id, const DT& val)
     {
         if (pidx->has(id)) {
             throw std::format("append failed: duplicated key");
@@ -134,7 +134,8 @@ public:
         return values.name;
     }
 
-    void set_name(const std::string& name)
+    
+    void _rename(const std::string& name)
     {
         values.name = name;
     }
@@ -152,7 +153,7 @@ public:
             }
             res.append(id, val);
         }
-        res.set_name(name());
+        res._rename(name());
         return res;
     }
 

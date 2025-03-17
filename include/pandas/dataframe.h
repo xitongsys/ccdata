@@ -44,6 +44,14 @@ public:
         return df;
     }
 
+    void _reindex(const Index<IT>& idx)
+    {
+        pidx = std::make<SingleIndex<IT>>(idx);
+        for (int i = 0; i < values.size(); i++) {
+            values[i]._reindex(idx);
+        }
+    }
+
     Array<Str> columns() const
     {
         Array<Str> res;
@@ -72,7 +80,7 @@ public:
         return -1;
     }
 
-    int append_row(const IT& id, const Array<DT>& ar)
+    int _append_row(const IT& id, const Array<DT>& ar)
     {
         if (ar.size() != values.size()) {
             throw std::format("row size not match: {}!={}", ar.size(), values.size());
@@ -90,7 +98,7 @@ public:
         return size();
     }
 
-    int append_row(const IT& id, const Series<std::string, DT>& sr)
+    int _append_row(const IT& id, const Series<std::string, DT>& sr)
     {
         if (sr.size() != values.size()) {
             throw std::format("row size not match: {}!={}", sr.size(), values.size());
@@ -116,7 +124,7 @@ public:
         return size();
     }
 
-    int append_col(const Array<DT>& ar)
+    int _append_col(const Array<DT>& ar)
     {
         if (ar.size() != size()) {
             throw std::format("append size not match: {}!={}", ar.size(), size());
@@ -130,7 +138,7 @@ public:
         return values.size();
     }
 
-    int append_col(const Series<IT, DT>& sr)
+    int _append_col(const Series<IT, DT>& sr)
     {
         if (get_column_name_index(sr.name()) >= 0) {
             throw std::format("duplicated column name: {}", sr.name);
