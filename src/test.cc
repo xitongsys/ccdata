@@ -17,7 +17,7 @@ using namespace std::chrono;
 
 void test2()
 {
-    
+
     Array<int> ar1({ 1, 2, 3 });
     Array<int> ar2({ 4, 5 });
     Array<int> ar3 = concat_0<int>(ar1, ar2);
@@ -50,7 +50,7 @@ void test2()
     cout << double(dt.count()) / 1e6 << endl;
 
     auto start2 = high_resolution_clock::now();
-    cout << sr1.rolling(1000, 1).sum() << endl;
+    cout << sr1.rolling(10000, 1).sum() << endl;
     auto end2 = high_resolution_clock::now();
     duration<double, nano> dt2 = end2 - start2;
     cout << double(dt2.count()) / 1e6 << endl;
@@ -60,7 +60,6 @@ void test2()
     auto end3 = high_resolution_clock::now();
     duration<double, nano> dt3 = end3 - start3;
     cout << double(dt3.count()) / 1e6 << endl;
-    
 }
 
 void test1()

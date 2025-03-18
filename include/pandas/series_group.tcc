@@ -29,7 +29,7 @@ public:
     }
 
     template <class DT2>
-    Series<KT, DT2, INT, DNT> agg(std::function<DT2(const Visitor<DT>&)> const& func)
+    Series<KT, DT2, INT, DNT> agg(std::function<DT2(Visitor<DT>&)> const& func)
     {
         SingleIndex<KT, INT> id;
         Series<KT, DT2, INT, DNT> res(id);
@@ -47,7 +47,7 @@ public:
 #define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                    \
     Series<KT, TYPE> FUN()                                                        \
     {                                                                             \
-        return agg<TYPE>([](const Visitor<DT>& sr) -> TYPE { return sr.FUN(); }); \
+        return agg<TYPE>([](Visitor<DT>& sr) -> TYPE { return sr.FUN(); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
@@ -59,7 +59,7 @@ public:
 };
 
 template <class KT, class DNT2>
-SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr) const
+SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr) 
 {
     SeriesGroup<KT> sg;
 
@@ -75,7 +75,7 @@ SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr) const
 }
 
 template <class KT, class INT2, class DNT2>
-SeriesGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr) const
+SeriesGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr) 
 {
     SeriesGroup<KT> sg;
 

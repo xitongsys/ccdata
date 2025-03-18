@@ -9,6 +9,7 @@
 #include "pandas/array.h"
 #include "pandas/index.h"
 #include "pandas/pandastype.h"
+#include "pandas/range.h"
 #include "pandas/singleindex.h"
 #include "pandas/visitor.h"
 
@@ -210,7 +211,7 @@ public:
 
     DT& iloc(int i)
     {
-        return values.iloc(i);
+        return values.iloc_ref(i);
     }
 
     DT iloc(int i) const
@@ -220,18 +221,20 @@ public:
 
     SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1) const
     {
-        return SeriesPicker<IT, DT, INT, DNT>(*this, range(bgn, end, step));
+        auto pvis = std::make_shared<Range<int>>(bgn, end, step);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
     }
 
     SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1)
     {
-        return SeriesPicker<IT, DT, INT, DNT>(*this, range(bgn, end, step));
+        auto pvis = std::make_shared<Range<int>>(bgn, end, step);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
     }
 
     SeriesPicker<IT, DT, INT, DNT> loc(const DT& bgn, const DT& end)
     {
-        std::vector<int> iids = pidx->loc(bgn, end);
-        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
+        auto pvis = pidx->loc(bgn, end);
+        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
     }
 
     template <class INT2>

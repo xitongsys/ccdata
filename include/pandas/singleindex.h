@@ -10,7 +10,9 @@
 #include "pandas/array.h"
 #include "pandas/index.h"
 #include "pandas/pandastype.h"
+#include "pandas/range.h"
 #include "pandas/util.h"
+#include "pandas/visitor.h"
 
 namespace pandas {
 
@@ -19,6 +21,8 @@ class SingleIndex : public Index<T, NT> {
 public:
     Array<T> values;
     std::map<T, int> value2iid;
+
+#include "pandas/singleindex_range.tcc"
 
     SingleIndex()
     {
@@ -114,46 +118,55 @@ public:
         return 0;
     }
 
-    int loc(const T& v)
+    int loc_i(const T& v)
     {
         if (value2iid.count(v)) {
             int i = value2iid[v];
             return i;
         } else {
-            throw std::format("key not found");
+            throw std::format("key not found: {}", pandas::to_string(v));
         }
     }
 
-    std::vector<int> loc(const T& bgn, const T& end)
+    std::shared_ptr<Visitor<int>> loc_i(const T& bgn, const T& end)
     {
-        std::vector<int> iids;
-        if (end < bgn) {
-            return iids;
-        }
-        auto upper = value2iid.upper_bound(end);
-        for (auto it = value2iid.lower_bound(bgn); it != upper; it++) {
-            iids.push_back(it->second);
-        }
-        return iids;
+        return std::make_shared<SingleIndexIRange>(bgn, end, *this);
     }
 
-    T iloc(int i) const
+    T loc(const T& key)
+    {
+        if (!has(key)) {
+            throw std::format("key not found: {}", pandas::to_string(key));
+        }
+        return key;
+    }
+
+    T& loc_ref(const T& key)
+    {
+        if (!has(key)) {
+            throw std::format("key not found: {}", pandas::to_string(key));
+        }
+        return iloc_ref(value2iid[key]);
+    }
+
+    std::shared_ptr<Visitor<T>> loc(const T& bgn, const T& end)
+    {
+        return std::make_shared<SingleIndexRange>(bgn, end, *this);
+    }
+
+    T iloc(int i)
     {
         return values.iloc(i);
     }
 
-    T& iloc(int i)
+    T& iloc_ref(int i)
     {
-        return values.iloc(i);
+        return values.iloc_ref(i);
     }
 
-    std::vector<T> iloc(int bgn, int end, int step = 1) const
+    std::shared_ptr<Visitor<T>> iloc(int bgn, int end, int step = 1)
     {
-        std::vector<T> vs;
-        for (int i = bgn; i < end; i += step) {
-            vs.push_back(values.iloc(i));
-        }
-        return vs;
+        return std::make_shared<SingleIndexILocRange>(bgn, end, step, *this);
     }
 
     template <class T2, class NT2>

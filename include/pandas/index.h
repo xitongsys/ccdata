@@ -10,6 +10,7 @@
 #include "pandas/array.h"
 #include "pandas/pandastype.h"
 #include "pandas/util.h"
+#include "pandas/visitor.h"
 
 namespace pandas {
 
@@ -25,14 +26,20 @@ public:
     virtual void _update_index() = 0;
     virtual int _append(const T& key) = 0;
 
-    // pos by value
-    virtual int loc(const T& key) = 0;
-    virtual std::vector<int> loc(const T& bgn, const T& end) = 0;
+    // by value to pos index
+    virtual int loc_i(const T& key) = 0;
+    virtual std::shared_ptr<Visitor<int>> loc_i(const T& bgn, const T& end) = 0;
 
-    // value by pos
-    virtual T iloc(int i) const = 0;
-    virtual T& iloc(int i) = 0;
-    virtual std::vector<T> iloc(int bgn, int end, int step = 1) const = 0;
+    // by value to value
+    virtual T loc(const T& key) = 0;
+    virtual T& loc_ref(const T& key) = 0;
+    virtual std::shared_ptr<Visitor<T>> loc(const T& bgn, const T& end) = 0;
+    
+
+    // by pos index to value
+    virtual T iloc(int i) = 0;
+    virtual T& iloc_ref(int i) = 0;
+    virtual std::shared_ptr<Visitor<T>> iloc(int bgn, int end, int step = 1) = 0;
 
     virtual std::string to_string() const = 0;
 

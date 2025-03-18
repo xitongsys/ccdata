@@ -48,41 +48,43 @@ DEFINE_SERIESPICKER_OPERATOR(^)
 
 DEFINE_SERIESPICKER_OPERATOR(~)
 
-#define DEFINE_SERIESPICKER_OPERATOR(OP)                                    \
-    template <class T>                                                      \
-    void operator OP(const T& val)                                          \
-    {                                                                       \
-        for (int i : iids) {                                                \
-            sr.iloc(i) OP val;                                              \
-        }                                                                   \
-    }                                                                       \
-                                                                            \
-    template <class DT2, class DNT2>                                        \
-    void operator OP(const Array<DT2, DNT2>& ar)                            \
-    {                                                                       \
-        if (ar.size() != size()) {                                          \
-            throw std::format("size not match: {}!={}", ar.size(), size()); \
-        }                                                                   \
-        for (int i = 0; i < ar.size(); i++) {                               \
-            const DT2& val = ar.iloc(i);                                    \
-            sr.iloc(iids[i]) OP val;                                        \
-        }                                                                   \
-    }                                                                       \
-                                                                            \
-    template <class IT2, class DT2, class INT2, class DNT2>                 \
-    void operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                \
-    {                                                                       \
-        if (sr.size() != size()) {                                          \
-            throw std::format("size not match: {}!={}", sr.size(), size()); \
-        }                                                                   \
-        for (int i = 0; i < sr.size(); i++) {                               \
-            const IT2& id = sr.pidx->iloc(i);                               \
-            const DT2& val = sr.iloc(i);                                    \
-            if (!sr.pidx->has(id)) {                                        \
-                throw std::format("key {} not found", id.to_string());      \
-            }                                                               \
-            sr.loc(id) OP val;                                              \
-        }                                                                   \
+#define DEFINE_SERIESPICKER_OPERATOR(OP)                                                             \
+    template <class T>                                                                               \
+    void operator OP(const T& val)                                                                   \
+    {                                                                                                \
+        pvis->reset();                                                                               \
+        for (int i = pvis->next().value_or(-1); i >= 0; i = pvis->next().value_or(-1)) {             \
+            sr.iloc(i) OP val;                                                                       \
+        }                                                                                            \
+    }                                                                                                \
+                                                                                                     \
+    template <class DT2, class DNT2>                                                                 \
+    void operator OP(const Array<DT2, DNT2>& ar)                                                     \
+    {                                                                                                \
+        if (ar.size() != size()) {                                                                   \
+            throw std::format("size not match: {}!={}", ar.size(), size());                          \
+        }                                                                                            \
+        pvis->reset();                                                                               \
+        for (int i = pvis->next().value_or(-1), j = 0; i >= 0; i = pvis->next().value_or(-1), j++) { \
+            const DT2& val = ar.iloc(j);                                                             \
+            sr.iloc(i) OP val;                                                                       \
+        }                                                                                            \
+    }                                                                                                \
+                                                                                                     \
+    template <class IT2, class DT2, class INT2, class DNT2>                                          \
+    void operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                                         \
+    {                                                                                                \
+        if (sr.size() != size()) {                                                                   \
+            throw std::format("size not match: {}!={}", sr.size(), size());                          \
+        }                                                                                            \
+        for (int i = 0; i < sr.size(); i++) {                                                        \
+            const IT2& id = sr.pidx->iloc(i);                                                        \
+            const DT2& val = sr.iloc(i);                                                             \
+            if (!sr.pidx->has(id)) {                                                                 \
+                throw std::format("key {} not found", id.to_string());                               \
+            }                                                                                        \
+            sr.loc(id) OP val;                                                                       \
+        }                                                                                            \
     }
 
 DEFINE_SERIESPICKER_OPERATOR(+=)

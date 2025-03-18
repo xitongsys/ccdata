@@ -122,7 +122,7 @@ public:
         this->name = name;
     }
 
-    T& iloc(int i)
+    T& iloc_ref(int i)
     {
         return values[i];
     }
