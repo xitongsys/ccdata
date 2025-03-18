@@ -7,7 +7,7 @@ template <class IT2, class DT2, class INT2, class DNT2>
 class SeriesPicker;
 
 template <>
-class SeriesPicker<IT, DT, INT, DNT> {
+class SeriesPicker<IT, DT, INT, DNT> : public Visitor<DT> {
 public:
     Series<IT, DT, INT, DNT>& sr;
     std::shared_ptr<Visitor<int>> pvis;
@@ -17,6 +17,13 @@ public:
         , pvis(pvis_)
     {
     }
+
+    bool has_left() const
+    {
+        return pvis->has_left();
+    }
+
+    
 
     Series<IT, DT, INT, DNT> to_series() const
     {

@@ -152,7 +152,7 @@ public:
     }
 
     template <class IT2, class INT2>
-    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
+    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) 
     {
         Series<IT2, DT, INT2, DNT> res(index.new_index());
 
@@ -202,11 +202,11 @@ public:
     DT& loc(const IT& id)
     {
         if (!pidx->has(id)) {
-            pidx->append(id);
-            values.append(DT {});
+            pidx->_append(id);
+            values._append(DT {});
         }
 
-        return values.iloc(pidx->loc(id));
+        return values.iloc_ref(pidx->loc(id));
     }
 
     DT& iloc(int i)

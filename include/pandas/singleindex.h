@@ -118,10 +118,10 @@ public:
         return 0;
     }
 
-    int loc_i(const T& v)
+    int loc_i(const T& v) const
     {
         if (value2iid.count(v)) {
-            int i = value2iid[v];
+            int i = value2iid.at(v);
             return i;
         } else {
             throw std::format("key not found: {}", pandas::to_string(v));
@@ -133,7 +133,7 @@ public:
         return std::make_shared<SingleIndexIRange>(bgn, end, *this);
     }
 
-    T loc(const T& key)
+    T loc(const T& key) const
     {
         if (!has(key)) {
             throw std::format("key not found: {}", pandas::to_string(key));
@@ -154,7 +154,7 @@ public:
         return std::make_shared<SingleIndexRange>(bgn, end, *this);
     }
 
-    T iloc(int i)
+    T iloc(int i) const
     {
         return values.iloc(i);
     }

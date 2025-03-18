@@ -17,7 +17,7 @@ public:
         throw std::format("next_ref not supported");
     };
 
-    virtual bool has()
+    virtual bool has_left() const
     {
         return false;
     }
@@ -35,7 +35,7 @@ public:
     virtual size_t size()
     {
         size_t s = 0;
-        while (has()) {
+        while (has_left()) {
             s++;
             next();
         }
@@ -63,12 +63,13 @@ public:
 
     T sum()
     {
-        T s = iloc(0);
-        for (int i = 1; i < size(); i++) {
-            T v = iloc(i);
-            if (!isnan(v)) {
-                s += v;
-            }
+        if (!has_left()) {
+            return pandas::nan<T>();
+        }
+
+        T s = next();
+        while (has_left()) {
+            s += next();
         }
         return s;
     }

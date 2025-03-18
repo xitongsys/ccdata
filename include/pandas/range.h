@@ -27,7 +27,7 @@ public:
         this->cur = bgn;
     }
 
-    bool has()
+    bool has() const
     {
         if (step > 0 and cur < end) {
             return true;

@@ -27,17 +27,17 @@ public:
     virtual int _append(const T& key) = 0;
 
     // by value to pos index
-    virtual int loc_i(const T& key) = 0;
+    virtual int loc_i(const T& key) const = 0;
     virtual std::shared_ptr<Visitor<int>> loc_i(const T& bgn, const T& end) = 0;
 
     // by value to value
-    virtual T loc(const T& key) = 0;
+    virtual T loc(const T& key) const = 0;
     virtual T& loc_ref(const T& key) = 0;
     virtual std::shared_ptr<Visitor<T>> loc(const T& bgn, const T& end) = 0;
     
 
     // by pos index to value
-    virtual T iloc(int i) = 0;
+    virtual T iloc(int i) const = 0;
     virtual T& iloc_ref(int i) = 0;
     virtual std::shared_ptr<Visitor<T>> iloc(int bgn, int end, int step = 1) = 0;
 

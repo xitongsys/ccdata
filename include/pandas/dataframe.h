@@ -212,8 +212,8 @@ template <
     class IT, class DT, class INT, class DNT,
     class IT2, class DT2, class INT2, class DNT2>
 DataFrame<IT, DT, INT, DNT> concat_1(
-    const Series<IT, DT, INT, DNT>& sr1,
-    const Series<IT2, DT2, INT2, DNT2>& sr2)
+    Series<IT, DT, INT, DNT>& sr1,
+    Series<IT2, DT2, INT2, DNT2>& sr2)
 {
     if (sr1.get_name() == sr2.get_name()) {
         throw std::format("columns have same name: {}", sr1.get_name());

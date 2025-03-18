@@ -19,14 +19,14 @@ public:
         it_end = si.value2iid.upper_bound(end);
     }
 
-    bool has()
+    bool has_left()
     {
         return !(it == si.value2iid.end() or it == it_end);
     }
 
     T next()
     {
-        if (!has()) {
+        if (!has_left()) {
             throw std::format("no left data");
         }
 
@@ -37,7 +37,7 @@ public:
 
     T& next_ref() const
     {
-        if (!has()) {
+        if (!has_left()) {
             throw std::format("no left data");
         }
 
@@ -69,14 +69,14 @@ public:
         it_end = si.value2iid.upper_bound(end);
     }
 
-    bool has()
+    bool has_left()
     {
         return !(it == si.value2iid.end() or it == it_end);
     }
 
     int next()
     {
-        if (!has()) {
+        if (!has_left()) {
             throw std::format("no left data");
         }
         int res = it->second;
@@ -101,9 +101,9 @@ public:
     {
     }
 
-    bool has()
+    bool has_left()
     {
-        return rng.has();
+        return rng.has_left();
     }
 
     T next()
