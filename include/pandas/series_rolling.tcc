@@ -22,7 +22,7 @@ public:
         for (int i = 0; i < sr.size(); i++) {
             int b = std::max(0, i - window + 1), e = i;
             SeriesPicker vis = sr.iloc(b, e);
-            res.iloc(i) = func(vis);
+            res.iloc_ref(i) = func(vis);
         }
         return res;
     }

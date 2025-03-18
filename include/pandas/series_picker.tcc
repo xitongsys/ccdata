@@ -23,7 +23,15 @@ public:
         return pvis->has_left();
     }
 
-    
+    DT next()
+    {
+        return sr.iloc(pvis->next());
+    }
+
+    DT& next_ref()
+    {
+        return sr.iloc_ref(pvis->next());
+    }
 
     Series<IT, DT, INT, DNT> to_series() const
     {

@@ -27,7 +27,7 @@ public:
         this->cur = bgn;
     }
 
-    bool has() const
+    bool has_left() const
     {
         if (step > 0 and cur < end) {
             return true;
@@ -40,7 +40,7 @@ public:
 
     int next()
     {
-        if (!has()) {
+        if (!has_left()) {
             throw std::format("no value left");
         }
         int res = cur;
