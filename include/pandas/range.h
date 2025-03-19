@@ -27,7 +27,7 @@ public:
         this->cur = bgn;
     }
 
-    bool has_left() const
+    inline bool has_left() const
     {
         if (step > 0 and cur < end) {
             return true;
@@ -38,7 +38,7 @@ public:
         return false;
     }
 
-    int next()
+    inline int next()
     {
         if (!has_left()) {
             throw std::format("no value left");
@@ -73,12 +73,12 @@ public:
         cur = 0;
     }
 
-    bool has_left() const
+    inline bool has_left() const
     {
         return cur < vs.size();
     }
 
-    T next()
+    inline T next()
     {
         if (!has_left()) {
             throw std::format("no value left");

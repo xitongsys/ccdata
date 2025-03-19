@@ -19,12 +19,12 @@ public:
     {
     }
 
-    bool has_left()
+    inline bool has_left()
     {
         return it.has_left();
     }
 
-    T next()
+    inline T next()
     {
         if (!has_left()) {
             throw std::format("no left data");
@@ -35,7 +35,7 @@ public:
         return si.iloc(i);
     }
 
-    T& next_ref()
+    inline T& next_ref()
     {
         if (!has_left()) {
             throw std::format("no left data");
@@ -123,7 +123,7 @@ public:
         return iids.size();
     }
 
-    T iloc(int i)
+    inline T iloc(int i)
     {
         extract_iids();
         if (i > iids.size()) {
@@ -133,7 +133,7 @@ public:
         return si.iloc(i);
     }
 
-    T& iloc_ref(int i)
+    inline T& iloc_ref(int i)
     {
         extract_iids();
         if (i > iids.size()) {

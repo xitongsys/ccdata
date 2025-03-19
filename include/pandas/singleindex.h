@@ -8,12 +8,10 @@
 #include <vector>
 
 #include "pandas/array.h"
-#include "pandas/index.h"
 #include "pandas/iterator.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
 #include "pandas/util.h"
-#include "pandas/visitor.h"
 
 namespace pandas {
 
@@ -112,7 +110,7 @@ public:
         return 0;
     }
 
-    int loc_i(const T& v) const
+    inline int loc_i(const T& v) const
     {
         if (value2iid.count(v)) {
             int i = value2iid.at(v);
@@ -122,7 +120,7 @@ public:
         }
     }
 
-    T loc(const T& key) const
+    inline T loc(const T& key) const
     {
         if (!has(key)) {
             throw std::format("key not found: {}", pandas::to_string(key));
@@ -130,7 +128,7 @@ public:
         return key;
     }
 
-    T& loc_ref(const T& key)
+    inline T& loc_ref(const T& key)
     {
         if (!has(key)) {
             throw std::format("key not found: {}", pandas::to_string(key));
@@ -138,12 +136,12 @@ public:
         return iloc_ref(value2iid[key]);
     }
 
-    T iloc(int i) const
+    inline T iloc(int i) const
     {
         return values.iloc(i);
     }
 
-    T& iloc_ref(int i)
+    inline T& iloc_ref(int i)
     {
         return values.iloc_ref(i);
     }
@@ -174,7 +172,7 @@ public:
         return si2;
     }
 
-    Index<T> sort(bool ascending = true) const
+    SingleIndex<T, NT> sort(bool ascending = true) const
     {
         SingleIndex<T> si;
         if (ascending) {

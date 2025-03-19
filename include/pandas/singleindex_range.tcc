@@ -19,12 +19,12 @@ public:
         it_end = si.value2iid.upper_bound(end);
     }
 
-    bool has_left()
+    inline bool has_left()
     {
         return !(it == si.value2iid.end() or it == it_end);
     }
 
-    int next()
+    inline int next()
     {
         if (!has_left()) {
             throw std::format("no left data");

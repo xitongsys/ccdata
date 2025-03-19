@@ -6,7 +6,7 @@
 template <class KT>
 class SeriesGroup {
 public:
-    std::map<KT, Array<DT, DNT>> srs;
+    std::map<KT, Series> srs;
 
     SeriesGroup() { }
 
@@ -20,34 +20,31 @@ public:
         srs = std::move(sg.srs);
     }
 
-    void append(const KT& key, const DT& value)
+    void append(const KT& key, const IT& id, const DT& value)
     {
         if (srs.count(key) == 0) {
-            srs[key] = Array<DT, DNT>();
+            srs[key] = Series();
         }
-        srs[key].append(value);
+        srs[key]._append(id, value);
     }
 
     template <class DT2>
-    Series<KT, DT2, INT, DNT> agg(std::function<DT2(Visitor<DT>&)> const& func)
+    Series<KT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
     {
-        SingleIndex<KT, INT> id;
-        Series<KT, DT2, INT, DNT> res(id);
-
+        Series<KT, DT2, INT, DNT> res;
         for (auto it = srs.begin(); it != srs.end(); it++) {
             KT key = it->first;
-            //Array<DT, DNT>& sr = it->second;
-            //DT2 value = func(sr);
-            //res._append(key, value);
+            SeriesVisitor<Range<int>> sv(it->second, Range<int>(0, it->second.size()));
+            DT2 val = func(sv);
+            res._append(key, val);
         }
-
         return res;
     }
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                    \
-    Series<KT, TYPE> FUN()                                                        \
-    {                                                                             \
-        return agg<TYPE>([](Visitor<DT>& sr) -> TYPE { return sr.FUN(); }); \
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                                                    \
+    Series<KT, TYPE, INT, DNT> FUN()                                                                                              \
+    {                                                                                                                             \
+        return agg<TYPE>([](SeriesVisitor<Range<int>>& sv) -> TYPE { return pandas::FUN<TYPE, SeriesVisitor<Range<int>>>(sv); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
@@ -59,7 +56,7 @@ public:
 };
 
 template <class KT, class DNT2>
-SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr) 
+SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
 {
     SeriesGroup<KT> sg;
 
@@ -67,26 +64,27 @@ SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
         throw std::format("size not match: {}!={}", sr.size(), size());
     }
     for (int i = 0; i < sr.size(); i++) {
-        const KT& key = sr.iloc(i);
-        const DT& val = iloc(i);
-        sg.append(key, val);
+        IT id = pidx->iloc(i);
+        DT val = iloc(i);
+        KT key = sr.iloc(i);
+        sg.append(key, id, val);
     }
     return sg;
 }
 
-template <class KT, class INT2, class DNT2>
-SeriesGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr) 
+template <class IT2, class KT, class INT2, class DNT2>
+SeriesGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
 {
     SeriesGroup<KT> sg;
 
     if (size() != sr.size()) {
         throw std::format("size not match: {}!={}", sr.size(), size());
     }
-    for (int i = 0; i < sr.size(); i++) {
+    for (int i = 0; i < size(); i++) {
         const IT& id = pidx->iloc(i);
-        const DT& val = loc(id);
-        const KT& key = sr.iloc(i);
-        sg.append(key, val);
+        const DT& val = iloc(i);
+        const KT& key = sr.loc(id);
+        sg.append(key, id, val);
     }
     return sg;
 }

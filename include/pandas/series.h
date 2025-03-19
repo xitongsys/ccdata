@@ -5,9 +5,7 @@
 #include <sstream>
 #include <vector>
 
-#include "emptyindex.h"
 #include "pandas/array.h"
-#include "pandas/index.h"
 #include "pandas/ops.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
@@ -194,12 +192,12 @@ public:
 #include "pandas/series_op.tcc"
 #include "pandas/series_visitor.tcc"
 
-    DT loc(const IT& id) const
+    inline DT loc(const IT& id) const
     {
         return values.iloc(pidx->loc(id));
     }
 
-    DT& loc_ref(const IT& id)
+    inline DT& loc_ref(const IT& id)
     {
         if (!pidx->has(id)) {
             pidx->_append(id);
@@ -209,12 +207,12 @@ public:
         return values.iloc_ref(pidx->loc(id));
     }
 
-    DT& iloc_ref(int i)
+    inline DT& iloc_ref(int i)
     {
         return values.iloc_ref(i);
     }
 
-    DT iloc(int i) const
+    inline DT iloc(int i) const
     {
         return values.iloc(i);
     }

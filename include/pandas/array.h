@@ -10,7 +10,6 @@
 
 #include "pandas/pandastype.h"
 #include "pandas/util.h"
-#include "pandas/visitor.h"
 
 namespace pandas {
 
@@ -122,12 +121,12 @@ public:
         this->name = name;
     }
 
-    T& iloc_ref(int i)
+    inline T& iloc_ref(int i)
     {
         return values[i];
     }
 
-    T iloc(int i) const
+    inline T iloc(int i) const
     {
         return values[i];
     }

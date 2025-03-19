@@ -1,11 +1,9 @@
 #include "pandas/array.h"
-#include "pandas/dataframe.h"
 #include "pandas/datetime.h"
-#include "pandas/index.h"
-#include "pandas/multiindex.h"
 #include "pandas/pandastype.h"
-#include "pandas/series.h"
 #include "pandas/singleindex.h"
+#include "pandas/series.h"
+
 
 #include <chrono>
 #include <iostream>
@@ -27,33 +25,36 @@ void test2()
 
     cout << ar5 << endl;
 
-    SingleIndex<int> si1;
-    Series<int, double> sr1(si1);
+    Series<int, double> sr1;
     for (int i = 0; i < 300000; i++) {
 
-        sr1._append(i + 10, i);
+        sr1._append(i, i);
     }
 
     cout << sr1 << endl;
 
     auto start = high_resolution_clock::now();
 
-    double s = 0;
     for (int i = 0; i < sr1.size(); i++) {
+        double s = 0;
         for (int j = max(0, i - 10000); j <= i; j++) {
             s += sr1.iloc(j);
         }
+        sr1.iloc_ref(i) = s;
     }
-    cout << s << endl;
     auto end = high_resolution_clock::now();
     duration<double, nano> dt = end - start;
     cout << double(dt.count()) / 1e6 << endl;
+
+    cout << "-----------------------------" << endl;
 
     auto start2 = high_resolution_clock::now();
     cout << sr1.rolling(10000, 1).sum() << endl;
     auto end2 = high_resolution_clock::now();
     duration<double, nano> dt2 = end2 - start2;
     cout << double(dt2.count()) / 1e6 << endl;
+
+    cout << "--------------------------------" << endl;
 
     auto start3 = high_resolution_clock::now();
     cout << sr1.groupby(sr1).sum() << endl;
@@ -64,19 +65,12 @@ void test2()
 
 void test1()
 {
-    Series<int, double> ds1(SingleIndex<int>(Array<int> { 0, 1, 2 }), Array<int> { 1, 2, 3 }, "c1");
-    Series<int, double> ds2(SingleIndex<int>(Array<int> { 0, 1, 2 }), Array<int> { 1, 2, 3 }, "c2");
-
-    DataFrame<int, double> df = concat_1(ds1, ds2);
-
-    cout << df << endl;
-
-    Array<int> ar1({ 1, 2, 3 });
-    Array<double> ar2({ 2, 3, 4 });
-    Array<std::string> ar3({ "a", "b", "c" });
-    auto ar4 = zip(ar1, ar2, ar3).rename("hehe");
-
-    cout << ar4.to_string() << endl;
+    SingleIndex<int> si;
+    for (int i = 0; i < 10; i++) {
+        si._append(i);
+    }
+    si.iloc_ref(1) = 10;
+    cout << si << endl;
 }
 
 int main()

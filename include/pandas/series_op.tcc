@@ -28,7 +28,7 @@
     template <class IT2, class DT2, class INT2, class DNT2>                   \
     Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const          \
     {                                                                         \
-        Index<IT> index;                                                      \
+        SingleIndex<IT, INT> index;                                           \
         for (int i = 0; i < pidx->size(); i++) {                              \
             index.append(pidx->iloc(i));                                      \
         }                                                                     \

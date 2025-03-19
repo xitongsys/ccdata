@@ -16,18 +16,18 @@ public:
     {
     }
 
-    bool has_left()
+    inline bool has_left()
     {
         return it.has_left();
     }
 
-    DT next()
+    inline DT next()
     {
         int i = it.next();
         return sr.iloc(i);
     }
 
-    DT& next_ref()
+    inline DT& next_ref()
     {
         int i = it.next();
         return sr.iloc_ref(i);
@@ -103,7 +103,7 @@ public:
         return iids.size();
     }
 
-    DT iloc(int i)
+    inline DT iloc(int i)
     {
         extract_iids();
         if (i > iids.size()) {
@@ -113,7 +113,7 @@ public:
         return sr.iloc(i);
     }
 
-    DT& iloc_ref(int i)
+    inline DT& iloc_ref(int i)
     {
         extract_iids();
         if (i > iids.size()) {
