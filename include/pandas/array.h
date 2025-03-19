@@ -15,7 +15,7 @@
 namespace pandas {
 
 template <class T, class NT = std::string>
-class Array : public Visitor<T> {
+class Array {
 public:
     std::vector<T> values;
     NT name;

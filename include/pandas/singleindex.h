@@ -9,6 +9,7 @@
 
 #include "pandas/array.h"
 #include "pandas/index.h"
+#include "pandas/iterator.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
 #include "pandas/util.h"
@@ -17,23 +18,16 @@
 namespace pandas {
 
 template <class T, class NT = std::string>
-class SingleIndex : public Index<T, NT> {
+class SingleIndex {
 public:
-    Array<T> values;
+    Array<T, NT> values;
     std::map<T, int> value2iid;
 
 #include "pandas/singleindex_range.tcc"
+#include "pandas/singleindex_visitor.tcc"
 
     SingleIndex()
     {
-    }
-
-    SingleIndex(const Index<T>& idx)
-    {
-        values.name = idx.get_name();
-        for (int i = 0; i < idx.size(); i++) {
-            _append(idx.iloc(i));
-        }
     }
 
     SingleIndex(size_t n, const T& init_val)
@@ -128,11 +122,6 @@ public:
         }
     }
 
-    std::shared_ptr<Visitor<int>> loc_i(const T& bgn, const T& end)
-    {
-        return std::make_shared<SingleIndexIRange>(bgn, end, *this);
-    }
-
     T loc(const T& key) const
     {
         if (!has(key)) {
@@ -149,11 +138,6 @@ public:
         return iloc_ref(value2iid[key]);
     }
 
-    std::shared_ptr<Visitor<T>> loc(const T& bgn, const T& end)
-    {
-        return std::make_shared<SingleIndexRange>(bgn, end, *this);
-    }
-
     T iloc(int i) const
     {
         return values.iloc(i);
@@ -164,9 +148,19 @@ public:
         return values.iloc_ref(i);
     }
 
-    std::shared_ptr<Visitor<T>> iloc(int bgn, int end, int step = 1)
+    SingleIndexVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
     {
-        return std::make_shared<SingleIndexILocRange>(bgn, end, step, *this);
+        return SingleIndexVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
+    }
+
+    SingleIndexVisitor<SingleIndexRange> loc(const T& bgn, const T& end)
+    {
+        return SingleIndexVisitor(*this, SingleIndexRange(*this, bgn, end));
+    }
+
+    SingleIndexRange range(const T& bgn, const T& end)
+    {
+        return SingleIndexRange(*this, bgn, end);
     }
 
     template <class T2, class NT2>
@@ -196,17 +190,6 @@ public:
         return si;
     }
 
-    std::shared_ptr<Index<T>> new_clone() const
-    {
-        auto ptr = std::make_shared<SingleIndex>(*this);
-        return ptr;
-    }
-
-    std::shared_ptr<Index<T>> new_index() const
-    {
-        return std::make_shared<SingleIndex<T>>();
-    }
-
     std::string to_string() const
     {
         std::stringstream ss;
@@ -221,8 +204,8 @@ public:
     }
 };
 
-template <class IT, class NT>
-SingleIndex<IT> concat_0(const SingleIndex<IT, NT>& idx1, const SingleIndex<IT, NT>& idx2)
+template <class IT, class NT, class IT2, class NT2>
+SingleIndex<IT, NT> concat_0(const SingleIndex<IT, NT>& idx1, const SingleIndex<IT2, NT2>& idx2)
 {
     SingleIndex<IT, NT> idx_merge = idx1;
     for (int i = 0; i < idx2.size(); i++) {

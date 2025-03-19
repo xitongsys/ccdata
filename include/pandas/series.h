@@ -8,17 +8,17 @@
 #include "emptyindex.h"
 #include "pandas/array.h"
 #include "pandas/index.h"
+#include "pandas/ops.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
 #include "pandas/singleindex.h"
-#include "pandas/visitor.h"
 
 namespace pandas {
 // IT: index type, DT: data type, INT: index name type, DNT: data name type
 template <class IT, class DT, class INT = std::string, class DNT = std::string>
-class Series : public Visitor<DT> {
+class Series {
 public:
-    std::shared_ptr<Index<IT, INT>> pidx = nullptr;
+    std::shared_ptr<SingleIndex<IT, INT>> pidx = nullptr;
     Array<DT, DNT> values;
 
     Series()
@@ -32,7 +32,7 @@ public:
         _rename(name);
     }
 
-    Series(const Index<IT, INT>& idx)
+    Series(const SingleIndex<IT, INT>& idx)
     {
         this->pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
         for (int i = 0; i < idx.size(); i++) {
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx)
+    Series(std::shared_ptr<SingleIndex<IT, INT>> pidx)
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx, const Array<DT, DNT>& vals)
+    Series(std::shared_ptr<SingleIndex<IT, INT>> pidx, const Array<DT, DNT>& vals)
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
@@ -57,7 +57,7 @@ public:
         values = vals;
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx, const Array<DT, DNT>& vals, const DNT& name)
+    Series(std::shared_ptr<SingleIndex<IT, INT>> pidx, const Array<DT, DNT>& vals, const DNT& name)
         : Series(pidx, vals)
     {
         _rename(name);
@@ -67,7 +67,7 @@ public:
     Series(const T& idx, const DNT& name)
     {
         auto ptr = std::make_shared<T>(idx);
-        pidx = std::static_pointer_cast<Index<IT, INT>>(ptr);
+        pidx = std::static_pointer_cast<SingleIndex<IT, INT>>(ptr);
         for (int i = 0; i < pidx->size(); i++) {
             values.append(DT {});
         }
@@ -81,7 +81,7 @@ public:
             throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
         }
         auto ptr = std::make_shared<T>(idx);
-        pidx = std::static_pointer_cast<Index<IT, INT>>(ptr);
+        pidx = std::static_pointer_cast<SingleIndex<IT, INT>>(ptr);
         values = vals;
         _rename(name);
     }
@@ -104,7 +104,7 @@ public:
 
     Series(const Series& sr)
     {
-        pidx = sr.pidx->new_clone();
+        pidx = std::make_shared<SingleIndex<IT, INT>>(*pidx);
         values = sr.values;
     }
 
@@ -152,7 +152,7 @@ public:
     }
 
     template <class IT2, class INT2>
-    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index)
+    Series<IT2, DT, INT2, DNT> reindex(const SingleIndex<IT2, INT2>& index)
     {
         Series<IT2, DT, INT2, DNT> res(index.new_index());
 
@@ -192,9 +192,9 @@ public:
     }
 
 #include "pandas/series_op.tcc"
-#include "pandas/series_picker.tcc"
+#include "pandas/series_visitor.tcc"
 
-    const DT& loc(const IT& id) const
+    DT loc(const IT& id) const
     {
         return values.iloc(pidx->loc(id));
     }
@@ -219,41 +219,31 @@ public:
         return values.iloc(i);
     }
 
-    SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1) const
+    SeriesVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
     {
-        auto pvis = std::make_shared<Range<int>>(bgn, end, step);
-        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
+        auto a = SeriesVisitor<typename SingleIndex<IT, INT>::SingleIndexRange>(*this, SingleIndex<IT, INT>::SingleIndexRange(*pidx, bgn, end));
+        return SeriesVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
     }
 
-    SeriesPicker<IT, DT, INT, DNT> iloc(int bgn, int end, int step = 1)
+    SeriesVisitor<typename SingleIndex<IT, INT>::SingleIndexRange> loc(const IT& bgn, const IT& end)
     {
-        auto pvis = std::make_shared<Range<int>>(bgn, end, step);
-        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
+        return SeriesVisitor<SingleIndex<IT, INT>::SingleIndexRange>(*this, SingleIndex<IT, INT>::SingleIndexRange(*pidx, bgn, end));
     }
 
-    SeriesPicker<IT, DT, INT, DNT> loc(const DT& bgn, const DT& end)
-    {
-        auto pvis = pidx->loc(bgn, end);
-        return SeriesPicker<IT, DT, INT, DNT>(*this, pvis);
-    }
-
-    template <class INT2>
-    SeriesPicker<IT, DT, INT, DNT> loc(const Index<IT, INT2>& idx)
+    SeriesVisitor<RangeVec<int>> loc(const Array<IT>& ids)
     {
         std::vector<int> iids;
-        for (int i = 0; i < idx.size(); i++) {
-            IT& id = idx.iloc(i);
-            if (!has(id)) {
-                throw std::format("key not found {}", id.to_string());
-            }
-            iids.push_back(pidx->loc(id));
+        for (int i = 0; i < ids.size(); i++) {
+            IT id = ids.iloc(i);
+            int i = pidx->loc_i(id);
+            iids.push_back(i);
         }
 
-        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
+        return SeriesPicker<RangeVec<int>>(*this, RangeVec(iids));
     }
 
     template <class INT2, class DNT2>
-    SeriesPicker<IT, DT, INT, DNT> loc(const Series<IT, bool, INT2, DNT2>& mask)
+    SeriesVisitor<RangeVec<int>> loc(const Series<IT, bool, INT2, DNT2>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
@@ -261,14 +251,14 @@ public:
         std::vector<int> iids;
 
         for (int i = 0; i < mask.size(); i++) {
-            Bool flag = mask.iloc(i);
-            IT& id = mask.pidx->iloc(i);
+            bool flag = mask.iloc(i);
             if (flag == true) {
-                iids.push_back(pidx->loc(id));
+                IT id = mask.pidx->iloc(i);
+                iids.push_back(pidx->loc_i(id));
             }
         }
 
-        return SeriesPicker<IT, DT, INT, DNT>(*this, iids);
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
     }
 
     Series sort_index(bool ascending = true) const
@@ -294,7 +284,7 @@ public:
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
-            res.append(id, val);
+            res._append(id, val);
         }
         return res;
     }
@@ -322,7 +312,7 @@ public:
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
-            res.append(id, val);
+            res._append(id, val);
         }
         return res;
     }
@@ -358,7 +348,7 @@ public:
             }
             const IT& id = pidx->iloc(i);
             const DT& val = values.iloc(i);
-            res.append(id, val);
+            res._append(id, val);
         }
         return res;
     }
@@ -371,9 +361,9 @@ public:
             const IT& id = pidx->iloc(i);
             const DT& val = values.iloc(i);
             if (isnan(val)) {
-                res.append(id, v);
+                res._append(id, v);
             } else {
-                res.append(id, val);
+                res._append(id, val);
             }
         }
         return res;
@@ -395,7 +385,7 @@ Series<IT1, DT1, INT1, DNT1> concat_0(
     for (int i = 0; i < sr2.size(); i++) {
         const IT2& id = sr2.pidx->iloc(i);
         const DT2& val = sr2.iloc(i);
-        sr1.append(id, val);
+        sr1._append(id, val);
     }
     return sr1;
 }

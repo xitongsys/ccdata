@@ -72,4 +72,105 @@ std::string to_string(const std::tuple<Ts...>& t)
     return _to_string<0, Ts...>(t);
 }
 
+// some common operators: sum/max/min...
+// IT is Iterator
+// these functions are simple and directly
+
+template <class T, class IT>
+T sum(IT& it)
+{
+    if (!it.has_left()) {
+        return nan<T>();
+    }
+
+    T s = 0;
+    while (it.has_left()) {
+        s += it.next();
+    }
+    return s;
+}
+
+template <class T, class IT>
+T max(IT& it)
+{
+    if (!it.has_left()) {
+        return nan<T>();
+    }
+
+    T mx = it.next();
+    while (it.has_left()) {
+        T v = it.next();
+        if (v > mx) {
+            mx = v;
+        }
+    }
+    return mx;
+}
+
+template <class T, class IT>
+T min(IT& it)
+{
+    if (!it.has_left()) {
+        return nan<T>();
+    }
+
+    T mi = it.next();
+    while (it.has_left()) {
+        T v = it.next();
+        if (v < mi) {
+            mi = v;
+        }
+    }
+    return mi;
+}
+
+template <class T, class IT>
+int count(IT& it)
+{
+    if (!it.has_left()) {
+        return 0;
+    }
+
+    int cnt = 0;
+    while (it.has_left()) {
+        T v = it.next();
+        if (!pandas::isnan(v)) {
+            cnt++;
+        }
+    }
+    return cnt;
+}
+
+template <class T, class IT>
+double mean(IT& it)
+{
+    double s = sum<T, IT>(it);
+    double cnt = count(it);
+    return s / cnt;
+}
+
+template <class T, class IT>
+double var(IT& it)
+{
+    if (!it.has_left()) {
+        return nan<decltype(it.next())>();
+    }
+
+    double mn = mean(it);
+    double cnt = count(it);
+    double s = 0;
+    while (it.has_left()) {
+        double v = it.next();
+        s += (v - mn) * (v - mn);
+    }
+    return s / cnt;
+}
+
+template <class T, class IT>
+double std(IT& it)
+{
+    double v = var(it);
+    return std::pow(v, 0.5);
+}
+
 } // namespace pandas

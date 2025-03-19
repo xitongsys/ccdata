@@ -7,32 +7,32 @@ namespace pandas {
 template <class T>
 class Visitor {
 public:
-    virtual T next()
+    T next()
     {
         throw std::format("next not supported");
     };
 
-    virtual T& next_ref()
+    T& next_ref()
     {
         throw std::format("next_ref not supported");
     };
 
-    virtual bool has_left() const
+    bool has_left() const
     {
         return false;
     }
 
-    virtual T iloc(int i) const
+    T iloc(int i) const
     {
         throw std::format("iloc not supported");
     };
 
-    virtual T& iloc(int i)
+    T& iloc(int i)
     {
         throw std::format("iloc not supported");
     };
 
-    virtual size_t size()
+    size_t size()
     {
         size_t s = 0;
         while (has_left()) {
@@ -42,7 +42,7 @@ public:
         return s;
     };
 
-    virtual void reset()
+    void reset()
     {
         throw std::format("reset not supported");
     }

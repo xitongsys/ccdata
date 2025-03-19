@@ -36,9 +36,9 @@ public:
 
         for (auto it = srs.begin(); it != srs.end(); it++) {
             KT key = it->first;
-            Array<DT, DNT>& sr = it->second;
-            DT2 value = func(sr);
-            res._append(key, value);
+            //Array<DT, DNT>& sr = it->second;
+            //DT2 value = func(sr);
+            //res._append(key, value);
         }
 
         return res;

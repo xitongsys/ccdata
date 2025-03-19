@@ -2,12 +2,12 @@
 
 #include <optional>
 
-#include "pandas/visitor.h"
+#include "pandas/Iterator.h"
 
 namespace pandas {
 
 template <class T>
-class Range : public Visitor<int> {
+class Range : Iterator<T> {
 public:
     int bgn, end, step, cur;
 
@@ -19,7 +19,7 @@ public:
         cur = 0;
     }
 
-    Range(int bgn, int end, int step)
+    Range(int bgn, int end, int step = 1)
     {
         this->bgn = bgn;
         this->end = end;
@@ -60,4 +60,44 @@ public:
         cur = bgn;
     }
 };
+
+template <class T>
+class RangeVec : Iterator<T> {
+public:
+    std::vector<T> vs;
+    int cur = 0;
+
+    RangeVec(const std::vector<T>& vs_)
+        : vs(vs_)
+    {
+        cur = 0;
+    }
+
+    bool has_left() const
+    {
+        return cur < vs.size();
+    }
+
+    T next()
+    {
+        if (!has_left()) {
+            throw std::format("no value left");
+        }
+
+        T val = vs[cur];
+        cur++;
+        return val;
+    }
+
+    size_t size() const
+    {
+        return vs.size();
+    }
+
+    void reset()
+    {
+        cur = 0;
+    }
+};
+
 }
