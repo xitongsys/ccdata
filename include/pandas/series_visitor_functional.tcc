@@ -16,7 +16,7 @@ DT sum()
     DT s(0);
     it.reset();
     while (it.has_left()) {
-        s += it.next();
+        s += sr.iloc(it.next());
     }
     return s;
 }
@@ -26,7 +26,7 @@ DT max()
     DT res = pandas::nan<DT>();
     it.reset();
     while (it.has_left()) {
-        DT v = it.next();
+        DT v = sr.iloc(it.next());
         if (pandas::isnan(res) || v > res) {
             res = v;
         }
@@ -39,7 +39,7 @@ DT min()
     DT res = pandas::nan<DT>();
     it.reset();
     while (it.has_left()) {
-        DT v = it.next();
+        DT v = sr.iloc(it.next());
         if (pandas::isnan(res) || v < res) {
             res = v;
         }
@@ -52,7 +52,7 @@ int count()
     int cnt = 0;
     it.reset();
     while (it.has_left()) {
-        DT v = it.next();
+        DT v = sr.iloc(it.next());
         if (!pandas::isnan(v)) {
             cnt++;
         }
@@ -73,7 +73,7 @@ double var()
     double s = 0;
     it.reset();
     while (it.has_left()) {
-        DT v = it.next();
+        DT v = sr.iloc(it.next());
         s += (v - mn) * (v - mn);
     }
     return s / count();

@@ -1,9 +1,8 @@
 #include "pandas/array.h"
 #include "pandas/datetime.h"
 #include "pandas/pandastype.h"
-#include "pandas/singleindex.h"
 #include "pandas/series.h"
-
+#include "pandas/singleindex.h"
 
 #include <chrono>
 #include <iostream>
@@ -37,7 +36,7 @@ void test2()
 
     for (int i = 0; i < sr1.size(); i++) {
         double s = 0;
-        for (int j = max(0, i - 10000); j <= i; j++) {
+        for (int j = max(0, i - 100); j <= i; j++) {
             s += sr1.iloc(j);
         }
         sr1.iloc_ref(i) = s;
@@ -49,7 +48,7 @@ void test2()
     cout << "-----------------------------" << endl;
 
     auto start2 = high_resolution_clock::now();
-    cout << sr1.rolling(10000, 1).sum() << endl;
+    cout << sr1.rolling(100, 1).sum() << endl;
     auto end2 = high_resolution_clock::now();
     duration<double, nano> dt2 = end2 - start2;
     cout << double(dt2.count()) / 1e6 << endl;
@@ -61,6 +60,10 @@ void test2()
     auto end3 = high_resolution_clock::now();
     duration<double, nano> dt3 = end3 - start3;
     cout << double(dt3.count()) / 1e6 << endl;
+
+    cout << "-------------------" << endl;
+
+    cout<<sr1.iloc(1,10).sum()<<endl;
 }
 
 void test1()
