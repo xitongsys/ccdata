@@ -7,6 +7,21 @@ class SeriesRolling {
 public:
     Series& sr;
     int window, min_periods;
+
+    SeriesRolling(const SeriesRolling& sr2)
+        : sr(sr2.sr)
+        , window(sr2.window)
+        , min_periods(sr2.min_periods)
+    {
+    }
+
+    SeriesRolling(SeriesRolling&& sr2)
+        : sr(sr2.sr)
+        , window(sr2.window)
+        , min_periods(sr2.min_periods)
+    {
+    }
+
     SeriesRolling(Series& sr_, int window_, int min_periods_)
         : sr(sr_)
         , window(window_)
@@ -17,7 +32,8 @@ public:
     template <class DT2>
     Series<IT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
     {
-        Series<IT, DT2, INT, DNT> res = sr;
+        Series<IT, DT2, INT, DNT> res(sr);
+
         for (int i = 0; i < sr.size(); i++) {
             int b = std::max(0, i - window + 1), e = i;
             SeriesVisitor<Range<int>> sv(sr, Range<int>(b, e));

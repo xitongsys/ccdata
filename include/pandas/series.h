@@ -98,13 +98,13 @@ public:
     template <class IT2, class DT2, class INT2, class DNT2>
     Series(const Series<IT2, DT2, INT2, DNT2>& sr)
     {
-        pidx = sr.pidx->clone();
+        pidx = std::make_shared<SingleIndex<IT, INT>>(*sr.pidx);
         values = sr.values;
     }
 
     Series(const Series& sr)
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>(*pidx);
+        pidx = std::make_shared<SingleIndex<IT, INT>>(*sr.pidx);
         values = sr.values;
     }
 
@@ -117,7 +117,7 @@ public:
     template <class IT2, class DT2, class INT2, class DNT2>
     Series& operator=(const Series<IT2, DT2, INT2, DNT2>& sr)
     {
-        pidx = sr.pidx->clone();
+        pidx = std::make_shared<SingleIndex<IT, INT>>(*sr, pidx);
         values = sr.values;
         return *this;
     }
@@ -131,7 +131,7 @@ public:
 
     Series& operator=(const Series& sr)
     {
-        pidx = sr.pidx->clone();
+        pidx = std::make_shared<SingleIndex<IT, INT>>(*sr.pidx);
         values = sr.values;
         return *this;
     }
