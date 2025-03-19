@@ -33,7 +33,7 @@ public:
         return sr.iloc_ref(i);
     }
 
-    Series<IT, DT, INT, DNT> to_series() const
+    Series<IT, DT, INT, DNT> to_series()
     {
         it.reset();
         Series<IT, DT, INT, DNT> res;
@@ -123,5 +123,6 @@ public:
         return sr.iloc_ref(i);
     }
 
+#include "pandas/series_visitor_functional.tcc"
 #include "pandas/series_visitor_op.tcc"
 };

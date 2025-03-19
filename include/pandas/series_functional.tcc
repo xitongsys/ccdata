@@ -5,14 +5,15 @@
 template <class DT2>
 Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func)
 {
-    Array<DT2, DNT> vals;
+    Series<IT, DT2, INT, DNT> sr;
     for (int i = 0; i < size(); i++) {
+        const IT& id = pidx->iloc(i);
         const DT& val = values.iloc(i);
         DT2 mval = func(val);
-        vals.append(mval);
-    }
-    vals._rename(this->get_name());
-    return Series(*pidx, vals);
+        sr._append(id, val);
+        }
+    sr._rename(this->get_name());
+    return sr;
 }
 
 DT sum() const
@@ -30,7 +31,7 @@ DT sum() const
 
 DT max() const
 {
-    DT res;
+    DT res = pandas::nan<DT>();
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
         if (isnan(res) || v > res) {
@@ -42,7 +43,7 @@ DT max() const
 
 DT min() const
 {
-    DT res;
+    DT res = pandas::nan<DT>();
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
         if (isnan(res) || v < res) {
@@ -52,9 +53,9 @@ DT min() const
     return res;
 }
 
-Int count() const
+int count() const
 {
-    Int cnt = 0;
+    int cnt = 0;
     for (int i = 0; i < size(); i++) {
         const DT& v = iloc(i);
         if (!isnan(v)) {
@@ -64,19 +65,19 @@ Int count() const
     return cnt;
 }
 
-Double mean() const
+double mean() const
 {
-    Double s(sum());
-    Double mn = s / count();
+    double s(sum());
+    double mn = s / count();
     return mn;
 }
 
-Double var() const
+double var() const
 {
-    Double mn = mean();
-    Double s = 0;
+    double mn = mean();
+    double s = 0;
     for (int i = 0; i < size(); i++) {
-        const Double& v = iloc(i);
+        const double& v = iloc(i);
         if (isnan(v)) {
             continue;
         }
@@ -85,18 +86,18 @@ Double var() const
     return s / count();
 }
 
-Double std() const
+double std() const
 {
-    Double v = var();
+    double v = var();
     return v.pow(0.5);
 }
 
-Double median() const
+double median() const
 {
     Series<IT, DT> sr = sort_values();
     int n = sr.size();
     if (n == 0) {
-        return Double {};
+        return pandas::nan<double>();
     }
 
     if (n % 2 == 0) {

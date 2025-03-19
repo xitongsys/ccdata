@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "pandas/array.h"
-#include "pandas/index.h"
 #include "pandas/pandastype.h"
 #include "pandas/series.h"
 #include "pandas/singleindex.h"
@@ -15,7 +14,7 @@ namespace pandas {
 template <class IT, class DT, class INT = std::string, class DNT = std::string>
 class DataFrame {
 public:
-    std::shared_ptr<Index<IT, INT>> pidx;
+    std::shared_ptr<SingleIndex<IT, INT>> pidx;
     std::vector<Series<IT, DT, DNT>> values;
 
     DataFrame()
