@@ -63,7 +63,7 @@ void test2()
 
     cout << "-------------------" << endl;
 
-    cout<<sr1.iloc(1,10).sum()<<endl;
+    cout<<sr1.loc(1)<<endl;
 }
 
 void test1()

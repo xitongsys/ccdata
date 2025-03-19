@@ -15,7 +15,7 @@ template <class IT, class DT, class INT = std::string, class DNT = std::string>
 class DataFrame {
 public:
     std::shared_ptr<SingleIndex<IT, INT>> pidx;
-    std::vector<Series<IT, DT, DNT>> values;
+    std::vector<Series<IT, DT, INT, DNT>> values;
 
     DataFrame()
     {
