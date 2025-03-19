@@ -149,6 +149,13 @@ public:
         values._rename(name);
     }
 
+    Series rename(const std::string& name)
+    {
+        Series res = *this;
+        res._rename(name);
+        return res;
+    }
+
     template <class IT2, class INT2>
     Series<IT2, DT, INT2, DNT> reindex(const SingleIndex<IT2, INT2>& index)
     {
