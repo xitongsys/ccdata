@@ -86,6 +86,10 @@ void test3()
     cout << df << endl;
 
     cout << df.sum() << endl;
+
+    auto df2 = df.rolling(5,1).mean();
+
+    cout << df2 << endl;
 }
 
 int main()

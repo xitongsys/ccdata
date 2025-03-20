@@ -36,7 +36,7 @@ public:
 
         for (int i = 0; i < sr.size(); i++) {
             int b = std::max(0, i - window + 1), e = i;
-            SeriesVisitor<Range<int>> sv(sr, Range<int>(b, e));
+            SeriesVisitor<Range<int>> sv(sr, Range<int>(b, e + 1));
             res.iloc_ref(i) = func(sv);
         }
         return res;

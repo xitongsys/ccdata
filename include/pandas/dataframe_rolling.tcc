@@ -14,8 +14,10 @@ public:
     {
     }
 
+    using SV = typename Series<IT, DT, INT, DNT>::template SeriesVisitor<Range<int>>;
+
     template <class DT2>
-    DataFrame<IT, DT2, INT, DNT> agg(std::function<DT2(const typename Series<IT, DT, INT, DNT>::template SeriesVisitor<Range<int>>&)>& func) const
+    DataFrame<IT, DT2, INT, DNT> agg(const std::function<DT2(SV&)>& func)
     {
         DataFrame<IT, DT2, INT, DNT> res(*df.pidx);
         for (int i = 0; i < df.values.size(); i++) {
@@ -26,11 +28,12 @@ public:
         return res;
     }
 
-#define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                                                                          \
-    Series<IT, TYPE> FUN()                                                                                                \
-    {                                                                                                                     \
-        return agg<TYPE>([](const typename Series<IT, DT, INT, DNT>::template SeriesVisitor<Range<int>>& sr) -> TYPE { return sr.FUN(); }); \
+#define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                   \
+    DataFrame<IT, TYPE, INT, DNT> FUN()                            \
+    {                                                              \
+        return agg<TYPE>([](SV& sv) -> TYPE { return sv.FUN(); }); \
     }
+
     DEFINE_SERIESROLLING_AGG_FUNC(DT, sum)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, max)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, min)
