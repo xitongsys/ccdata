@@ -11,8 +11,149 @@ Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func)
         const DT& val = values.iloc(i);
         DT2 mval = func(val);
         sr._append(id, val);
-        }
+    }
     sr._rename(this->get_name());
+    return sr;
+}
+/// @diff
+/// @param periods
+void _diff(int periods)
+{
+    if (periods < 0) {
+        for (int i = 0; i < size(); i++) {
+            int j = i - periods;
+            if (j >= 0 && j < size()) {
+                iloc_ref(i) = iloc(i) - iloc(j);
+            } else {
+                iloc_ref(i) = pandas::nan<DT>();
+            }
+        }
+    } else {
+        for (int i = size() - 1; i >= 0; i--) {
+            int j = i - periods;
+            if (j >= 0 && j < size()) {
+                iloc_ref(i) = iloc(i) - iloc(j);
+            } else {
+                iloc_ref(i) = pandas::nan<DT>();
+            }
+        }
+    }
+}
+Series diff(int periods) const
+{
+    Series sr = *this;
+    sr._diff(periods);
+    return sr;
+}
+
+/// @shift
+/// @param offset
+void _shift(int offset)
+{
+    if (abs(offset) >= size()) {
+        for (int i = 0; i < size(); i++) {
+            iloc(i) = pandas::nan<DT>();
+        }
+
+    } else if (offset > 0) {
+        for (int i = offset; i < size(); i++) {
+            iloc(i) = iloc(i - offset);
+        }
+        for (int i = 0; i < offset; i++) {
+            iloc(i) = pandas::nan<DT>();
+        }
+
+    } else if (offset < 0) {
+        for (int i = 0; i < size() + offset; i++) {
+            iloc(i) = iloc(i - offset);
+        }
+        for (int i = size() - offset; i < size(); i++) {
+            iloc(i) = pandas::nan<DT>();
+        }
+    }
+}
+Series shift(int offset) const
+{
+    Series sr = *this;
+    sr._shift(offset);
+    return sr;
+}
+
+/// @fillna
+/// @tparam DT2
+/// @param v
+template <class DT2>
+void _fillna(const DT2& v)
+{
+    for (int i = 0; i < size(); i++) {
+        const IT& id = pidx->iloc(i);
+        const DT& val = values.iloc(i);
+        if (isnan(val)) {
+            iloc(i) = v;
+        }
+    }
+}
+template <class DT2>
+Series fillna(const DT2& v)
+{
+    Series sr = *this;
+    sr._fillna(v);
+    return sr;
+}
+
+/// @ffill
+/// @tparam DT2
+/// @param v
+/// @param limit
+template <class DT2>
+void _ffill(const DT2& v, int limit = 1)
+{
+    for (int i = size() - 1; i >= 0; i--) {
+        if (!pandas::isnan(iloc(i))) {
+            continue;
+        }
+        for (int j = i - 1; j >= i - limit && j >= 0; j--) {
+            DT v = iloc(j);
+            if (!pandas::isnan(v)) {
+                iloc_ref(i) = v;
+                break;
+            }
+        }
+    }
+}
+template <class DT2>
+Series ffill(const DT2& v, int limit = 1) const
+{
+    Series sr = *this;
+    sr._ffill(v, limit);
+    return sr;
+}
+
+/// @bfill
+/// @tparam DT2
+/// @param v
+/// @param limit
+template <class DT2>
+void _bfill(const DT2& v, int limit = 1)
+{
+    for (int i = 0; i < size(); i++) {
+        if (!pandas::isnan(iloc(i))) {
+            continue;
+        }
+        for (int j = i + 1; j <= i + limit && j < size(); j++) {
+            DT v = iloc(j);
+            if (!pandas::isnan(v)) {
+                iloc_ref(i) = v;
+                break;
+            }
+        }
+    }
+}
+template <class DT2>
+Series bfill(const DT2& v, int limit = 1) const
+{
+    Series sr = *this;
+    sr._bfill(v, limit);
     return sr;
 }
 

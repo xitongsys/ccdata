@@ -333,52 +333,7 @@ public:
         return res;
     }
 
-    void _shift(int offset)
-    {
-        if (abs(offset) >= size()) {
-            for (int i = 0; i < size(); i++) {
-                iloc(i) = pandas::nan<DT>();
-            }
 
-        } else if (offset > 0) {
-            for (int i = offset; i < size(); i++) {
-                iloc(i) = iloc(i - offset);
-            }
-            for (int i = 0; i < offset; i++) {
-                iloc(i) = pandas::nan<DT>();
-            }
-
-        } else if (offset < 0) {
-            for (int i = 0; i < size() + offset; i++) {
-                iloc(i) = iloc(i - offset);
-            }
-            for (int i = size() - offset; i < size(); i++) {
-                iloc(i) = pandas::nan<DT>();
-            }
-        }
-    }
-
-    Series shift(int offset) const
-    {
-        Series res = *this;
-        for (int i = 0; i < size(); i++) {
-            res.iloc(i) = pandas::nan<DT>();
-        }
-
-        if (abs(offset) >= size()) {
-            // nothing to do
-        } else if (offset > 0) {
-            for (int i = offset; i < size(); i++) {
-                res.iloc(i) = iloc(i - offset);
-            }
-
-        } else if (offset < 0) {
-            for (int i = 0; i < size() + offset; i++) {
-                res.iloc(i) = iloc(i - offset);
-            }
-        }
-        return res;
-    }
 
     Series dropna() const
     {
@@ -394,33 +349,8 @@ public:
         return res;
     }
 
-    template <class DT2>
-    void _fillna(const DT2& v)
-    {
-        for (int i = 0; i < size(); i++) {
-            const IT& id = pidx->iloc(i);
-            const DT& val = values.iloc(i);
-            if (isnan(val)) {
-                iloc(i) = v;
-            }
-        }
-    }
 
-    template <class DT2>
-    Series fillna(const DT2& v) const
-    {
-        Series res;
-        for (int i = 0; i < size(); i++) {
-            const IT& id = pidx->iloc(i);
-            const DT& val = values.iloc(i);
-            if (isnan(val)) {
-                res._append(id, v);
-            } else {
-                res._append(id, val);
-            }
-        }
-        return res;
-    }
+
 
 #include "pandas/series_functional.tcc"
 #include "pandas/series_group.tcc"

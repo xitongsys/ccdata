@@ -279,32 +279,13 @@ public:
         return ss.str();
     }
 
-#define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
-    Series<DNT, DT2> FUN()                        \
-    {                                             \
-        SingleIndex<DNT> idx(columns());          \
-        Array<DT2> vals;                          \
-        for (int i = 0; i < values.size(); i++) { \
-            vals._append(values[i].FUN());        \
-        }                                         \
-        vals._rename(#FUN);                       \
-        return Series<DNT, DT2>(idx, vals);       \
-    }
-
-    DEFINE_DATAFRAME_FUNCS(int, count)
-    DEFINE_DATAFRAME_FUNCS(DT, sum)
-    DEFINE_DATAFRAME_FUNCS(DT, max)
-    DEFINE_DATAFRAME_FUNCS(DT, min)
-    DEFINE_DATAFRAME_FUNCS(double, mean)
-    DEFINE_DATAFRAME_FUNCS(double, var)
-    DEFINE_DATAFRAME_FUNCS(double, std)
-
     friend std::ostream& operator<<(std::ostream& os, const DataFrame& df)
     {
         os << df.to_string();
         return os;
     }
 
+#include "pandas/dataframe_functional.tcc"
 #include "pandas/dataframe_op.tcc"
 #include "pandas/dataframe_rolling.tcc"
 };

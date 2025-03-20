@@ -1,6 +1,6 @@
 #pragma once
 
-// template<class IT, class DT>
+// template<class IT, class DT, class INT, class DNT>
 // class DataFrame {
 
 class DataFrameRolling {
