@@ -5,7 +5,7 @@
 
 #define DEFINE_SERIES_OPERATOR(OP)                                            \
     template <class T2>                                                       \
-    Series operator OP(const T2& val) const                                   \
+    Series operator OP(const T2& val)                                         \
     {                                                                         \
         Series<IT, DT> res = *this;                                           \
         res.values = res.values OP val;                                       \
@@ -13,7 +13,7 @@
     }                                                                         \
                                                                               \
     template <class DT2, class DNT2>                                          \
-    Series operator OP(const Array<DT2, DNT2>& ar) const                      \
+    Series operator OP(const Array<DT2, DNT2>& ar)                            \
     {                                                                         \
         if (size() != ar.size()) {                                            \
             throw std::format("size not match: {} != {}", ar.size(), size()); \
@@ -26,7 +26,7 @@
     }                                                                         \
                                                                               \
     template <class IT2, class DT2, class INT2, class DNT2>                   \
-    Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const          \
+    Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                \
     {                                                                         \
         SingleIndex<IT, INT> index;                                           \
         for (int i = 0; i < pidx->size(); i++) {                              \
@@ -35,7 +35,7 @@
         for (int i = 0; i < sr.size(); i++) {                                 \
             index._append(sr.pidx->iloc(i));                                  \
         }                                                                     \
-        auto sr1 = this->reindex(index);                                      \
+        auto sr1 = reindex(index);                                            \
         auto sr2 = sr.reindex(index);                                         \
         Array<DT> vals = sr1.values OP sr2.values;                            \
         return Series(index, vals);                                           \

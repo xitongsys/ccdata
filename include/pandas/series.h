@@ -168,9 +168,9 @@ public:
     }
 
     template <class IT2, class INT2>
-    Series<IT2, DT, INT2, DNT> reindex(const SingleIndex<IT2, INT2>& index)
+    Series<IT2, DT, INT2, DNT> reindex(const SingleIndex<IT2, INT2>& index) const
     {
-        Series<IT2, DT, INT2, DNT> res(index.new_index());
+        Series<IT2, DT, INT2, DNT> res;
 
         for (int i = 0; i < index.size(); i++) {
             IT2 id = index.iloc(i);
