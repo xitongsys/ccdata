@@ -89,7 +89,7 @@ void test3()
 
     auto df2 = df.rolling(5,1).mean();
 
-    cout << df2 << endl;
+    cout << df2.loc<0>(1) << endl;
 }
 
 int main()

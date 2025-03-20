@@ -213,7 +213,7 @@ public:
         }
     }
 
-    template <class T2, int axis = 0>
+    template <int axis = 0, class T2>
     auto loc(T2 key)
     {
         if constexpr (axis == 0) {
@@ -264,8 +264,7 @@ public:
         }
     }
 
-    std::string
-    to_string() const
+    std::string to_string() const
     {
         std::stringstream ss;
         ss << "columns:[";
