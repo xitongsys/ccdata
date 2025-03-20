@@ -166,7 +166,7 @@ public:
     {
         SingleIndex<T2, NT2> si2;
         for (int i = 0; i < size(); i++) {
-            si2.append(iloc(i));
+            si2._append(iloc(i));
         }
         si2._rename(get_name());
         return si2;
@@ -177,12 +177,12 @@ public:
         SingleIndex<T> si;
         if (ascending) {
             for (auto it = value2iid.begin(); it != value2iid.end(); it++) {
-                si.append(it->first);
+                si._append(it->first);
             }
 
         } else {
             for (auto it = value2iid.rbegin(); it != value2iid.rend(); it++) {
-                si.append(it->first);
+                si._append(it->first);
             }
         }
         return si;
@@ -208,7 +208,7 @@ SingleIndex<IT, NT> concat_0(const SingleIndex<IT, NT>& idx1, const SingleIndex<
     SingleIndex<IT, NT> idx_merge = idx1;
     for (int i = 0; i < idx2.size(); i++) {
         const IT& id = idx2.iloc(i);
-        idx_merge.append(id);
+        idx_merge._append(id);
     }
     return idx_merge;
 }

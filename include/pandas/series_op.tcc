@@ -30,10 +30,10 @@
     {                                                                         \
         SingleIndex<IT, INT> index;                                           \
         for (int i = 0; i < pidx->size(); i++) {                              \
-            index.append(pidx->iloc(i));                                      \
+            index._append(pidx->iloc(i));                                      \
         }                                                                     \
         for (int i = 0; i < sr.size(); i++) {                                 \
-            index.append(sr.pidx->iloc(i));                                   \
+            index._append(sr.pidx->iloc(i));                                   \
         }                                                                     \
         auto sr1 = this->reindex(index);                                      \
         auto sr2 = sr.reindex(index);                                         \
@@ -126,10 +126,10 @@ DEFINE_SERIES_OPERATOR(~)
     {                                                                                    \
         SingleIndex<IT, INT> index;                                                      \
         for (int i = 0; i < pidx->size(); i++) {                                         \
-            index.append(pidx->iloc(i));                                                 \
+            index._append(pidx->iloc(i));                                                 \
         }                                                                                \
         for (int i = 0; i < sr.size(); i++) {                                            \
-            index.append(sr.pidx->iloc(i));                                              \
+            index._append(sr.pidx->iloc(i));                                              \
         }                                                                                \
         Series<IT, DT, INT, DNT> sr1 = this->reindex(index);                             \
         Series<IT, DT2, INT, DNT2> sr2 = sr.reindex(index);                              \

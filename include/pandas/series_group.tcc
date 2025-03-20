@@ -20,7 +20,7 @@ public:
         srs = std::move(sg.srs);
     }
 
-    void append(const KT& key, const IT& id, const DT& value)
+    void _append(const KT& key, const IT& id, const DT& value)
     {
         if (srs.count(key) == 0) {
             srs[key] = Series();
@@ -67,7 +67,7 @@ SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
         IT id = pidx->iloc(i);
         DT val = iloc(i);
         KT key = sr.iloc(i);
-        sg.append(key, id, val);
+        sg._append(key, id, val);
     }
     return sg;
 }
@@ -84,7 +84,7 @@ SeriesGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
         const IT& id = pidx->iloc(i);
         const DT& val = iloc(i);
         const KT& key = sr.loc(id);
-        sg.append(key, id, val);
+        sg._append(key, id, val);
     }
     return sg;
 }

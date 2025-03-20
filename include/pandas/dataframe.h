@@ -57,7 +57,7 @@ public:
         for (int i = 0; i < values.size(); i++) {
             Series<IT, DT, INT, DNT> sr = values[i].reindex(*df.pidx);
             sr.pidx = df.pidx;
-            df.values.append(sr);
+            df.values._append(sr);
         }
         return df;
     }
@@ -84,6 +84,7 @@ public:
         for (int i = 0; i < values.size(); i++) {
             res._append(values[i].get_name());
         }
+
         return res;
     }
 

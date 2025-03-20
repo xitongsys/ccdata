@@ -48,9 +48,10 @@ public:
 
     Series(const SingleIndex<IT, INT>& idx, const Array<DT, DNT>& vals)
     {
-        if (pidx->size() != vals.size()) {
+        if (idx.size() != vals.size()) {
             throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
         }
+
         this->pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
         values = vals;
     }

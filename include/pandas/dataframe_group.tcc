@@ -18,12 +18,12 @@ public:
     {
     }
 
-    void append(const KT& key, const DT& value)
+    void _append(const KT& key, const DT& value)
     {
         if (srs.count(key) == 0) {
             srs[key] = Array<DT>();
         }
-        srs[key].append(value);
+        srs[key]._append(value);
     }
 
     template <class DT2>
@@ -57,7 +57,7 @@ DataFrameGroup<KT> groupby(const Array<KT>& ar) const
     for (int i = 0; i < ar.size(); i++) {
         const KT& key = ar.iloc(i);
         const DT& val = iloc(i);
-        sg.append(key, val);
+        sg._append(key, val);
     }
     return sg;
 }
@@ -73,7 +73,7 @@ DataFrameGroup<KT> groupby(const Series<IT, KT>& sr) const
     for (int i = 0; i < sr.size(); i++) {
         const IT& id = pidx->iloc(i);
         const KT& key = sr.iloc(i);
-        sg.append(key, val);
+        sg._append(key, val);
     }
     return sg;
 }

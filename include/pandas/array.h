@@ -169,15 +169,15 @@ public:
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
                 if (mp.count(v)) {
-                    dup.append(1);
+                    dup._append(1);
                 } else {
-                    dup.append(0);
+                    dup._append(0);
                 }
                 mp[v] = i;
             }
         } else if (keep == "last") {
             for (int i = 0; i < size(); i++) {
-                dup.append(0);
+                dup._append(0);
             }
             for (int i = size() - 1; i >= 0; i--) {
                 T& v = iloc(i);
@@ -192,7 +192,7 @@ public:
         } else if (keep == "false") {
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
-                dup.append(0);
+                dup._append(0);
                 if (mp.count(v) == 0) {
                     mp[v] = 0;
                 }
