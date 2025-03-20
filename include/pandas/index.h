@@ -21,8 +21,8 @@ public:
     Array<T, NT> values;
     std::map<T, int> value2iid;
 
-#include "pandas/singleindex_range.tcc"
-#include "pandas/singleindex_visitor.tcc"
+#include "pandas/index_range.tcc"
+#include "pandas/index_visitor.tcc"
 
     Index()
     {

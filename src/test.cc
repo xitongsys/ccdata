@@ -3,7 +3,7 @@
 #include "pandas/datetime.h"
 #include "pandas/pandastype.h"
 #include "pandas/series.h"
-#include "pandas/singleindex.h"
+#include "pandas/index.h"
 
 #include <chrono>
 #include <iostream>

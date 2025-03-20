@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "pandas/array.h"
+#include "pandas/index.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
 #include "pandas/series.h"
-#include "pandas/singleindex.h"
 
 namespace pandas {
 
@@ -52,7 +52,6 @@ public:
             }
         }
 
-        
         for (int i = 0; i < srs.size(); i++) {
             values.push_back(srs[i].reindex(*pidx));
             values[i].pidx = pidx;

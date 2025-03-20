@@ -6,10 +6,10 @@
 #include <vector>
 
 #include "pandas/array.h"
+#include "pandas/index.h"
 #include "pandas/ops.h"
 #include "pandas/pandastype.h"
 #include "pandas/range.h"
-#include "pandas/singleindex.h"
 
 namespace pandas {
 // IT: index type, DT: data type, INT: index name type, DNT: data name type
@@ -183,7 +183,6 @@ public:
 
         res._rename(get_name());
 
-        
         return res;
     }
 
