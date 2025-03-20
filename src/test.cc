@@ -80,8 +80,9 @@ void test1()
 void test3()
 {
     DataFrame<int, double> df({ "a", "b", "c" });
-    
-    df._append_row(Array<double,int>({ 1, 2, 3 }, 1));
+    for (int i = 0; i < 10; i++) {
+        df._append_row(Array<double, int>({ 1, 2, 3 }, i));
+    }
     cout << df << endl;
 }
 

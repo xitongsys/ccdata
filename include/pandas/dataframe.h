@@ -113,7 +113,6 @@ public:
         }
 
         IT id = ar.get_name();
-        std::cout << id << std::endl;
         if (pidx->has(id)) {
             throw std::format("duplicated id: {}", pandas::to_string(id));
         }
