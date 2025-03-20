@@ -59,7 +59,7 @@ void _ffill(int limit)
         sr._ffill(limit);
     }
 }
-DataFrame _ffill(int limit)
+DataFrame ffill(int limit) const
 {
     DataFrame df = *this;
     df._ffill(limit);
