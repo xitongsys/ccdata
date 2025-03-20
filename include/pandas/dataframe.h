@@ -45,9 +45,14 @@ public:
         for (auto& sr : srs) {
             int n = sr.pidx->size();
             for (int i = 0; i < n; i++) {
-                pidx->_append(sr.pidx->iloc(i));
+                IT id = sr.pidx->iloc(i);
+                if (!pidx->has(id)) {
+                    pidx->_append(id);
+                }
             }
         }
+
+        
         for (int i = 0; i < srs.size(); i++) {
             values.push_back(srs[i].reindex(*pidx));
             values[i].pidx = pidx;
@@ -185,12 +190,12 @@ public:
         return values.size();
     }
 
-    DT iloc(int ri, int ci)
+    inline DT iloc(int ri, int ci) const
     {
         return values[ci].iloc(ri);
     }
 
-    DT& iloc_ref(int ri, int ci)
+    inline DT& iloc_ref(int ri, int ci)
     {
         return values[ci].iloc_ref(ri);
     }

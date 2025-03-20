@@ -102,7 +102,7 @@ public:
     int _append(const T& v)
     {
         if (has(v)) {
-            return -1;
+            throw std::format("duplicated key: {}", pandas::to_string(v));
         }
         int n = value2iid.size();
         value2iid[v] = n;

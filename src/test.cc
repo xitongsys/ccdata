@@ -89,7 +89,7 @@ void test3()
 
     auto df2 = df.rolling(5,1).mean();
 
-    cout << df2.diff(1) << endl;
+    cout << df2.iloc(1,5,1).to_frame() << endl;
 }
 
 int main()

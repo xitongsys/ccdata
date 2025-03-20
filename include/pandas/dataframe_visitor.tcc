@@ -18,7 +18,22 @@ public:
     {
     }
 
-    
+    DataFrame to_frame()
+    {
+        SingleIndex<IT, INT> idx;
+        it_row.reset();
+        while (it_row.has_left()) {
+            int i = it_row.next();
+            idx._append(df.pidx->iloc(i));
+        }
 
+        std::vector<Series<IT, DT, INT, DNT>> srs;
+        it_col.reset();
+        while (it_col.has_left()) {
+            int j = it_col.next();
+            srs.push_back(df.iloc<1>(j).loc(idx).to_series());
+        }
 
+        return DataFrame(srs);
+    }
 };

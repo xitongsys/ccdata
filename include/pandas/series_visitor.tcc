@@ -35,8 +35,8 @@ public:
 
     Series<IT, DT, INT, DNT> to_series()
     {
-        it.reset();
         Series<IT, DT, INT, DNT> res;
+        it.reset();
         while (it.has_left()) {
             int i = it.next();
             IT id = sr.pidx->iloc(i);

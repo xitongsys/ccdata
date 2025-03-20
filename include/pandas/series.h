@@ -180,7 +180,10 @@ public:
             }
             res._append(id, val);
         }
+
         res._rename(get_name());
+
+        
         return res;
     }
 
@@ -212,7 +215,7 @@ public:
 
     inline DT loc(const IT& id) const
     {
-        return values.iloc(pidx->loc(id));
+        return values.iloc(pidx->loc_i(id));
     }
 
     inline DT& loc_ref(const IT& id)
@@ -222,7 +225,7 @@ public:
             values._append(pandas::nan<DT>());
         }
 
-        return values.iloc_ref(pidx->loc(id));
+        return values.iloc_ref(pidx->loc_i(id));
     }
 
     inline DT& iloc_ref(int i)
@@ -251,11 +254,23 @@ public:
         std::vector<int> iids;
         for (int i = 0; i < ids.size(); i++) {
             IT id = ids.iloc(i);
-            int i = pidx->loc_i(id);
-            iids.push_back(i);
+            int j = pidx->loc_i(id);
+            iids.push_back(j);
         }
 
-        return SeriesPicker<RangeVec<int>>(*this, RangeVec(iids));
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+    }
+
+    template <class IT2, class DT2, class INT2, class DNT2>
+    SeriesVisitor<RangeVec<int>> loc(const Series<IT2, DT2, INT2, DNT2>& ids)
+    {
+        return loc(ids.values);
+    }
+
+    template <class IT2, class INT2>
+    SeriesVisitor<RangeVec<int>> loc(const SingleIndex<IT2, INT2>& ids)
+    {
+        return loc(ids.values);
     }
 
     template <class INT2, class DNT2>
@@ -333,8 +348,6 @@ public:
         return res;
     }
 
-
-
     Series dropna() const
     {
         Series res;
@@ -348,9 +361,6 @@ public:
         }
         return res;
     }
-
-
-
 
 #include "pandas/series_functional.tcc"
 #include "pandas/series_group.tcc"
