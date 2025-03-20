@@ -154,7 +154,8 @@ public:
         return values.get_name();
     }
 
-    void _rename(const std::string& name)
+    template <class IT2>
+    void _rename(const IT2& name)
     {
         values._rename(name);
     }

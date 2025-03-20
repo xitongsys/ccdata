@@ -3,42 +3,44 @@
 // template<class IT, class DT>
 // class Series {
 
-#define DEFINE_SERIES_OPERATOR(OP)                                            \
-    template <class T2>                                                       \
-    Series operator OP(const T2& val) const                                   \
-    {                                                                         \
-        Series<IT, DT> res = *this;                                           \
-        res.values = res.values OP val;                                       \
-        return res;                                                           \
-    }                                                                         \
-                                                                              \
-    template <class DT2, class DNT2>                                          \
-    Series operator OP(const Array<DT2, DNT2>& ar) const                      \
-    {                                                                         \
-        if (size() != ar.size()) {                                            \
-            throw std::format("size not match: {} != {}", ar.size(), size()); \
-        }                                                                     \
-        Series res = *this;                                                   \
-        for (int i = 0; i < size(); i++) {                                    \
-            res.iloc_ref(i) = res.iloc(i) OP ar.iloc(i);                      \
-        }                                                                     \
-        return res;                                                           \
-    }                                                                         \
-                                                                              \
-    template <class IT2, class DT2, class INT2, class DNT2>                   \
-    Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const          \
-    {                                                                         \
-        SingleIndex<IT, INT> index;                                           \
-        for (int i = 0; i < pidx->size(); i++) {                              \
-            index._append(pidx->iloc(i));                                     \
-        }                                                                     \
-        for (int i = 0; i < sr.size(); i++) {                                 \
-            index._append(sr.pidx->iloc(i));                                  \
-        }                                                                     \
-        auto sr1 = this->reindex(index);                                      \
-        auto sr2 = sr.reindex(index);                                         \
-        Array<DT> vals = sr1.values OP sr2.values;                            \
-        return Series(index, vals);                                           \
+#define DEFINE_DATAFRAME_OPERATOR(OP)                                          \
+    template <class T2>                                                        \
+    DataFrame operator OP(const T2& val) const                                 \
+    {                                                                          \
+        DataFrame res = *this;                                                 \
+        for (auto& sr : values) {                                              \
+            sr = sr OP val;                                                    \
+        }                                                                      \
+        return res;                                                            \
+    }                                                                          \
+                                                                               \
+    template <class DT2, class DNT2>                                           \
+    DataFrame operator OP(const Array<DT2, DNT2>& ar) const                    \
+    {                                                                          \
+        if (size(0) != ar.size()) {                                            \
+            throw std::format("size not match: {} != {}", ar.size(), size(0)); \
+        }                                                                      \
+        DataFrame res = *this;                                                 \
+        for (int i = 0; i < size(1); i++) {                                    \
+            res.iloc(i) OP ar.iloc(i);                                         \
+        }                                                                      \
+        return res;                                                            \
+    }                                                                          \
+                                                                               \
+    template <class IT2, class DT2, class INT2, class DNT2>                    \
+    Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const           \
+    {                                                                          \
+        SingleIndex<IT, INT> index;                                            \
+        for (int i = 0; i < pidx->size(); i++) {                               \
+            index._append(pidx->iloc(i));                                      \
+        }                                                                      \
+        for (int i = 0; i < sr.size(); i++) {                                  \
+            index._append(sr.pidx->iloc(i));                                   \
+        }                                                                      \
+        auto sr1 = this->reindex(index);                                       \
+        auto sr2 = sr.reindex(index);                                          \
+        Array<DT> vals = sr1.values OP sr2.values;                             \
+        return Series(index, vals);                                            \
     }
 
 DEFINE_SERIES_OPERATOR(+)

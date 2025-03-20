@@ -6,33 +6,33 @@
 template <class KT>
 class SeriesGroup {
 public:
-    std::map<KT, Series> srs;
+    std::map<KT, Series> items;
 
     SeriesGroup() { }
 
     SeriesGroup(const SeriesGroup& sg)
     {
-        srs = sg.srs;
+        items = sg.items;
     }
 
     SeriesGroup(SeriesGroup&& sg)
     {
-        srs = std::move(sg.srs);
+        items = std::move(sg.items);
     }
 
     void _append(const KT& key, const IT& id, const DT& value)
     {
-        if (srs.count(key) == 0) {
-            srs[key] = Series();
+        if (items.count(key) == 0) {
+            items[key] = Series();
         }
-        srs[key]._append(id, value);
+        items[key]._append(id, value);
     }
 
-    template <class DT2>
+        template <class DT2>
     Series<KT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
     {
         Series<KT, DT2, INT, DNT> res;
-        for (auto it = srs.begin(); it != srs.end(); it++) {
+        for (auto it = items.begin(); it != items.end(); it++) {
             KT key = it->first;
             SeriesVisitor<Range<int>> sv(it->second, Range<int>(0, it->second.size()));
             DT2 val = func(sv);

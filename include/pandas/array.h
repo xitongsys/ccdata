@@ -117,7 +117,8 @@ public:
         return res;
     }
 
-    void _rename(const NT& name)
+    template <class NT2>
+    void _rename(const NT2& name)
     {
         this->name = name;
     }

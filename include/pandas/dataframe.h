@@ -6,6 +6,7 @@
 
 #include "pandas/array.h"
 #include "pandas/pandastype.h"
+#include "pandas/range.h"
 #include "pandas/series.h"
 #include "pandas/singleindex.h"
 
@@ -16,6 +17,8 @@ class DataFrame {
 public:
     std::shared_ptr<SingleIndex<IT, INT>> pidx;
     std::vector<Series<IT, DT, INT, DNT>> values;
+
+#include "dataframe_visitor.tcc"
 
     DataFrame()
     {
@@ -182,7 +185,87 @@ public:
         return values.size();
     }
 
-    std::string to_string() const
+    DT iloc(int ri, int ci)
+    {
+        return values[ci].iloc(ri);
+    }
+
+    DT& iloc_ref(int ri, int ci)
+    {
+        return values[ci].iloc_ref(ri);
+    }
+
+    template <int axis = 0>
+    auto iloc(int i)
+    {
+        if constexpr (axis == 0) {
+            Series<DNT, DT, std::string, IT> row;
+            IT id = pidx->iloc(i);
+            for (int i = 0; i < size(1); i++) {
+                row._append(values[i].get_name(), values[i].iloc(i));
+            }
+            row._rename(id);
+            return row;
+
+        } else {
+            Series<IT, DT, INT, DNT> col = values[i];
+            return col;
+        }
+    }
+
+    template <class T2, int axis = 0>
+    auto loc(T2 key)
+    {
+        if constexpr (axis == 0) {
+            int i = pidx->loc(key);
+            return iloc<0>(i);
+        } else {
+            int i = get_column_index(key);
+            return iloc<1>(i);
+        }
+    }
+
+    template <int axis = 0>
+    DataFrameVisitor<Range<int>, Range<int>> iloc(int bgn, int end, int step)
+    {
+        if constexpr (axis == 0) {
+            Range<int> it_row(bgn, end, step);
+            Range<int> it_col(0, size(1), 1);
+            return DataFrameVisitor<Range<int>, Range<int>>(*this, it_row, it_col);
+
+        } else {
+            Range<int> it_row(0, size(0), step);
+            Range<int> it_col(bgn, end, 1);
+            return DataFrameVisitor<Range<int>, Range<int>>(*this, it_row, it_col);
+        }
+    }
+
+    template <int axis = 0, class KEY>
+    auto loc(const KEY& bgn, const KEY& end)
+    {
+        using SIR = typename SingleIndex<IT, INT>::template SingleIndexRange;
+
+        if constexpr (axis == 0) {
+            Range<int> it_col(0, size(1), 1);
+            return DataFrameVisitor<SIR, Range<int>>(*this, SIR(*pidx, bgn, end), it_col);
+
+        } else {
+            std::vector<DNT> cols;
+            for (int i = 0; i < size(1); i++) {
+                DNT col = values[i].get_name();
+                if (col >= bgn && col <= end) {
+                    cols.push_back(col);
+                }
+            }
+
+            Range<int> it_row(0, size(0), 1);
+            RangeVec<DNT> it_rv;
+            return DataFrameVisitor<Range<int>, RangeVec<DNT>>(*this, it_row, it_rv);
+        }
+    }
+
+    std::string
+    to_string() const
     {
         std::stringstream ss;
         ss << "columns:[";

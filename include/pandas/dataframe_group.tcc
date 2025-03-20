@@ -6,7 +6,7 @@
 template <class KT>
 class DataFrameGroup {
 public:
-    std::map<KT, DataFrame<IT, DT>> dfs;
+    std::map<KT, DataFrame<IT, DT, INT, DNT>> items;
 
     DataFrameGroup() { }
 
@@ -45,8 +45,8 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
 };
 
-template <class KT>
-DataFrameGroup<KT> groupby(const Array<KT>& ar) const
+template <class KT, class NT2>
+DataFrameGroup<KT> groupby(const Array<KT, NT2>& ar) const
 {
     DataFrameGroup<KT> sg;
 
@@ -62,8 +62,8 @@ DataFrameGroup<KT> groupby(const Array<KT>& ar) const
     return sg;
 }
 
-template <class KT>
-DataFrameGroup<KT> groupby(const Series<IT, KT>& sr) const
+template <class KT, class INT2, class DNT2>
+DataFrameGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr) const
 {
     DataFrameGroup<KT> sg;
 
