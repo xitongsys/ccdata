@@ -137,7 +137,7 @@ public:
             throw std::format("duplicated id: {}", to_string(id));
         }
 
-        pidx->append(id);
+        pidx->_append(id);
         for (int i = 0; i < values.size(); i++) {
             bool ok = false;
             DNT col = values[i].get_name();

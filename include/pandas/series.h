@@ -76,7 +76,7 @@ public:
         auto ptr = std::make_shared<T>(idx);
         pidx = std::static_pointer_cast<SingleIndex<IT, INT>>(ptr);
         for (int i = 0; i < pidx->size(); i++) {
-            values.append(pandas::nan<DT>());
+            values._append(pandas::nan<DT>());
         }
         _rename(name);
     }
