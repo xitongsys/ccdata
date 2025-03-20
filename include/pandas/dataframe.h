@@ -305,6 +305,7 @@ public:
         return os;
     }
 
+#include "pandas/dataframe_op.tcc"
 #include "pandas/dataframe_rolling.tcc"
 };
 
