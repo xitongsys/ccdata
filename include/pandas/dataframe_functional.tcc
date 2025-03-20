@@ -3,13 +3,14 @@
 // template<class IT, class DT, class INT, class DNT>
 // class DataFrame {
 
+/// @diff
+/// @param periods
 void _diff(int periods)
 {
     for (auto& sr : values) {
         sr._diff(periods);
     }
 }
-
 DataFrame diff(int periods) const
 {
     DataFrame df = *this;
@@ -17,13 +18,14 @@ DataFrame diff(int periods) const
     return df;
 }
 
+/// @shift
+/// @param offset
 void _shift(int offset)
 {
     for (auto& sr : values) {
         sr._shift(offset);
     }
 }
-
 DataFrame shift(int offset) const
 {
     DataFrame df = *this;
@@ -31,6 +33,9 @@ DataFrame shift(int offset) const
     return df;
 }
 
+/// @fillna
+/// @tparam DT2
+/// @param v
 template <class DT2>
 void _fillna(const DT2& v)
 {
@@ -38,12 +43,41 @@ void _fillna(const DT2& v)
         sr._fillna(v);
     }
 }
-
 template <class DT2>
-void fillna(const DT2& v)
+DataFrame fillna(const DT2& v) const
 {
     DataFrame df = *this;
     df._fillna(v);
+    return df;
+}
+
+/// @ffill
+/// @param limit
+void _ffill(int limit)
+{
+    for (auto& sr : values) {
+        sr._ffill(limit);
+    }
+}
+DataFrame _ffill(int limit)
+{
+    DataFrame df = *this;
+    df._ffill(limit);
+    return df;
+}
+
+/// @bfill
+/// @param limit
+void _bfill(int limit)
+{
+    for (auto& sr : values) {
+        sr._bfill(limit);
+    }
+}
+DataFrame bfill(int limit) const
+{
+    DataFrame df = *this;
+    df._bfill(limit);
     return df;
 }
 
