@@ -15,31 +15,32 @@ public:
     }
 
     template <class DT2>
-    DataFrame<IT, DT2> agg(std::function<DT2(const Visitor<DT>&)> const& func) const
+    DataFrame<IT, DT2, INT, DNT> agg(std::function<DT2(const typename Series<IT, DT, INT, DNT>::template SeriesVisitor<Range<int>>&)>& func) const
     {
-        DataFrame<IT, DT2> res(df.pidx->new_clone());
+        DataFrame<IT, DT2, INT, DNT> res(*df.pidx);
         for (int i = 0; i < df.values.size(); i++) {
-            Series<IT, DT2> sr1 = df.values[i].rolling(window, min_periods).agg(func);
+            Series<IT, DT2, INT, DNT> sr1 = df.values[i].rolling(window, min_periods).agg(func);
+            sr1.pidx = res.pidx;
+            res.values.push_back(sr1);
         }
         return res;
     }
 
-#define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                                  \
-    Series<IT, TYPE> FUN()                                                        \
-    {                                                                             \
-        return agg<TYPE>([](const Visitor<DT>& sr) -> TYPE { return sr.FUN(); }); \
+#define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                                                                          \
+    Series<IT, TYPE> FUN()                                                                                                \
+    {                                                                                                                     \
+        return agg<TYPE>([](const typename Series<IT, DT, INT, DNT>::template SeriesVisitor<Range<int>>& sr) -> TYPE { return sr.FUN(); }); \
     }
     DEFINE_SERIESROLLING_AGG_FUNC(DT, sum)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, max)
     DEFINE_SERIESROLLING_AGG_FUNC(DT, min)
-    DEFINE_SERIESROLLING_AGG_FUNC(Int, count)
-    DEFINE_SERIESROLLING_AGG_FUNC(Double, mean)
-    DEFINE_SERIESROLLING_AGG_FUNC(Double, var)
-    DEFINE_SERIESROLLING_AGG_FUNC(Double, std)
-    DEFINE_SERIESROLLING_AGG_FUNC(Double, median)
+    DEFINE_SERIESROLLING_AGG_FUNC(int, count)
+    DEFINE_SERIESROLLING_AGG_FUNC(double, mean)
+    DEFINE_SERIESROLLING_AGG_FUNC(double, var)
+    DEFINE_SERIESROLLING_AGG_FUNC(double, std)
 };
 
-SeriesRolling rolling(int window, int min_periods)
+DataFrameRolling rolling(int window, int min_periods)
 {
-    return SeriesRolling(*this, window, min_periods);
+    return DataFrameRolling(*this, window, min_periods);
 }

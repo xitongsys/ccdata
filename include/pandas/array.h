@@ -53,7 +53,8 @@ public:
     }
 
     template <class T2>
-    Array(const std::initializer_list<T2>& vals)
+    Array(const std::initializer_list<T2>& vals, const NT& name = NT {})
+        : Array(name)
     {
         for (const T2& v : vals) {
             values.push_back((T)(v));

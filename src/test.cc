@@ -1,4 +1,5 @@
 #include "pandas/array.h"
+#include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/pandastype.h"
 #include "pandas/series.h"
@@ -63,7 +64,7 @@ void test2()
 
     cout << "-------------------" << endl;
 
-    cout<<sr1.loc(1)<<endl;
+    cout << sr1.loc(1) << endl;
 }
 
 void test1()
@@ -76,11 +77,19 @@ void test1()
     cout << si << endl;
 }
 
+void test3()
+{
+    DataFrame<int, double> df({ "a", "b", "c" });
+    
+    df._append_row(Array<double,int>({ 1, 2, 3 }, 1));
+    cout << df << endl;
+}
+
 int main()
 {
 
     try {
-        test2();
+        test3();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

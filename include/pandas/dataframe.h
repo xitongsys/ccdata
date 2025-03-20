@@ -22,41 +22,59 @@ public:
         pidx = std::make_shared<SingleIndex<IT, INT>>();
     }
 
-    DataFrame(const Index<IT, INT>& idx)
+    DataFrame(const SingleIndex<IT, INT>& idx)
     {
         pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
     }
 
-    DataFrame(const std::vector<std::string>& columns)
+    DataFrame(const Array<DNT>& columns)
     {
         pidx = std::make_shared<SingleIndex<IT, INT>>();
         for (int i = 0; i < columns.size(); i++) {
-            values.push_back(Series<IT, DT, DNT>(columns[i]));
+            values.push_back(Series<IT, DT, INT, DNT>(columns.iloc(i)));
         }
+        reassign_index();
     }
 
     DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& srs)
     {
+        pidx = std::make_shared<SingleIndex<IT, INT>>();
+        for (auto& sr : srs) {
+            int n = sr.pidx->size();
+            for (int i = 0; i < n; i++) {
+                pidx->_append(sr.pidx->iloc(i));
+            }
+        }
         for (int i = 0; i < srs.size(); i++) {
-            *this = concat_1(*this, srs[i]);
+            values.push_back(srs[i].reindex(*pidx));
+            values[i].pidx = pidx;
         }
     }
 
-    DataFrame<IT, DT, DNT> reindex(const Index<IT, INT>& idx)
+    DataFrame<IT, DT, INT, DNT> reindex(const SingleIndex<IT, INT>& idx)
     {
-        DataFrame df = DataFrame(idx);
+        DataFrame<IT, DT, INT, DNT> df(idx);
         for (int i = 0; i < values.size(); i++) {
-            Series<IT, DT, DNT> sr = values[i].reindex(idx);
+            Series<IT, DT, INT, DNT> sr = values[i].reindex(*df.pidx);
+            sr.pidx = df.pidx;
             df.values.append(sr);
         }
         return df;
     }
 
-    void _reindex(const Index<IT, INT>& idx)
+    void reassign_index()
+    {
+        for (auto& sr : values) {
+            sr.pidx = pidx;
+        }
+    }
+
+    void _reindex(const SingleIndex<IT, INT>& idx)
     {
         pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
         for (int i = 0; i < values.size(); i++) {
-            values[i]._reindex(idx);
+            values[i] = values[i].reindex(idx);
+            values[i].pidx = pidx;
         }
     }
 
@@ -78,7 +96,7 @@ public:
         }
     }
 
-    int get_column_name_index(const DNT& name) const
+    int get_column_index(const DNT& name) const
     {
         for (int i = 0; i < values.size(); i++) {
             if (values[i].get_name() == name) {
@@ -88,32 +106,34 @@ public:
         return -1;
     }
 
-    int _append_row(const IT& id, const Array<DT, DNT>& ar)
+    int _append_row(const Array<DT, IT>& ar)
     {
         if (ar.size() != values.size()) {
             throw std::format("row size not match: {}!={}", ar.size(), values.size());
         }
 
+        IT id = ar.get_name();
+        std::cout << id << std::endl;
         if (pidx->has(id)) {
-            throw std::format("duplicated id: {}", to_string(id));
+            throw std::format("duplicated id: {}", pandas::to_string(id));
         }
 
-        pidx->append(id);
+        pidx->_append(id);
         for (int i = 0; i < values.size(); i++) {
-            values[i].values.append(ar.iloc(i));
+            values[i].values._append(ar.iloc(i));
         }
 
-        return size();
+        return size(0);
     }
 
-    int _append_row(const Series<DNT, DT, IT>& sr)
+    template <class INT2>
+    int _append_row(const Series<DNT, DT, INT2, IT>& sr)
     {
         if (sr.size() != values.size()) {
             throw std::format("row size not match: {}!={}", sr.size(), values.size());
         }
 
         IT id = sr.get_name();
-
         if (pidx->has(id)) {
             throw std::format("duplicated id: {}", to_string(id));
         }
@@ -121,15 +141,9 @@ public:
         pidx->append(id);
         for (int i = 0; i < values.size(); i++) {
             bool ok = false;
-            for (int j = 0; j < sr.size(); j++) {
-                if (sr.pidx->iloc(j) == values[i].get_name()) {
-                    values[i].values.append(sr.iloc(j));
-                    ok = true;
-                }
-            }
-            if (!ok) {
-                throw std::format("{} not found", values[i].get_name());
-            }
+            DNT col = values[i].get_name();
+            DT value = sr.loc(col);
+            values[i]._append(value);
         }
         return size();
     }
@@ -139,18 +153,18 @@ public:
         if (ar.size() != size()) {
             throw std::format("append size not match: {}!={}", ar.size(), size());
         }
-        if (get_column_name_index(ar.name) >= 0) {
-            throw std::format("duplicated column name: {}", ar.name);
+        if (get_column_index(ar.get_name()) >= 0) {
+            throw std::format("duplicated column name: {}", ar.get_name());
         }
 
         auto sr = Series(pidx, ar, ar.name);
         values.push_back(sr);
-        return values.size();
+        return size(1);
     }
 
-    int _append_col(const Series<IT, DT, DNT>& sr)
+    int _append_col(const Series<IT, DT, INT, DNT>& sr)
     {
-        if (get_column_name_index(sr.get_name()) >= 0) {
+        if (get_column_index(sr.get_name()) >= 0) {
             throw std::format("duplicated column name: {}", sr.get_name());
         }
         for (int i = 0; i < sr.size(); i++) {
@@ -163,6 +177,7 @@ public:
         }
 
         auto sr2 = sr.reindex(*pidx);
+        sr2.pidx = pidx;
         values.push_back(sr2);
         return values.size();
     }
@@ -175,20 +190,22 @@ public:
             ss << values[i].get_name() << ",";
         }
         ss << "]\n";
+        ss << pidx->to_string() << "\n";
         for (int i = 0; i < size(1); i++) {
-            ss << pandas::to_string(values[i]) << "\n";
+            ss << pandas::to_string(values[i].values) << "\n";
         }
         return ss.str();
     }
 
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
-    Series<std::string, DT2> FUN()                \
+    Series<DNT, DT2> FUN()                        \
     {                                             \
-        SingleIndex<std::string> idx(columns());  \
+        SingleIndex<DNT> idx(columns());          \
         Array<DT2> vals;                          \
         for (int i = 0; i < values.size(); i++) { \
             vals.append(values[i].FUN());         \
         }                                         \
+        vals._rename(#FUN);                       \
         return Series(idx, vals);                 \
     }
 
@@ -205,6 +222,8 @@ public:
         os << df.to_string();
         return os;
     }
+
+#include "pandas/dataframe_rolling.tcc"
 };
 
 template <
