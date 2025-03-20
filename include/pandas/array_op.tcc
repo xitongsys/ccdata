@@ -84,7 +84,7 @@ DEFINE_ARRAY_OPERATOR(~)
     {                                                                       \
         Array<Bool> res;                                                    \
         for (auto& v : values) {                                            \
-            res.append(v OP val);                                           \
+            res._append(v OP val);                                          \
         }                                                                   \
         return res;                                                         \
     }                                                                       \
@@ -97,7 +97,7 @@ DEFINE_ARRAY_OPERATOR(~)
         }                                                                   \
         Array<Bool> res;                                                    \
         for (int i = 0; i < size(); i++) {                                  \
-            res.append(values[i] OP ar.values[i]);                          \
+            res._append(values[i] OP ar.values[i]);                         \
         }                                                                   \
         return res;                                                         \
     }

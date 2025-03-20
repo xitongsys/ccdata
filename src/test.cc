@@ -84,6 +84,8 @@ void test3()
         df._append_row(Array<double, int>({ 1, 2, 3 }, i));
     }
     cout << df << endl;
+
+    cout << df.sum() << endl;
 }
 
 int main()

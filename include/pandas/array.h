@@ -137,13 +137,6 @@ public:
         values.push_back(v);
     }
 
-    Array<T> append(const T& v)
-    {
-        Array<T> ar = *this;
-        ar._append(v);
-        return ar;
-    }
-
     void _clear()
     {
         values.clear();

@@ -82,7 +82,7 @@ public:
     {
         Array<DNT> res;
         for (int i = 0; i < values.size(); i++) {
-            res.append(values[i].get_name());
+            res._append(values[i].get_name());
         }
         return res;
     }
@@ -202,10 +202,10 @@ public:
         SingleIndex<DNT> idx(columns());          \
         Array<DT2> vals;                          \
         for (int i = 0; i < values.size(); i++) { \
-            vals.append(values[i].FUN());         \
+            vals._append(values[i].FUN());        \
         }                                         \
         vals._rename(#FUN);                       \
-        return Series(idx, vals);                 \
+        return Series<DNT, DT2>(idx, vals);       \
     }
 
     DEFINE_DATAFRAME_FUNCS(int, count)

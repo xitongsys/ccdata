@@ -54,8 +54,8 @@ public:
         return *this;
     }
 
-    template <class T2>
-    SingleIndex(const Array<T2>& ar)
+    template <class T2, class NT2>
+    SingleIndex(const Array<T2, NT2>& ar)
     {
         values = ar;
         _update_index();
