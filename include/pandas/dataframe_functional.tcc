@@ -84,7 +84,7 @@ DataFrame bfill(int limit) const
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
     Series<DNT, DT2> FUN()                        \
     {                                             \
-        SingleIndex<DNT> idx(columns());          \
+        Index<DNT> idx(columns());          \
         Array<DT2> vals;                          \
         for (int i = 0; i < values.size(); i++) { \
             vals._append(values[i].FUN());        \

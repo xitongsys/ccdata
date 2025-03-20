@@ -28,7 +28,7 @@
     template <class IT2, class DT2, class INT2, class DNT2>                   \
     Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                \
     {                                                                         \
-        SingleIndex<IT, INT> index;                                           \
+        Index<IT, INT> index;                                           \
         for (int i = 0; i < pidx->size(); i++) {                              \
             index._append(pidx->iloc(i));                                     \
         }                                                                     \
@@ -124,7 +124,7 @@ DEFINE_SERIES_OPERATOR(~)
     template <class IT2, class DT2, class INT2, class DNT2>                              \
     Series<IT, bool, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
     {                                                                                    \
-        SingleIndex<IT, INT> index;                                                      \
+        Index<IT, INT> index;                                                      \
         for (int i = 0; i < pidx->size(); i++) {                                         \
             index._append(pidx->iloc(i));                                                \
         }                                                                                \

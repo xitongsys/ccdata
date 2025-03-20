@@ -15,24 +15,24 @@ namespace pandas {
 template <class IT, class DT, class INT = std::string, class DNT = std::string>
 class DataFrame {
 public:
-    std::shared_ptr<SingleIndex<IT, INT>> pidx;
+    std::shared_ptr<Index<IT, INT>> pidx;
     std::vector<Series<IT, DT, INT, DNT>> values;
 
 #include "dataframe_visitor.tcc"
 
     DataFrame()
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>();
+        pidx = std::make_shared<Index<IT, INT>>();
     }
 
-    DataFrame(const SingleIndex<IT, INT>& idx)
+    DataFrame(const Index<IT, INT>& idx)
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
+        pidx = std::make_shared<Index<IT, INT>>(idx);
     }
 
     DataFrame(const Array<DNT>& columns)
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>();
+        pidx = std::make_shared<Index<IT, INT>>();
         for (int i = 0; i < columns.size(); i++) {
             values.push_back(Series<IT, DT, INT, DNT>(columns.iloc(i)));
         }
@@ -41,7 +41,7 @@ public:
 
     DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& srs)
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>();
+        pidx = std::make_shared<Index<IT, INT>>();
         for (auto& sr : srs) {
             int n = sr.pidx->size();
             for (int i = 0; i < n; i++) {
@@ -59,7 +59,7 @@ public:
         }
     }
 
-    DataFrame<IT, DT, INT, DNT> reindex(const SingleIndex<IT, INT>& idx)
+    DataFrame<IT, DT, INT, DNT> reindex(const Index<IT, INT>& idx)
     {
         DataFrame<IT, DT, INT, DNT> df(idx);
         for (int i = 0; i < values.size(); i++) {
@@ -77,9 +77,9 @@ public:
         }
     }
 
-    void _reindex(const SingleIndex<IT, INT>& idx)
+    void _reindex(const Index<IT, INT>& idx)
     {
-        pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
+        pidx = std::make_shared<Index<IT, INT>>(idx);
         for (int i = 0; i < values.size(); i++) {
             values[i] = values[i].reindex(idx);
             values[i].pidx = pidx;
@@ -248,7 +248,7 @@ public:
     template <int axis = 0, class KEY>
     auto loc(const KEY& bgn, const KEY& end)
     {
-        using SIR = typename SingleIndex<IT, INT>::template SingleIndexRange;
+        using SIR = typename Index<IT, INT>::template IndexRange;
 
         if constexpr (axis == 0) {
             Range<int> it_col(0, size(1), 1);
@@ -306,7 +306,7 @@ DataFrame<IT, DT, INT, DNT> concat_1(
         throw std::format("columns have same name: {}", sr1.get_name());
     }
 
-    SingleIndex<IT, INT> idx;
+    Index<IT, INT> idx;
     for (int i = 0; i < sr1.size(); i++) {
         idx._append(sr1.pidx->iloc(i));
     }
@@ -318,7 +318,7 @@ DataFrame<IT, DT, INT, DNT> concat_1(
     Series<IT, DT2, INT, DNT2> sr2_new = sr2.reindex(idx);
 
     DataFrame<IT, DT, INT, DNT> df;
-    df.pidx = std::make_shared<SingleIndex<IT, INT>>(idx);
+    df.pidx = std::make_shared<Index<IT, INT>>(idx);
 
     sr1_new.pidx = df.pidx;
     sr2_new.pidx = df.pidx;
@@ -342,7 +342,7 @@ DataFrame<IT, DT, INT, DNT> concat_1(
         }
     }
 
-    SingleIndex<IT, INT> idx;
+    Index<IT, INT> idx;
     for (int i = 0; i < df.size(); i++) {
         idx._append(df.pidx->iloc(i));
     }

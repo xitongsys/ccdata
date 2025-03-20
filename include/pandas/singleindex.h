@@ -16,7 +16,7 @@
 namespace pandas {
 
 template <class T, class NT = std::string>
-class SingleIndex {
+class Index {
 public:
     Array<T, NT> values;
     std::map<T, int> value2iid;
@@ -24,29 +24,29 @@ public:
 #include "pandas/singleindex_range.tcc"
 #include "pandas/singleindex_visitor.tcc"
 
-    SingleIndex()
+    Index()
     {
     }
 
-    SingleIndex(size_t n, const T& init_val)
+    Index(size_t n, const T& init_val)
         : values(n, init_val)
     {
         _update_index();
     }
 
-    SingleIndex(const SingleIndex& si)
+    Index(const Index& si)
     {
         values = si.values;
         value2iid = si.value2iid;
     }
 
-    SingleIndex(SingleIndex&& ir)
+    Index(Index&& ir)
     {
         values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
     }
 
-    SingleIndex& operator=(SingleIndex&& ir)
+    Index& operator=(Index&& ir)
     {
         values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
@@ -55,7 +55,7 @@ public:
     }
 
     template <class T2, class NT2>
-    SingleIndex(const Array<T2, NT2>& ar)
+    Index(const Array<T2, NT2>& ar)
     {
         values = ar;
         _update_index();
@@ -146,25 +146,25 @@ public:
         return values.iloc_ref(i);
     }
 
-    SingleIndexVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
+    IndexVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
     {
-        return SingleIndexVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
+        return IndexVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
     }
 
-    SingleIndexVisitor<SingleIndexRange> loc(const T& bgn, const T& end)
+    IndexVisitor<IndexRange> loc(const T& bgn, const T& end)
     {
-        return SingleIndexVisitor(*this, SingleIndexRange(*this, bgn, end));
+        return IndexVisitor(*this, IndexRange(*this, bgn, end));
     }
 
-    SingleIndexRange range(const T& bgn, const T& end)
+    IndexRange range(const T& bgn, const T& end)
     {
-        return SingleIndexRange(*this, bgn, end);
+        return IndexRange(*this, bgn, end);
     }
 
     template <class T2, class NT2>
-    SingleIndex<T2, NT2> astype()
+    Index<T2, NT2> astype()
     {
-        SingleIndex<T2, NT2> si2;
+        Index<T2, NT2> si2;
         for (int i = 0; i < size(); i++) {
             si2._append(iloc(i));
         }
@@ -172,9 +172,9 @@ public:
         return si2;
     }
 
-    SingleIndex<T, NT> sort(bool ascending = true) const
+    Index<T, NT> sort(bool ascending = true) const
     {
-        SingleIndex<T> si;
+        Index<T> si;
         if (ascending) {
             for (auto it = value2iid.begin(); it != value2iid.end(); it++) {
                 si._append(it->first);
@@ -191,11 +191,11 @@ public:
     std::string to_string() const
     {
         std::stringstream ss;
-        ss << "SingleIndex: {" << values.to_string() << "}";
+        ss << "Index: {" << values.to_string() << "}";
         return ss.str();
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const SingleIndex<T>& idx)
+    friend std::ostream& operator<<(std::ostream& os, const Index<T>& idx)
     {
         os << idx.to_string();
         return os;
@@ -203,9 +203,9 @@ public:
 };
 
 template <class IT, class NT, class IT2, class NT2>
-SingleIndex<IT, NT> concat_0(const SingleIndex<IT, NT>& idx1, const SingleIndex<IT2, NT2>& idx2)
+Index<IT, NT> concat_0(const Index<IT, NT>& idx1, const Index<IT2, NT2>& idx2)
 {
-    SingleIndex<IT, NT> idx_merge = idx1;
+    Index<IT, NT> idx_merge = idx1;
     for (int i = 0; i < idx2.size(); i++) {
         const IT& id = idx2.iloc(i);
         idx_merge._append(id);

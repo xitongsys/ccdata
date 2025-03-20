@@ -20,7 +20,7 @@ public:
 
     DataFrame to_frame()
     {
-        SingleIndex<IT, INT> idx;
+        Index<IT, INT> idx;
         it_row.reset();
         while (it_row.has_left()) {
             int i = it_row.next();

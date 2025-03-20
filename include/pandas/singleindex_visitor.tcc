@@ -1,19 +1,19 @@
 #pragma once
 
 // template <class T, class NT = std::string>
-// class SingleIndex : public Index<T, NT> {
+// class Index : public Index<T, NT> {
 
 // template <class T2, class NT2, class IIT>
-// class SingleIndexVisitor;
+// class IndexVisitor;
 
 template <class IIT>
-class SingleIndexVisitor {
+class IndexVisitor {
 public:
-    SingleIndex& si;
+    Index& si;
     IIT it;
     std::vector<int> iids;
 
-    SingleIndexVisitor(SingleIndex& si_, const IIT& it_)
+    IndexVisitor(Index& si_, const IIT& it_)
         : si(si_)
         , it(it_)
     {
@@ -50,9 +50,9 @@ public:
         it.reset();
     }
 
-    SingleIndex to_index()
+    Index to_index()
     {
-        SingleIndex si2;
+        Index si2;
         it.reset();
         while (it.has_left()) {
             si2._append(it.next());
@@ -93,13 +93,13 @@ public:
     }
 
     template <class DT2, class NT2>
-    void operator=(const SingleIndex<DT2, NT2>& ar)
+    void operator=(const Index<DT2, NT2>& ar)
     {
         (*this) = ar.values;
     }
 
     template <class T2, class NT2, class IIT2>
-    void operator=(const typename SingleIndex<T2,NT2>::template SingleIndexVisitor<IIT2>& ar)
+    void operator=(const typename Index<T2,NT2>::template IndexVisitor<IIT2>& ar)
     {
         (*this) = ar.values;
     }

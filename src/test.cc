@@ -69,7 +69,7 @@ void test2()
 
 void test1()
 {
-    SingleIndex<int> si;
+    Index<int> si;
     for (int i = 0; i < 10; i++) {
         si._append(i);
     }

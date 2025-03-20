@@ -1,16 +1,16 @@
 #pragma once
 
 // template <class T, class NT = std::string>
-// class SingleIndex {
+// class Index {
 
-class SingleIndexRange : public Iterator<int> {
+class IndexRange : public Iterator<int> {
 public:
-    SingleIndex& si;
+    Index& si;
     T bgn, end;
     std::map<T, int>::iterator it;
     std::map<T, int>::iterator it_end;
 
-    SingleIndexRange(SingleIndex& si_, const T& bgn_, const T& end_)
+    IndexRange(Index& si_, const T& bgn_, const T& end_)
         : si(si_)
         , bgn(bgn_)
         , end(end_)
