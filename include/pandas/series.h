@@ -1,11 +1,11 @@
 #pragma once
 
 #include <algorithm>
+#include <map>
 #include <ostream>
+#include <set>
 #include <sstream>
 #include <vector>
-#include <map>
-#include <set>
 
 #include "pandas/array.h"
 #include "pandas/index.h"
@@ -257,46 +257,69 @@ public:
         return SeriesVisitor<Index<IT, INT>::IndexRange>(*this, Index<IT, INT>::IndexRange(*pidx, bgn, end));
     }
 
-    SeriesVisitor<RangeVec<int>> loc(const Array<IT>& ids)
+    /// @loc by ids
+    /// @tparam IT2
+    /// @param ids
+    /// @return
+    template <class IT2>
+    SeriesVisitor<RangeVec<int>> loc(const std::vector<IT2>& ids)
     {
         std::vector<int> iids;
         for (int i = 0; i < ids.size(); i++) {
-            IT id = ids.iloc(i);
+            IT2 id = ids[i];
             int j = pidx->loc_i(id);
             iids.push_back(j);
         }
-
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
     }
-
+    template <class IT2, class INT2>
+    SeriesVisitor<RangeVec<int>> loc(const Array<IT2, INT2>& ids)
+    {
+        return loc(ids.values);
+    }
     template <class IT2, class DT2, class INT2, class DNT2>
     SeriesVisitor<RangeVec<int>> loc(const Series<IT2, DT2, INT2, DNT2>& ids)
     {
         return loc(ids.values);
     }
-
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> loc(const Index<IT2, INT2>& ids)
     {
         return loc(ids.values);
     }
 
-    template <class INT2, class DNT2>
-    SeriesVisitor<RangeVec<int>> loc(const Series<IT, bool, INT2, DNT2>& mask)
+    /// @loc by mask
+    /// @param mask
+    /// @return
+    template <>
+    SeriesVisitor<RangeVec<int>> loc(const std::vector<bool>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
         }
         std::vector<int> iids;
-
-        for (int i = 0; i < mask.size(); i++) {
-            bool flag = mask.iloc(i);
-            if (flag == true) {
-                IT id = mask.pidx->iloc(i);
-                iids.push_back(pidx->loc_i(id));
+        for (int i = 0; i < size(); i++) {
+            if (mask[i]) {
+                iids.push_back(i);
             }
         }
-
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
+    }
+    template <class NT2>
+    SeriesVisitor<RangeVec<int>> loc(const Array<bool, NT2>& mask)
+    {
+        return loc(mask.values);
+    }
+    template <class IT2, class INT2, class DNT2>
+    SeriesVisitor<RangeVec<int>> loc(const Series<IT2, bool, INT2, DNT2>& mask)
+    {
+        std::vector<int> iids;
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            if (mask.loc(id)) {
+                iids.push_back(i);
+            }
+        }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
     }
 

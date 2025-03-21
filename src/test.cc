@@ -94,7 +94,7 @@ void test3()
     auto dg = df2.groupby(df2.iloc<1>(1)).sum();
     cout << dg << endl;
 
-    cout << df.shift(2).rolling(3, 3).median() << endl;
+    cout << df.shift(2).rolling(3, 3).max().dropna() << endl;
 
     std::cout << df.median<1>() << std::endl;
 }

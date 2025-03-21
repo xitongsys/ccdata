@@ -310,17 +310,115 @@ public:
         }
     }
 
-    DataFrameVisitor<RangeVec<int>, Range<int>> loc(const Series<IT, bool>& mask)
+    /// @loc by ids
+    /// @tparam IT2
+    /// @tparam axis
+    /// @param ids
+    /// @return
+    template <int axis = 0, class IT2>
+    auto loc(const std::vector<IT2>& ids)
     {
-        std::vector<int> iids;
-        for (int i = 0; i < size<0>(); i++) {
-            IT id = pidx->iloc(i);
-            if (mask.loc(id)) {
-                iids.push_back(i);
+        if constexpr (axis == 0) {
+            std::vector<int> iids_row;
+            for (const IT2& id : ids) {
+                int j = pidx->loc_i(id);
+                iids_row.push_back(j);
             }
-        }
 
-        return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids), Range<int>(0, size<1>()));
+            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range(0, size<1>()));
+
+        } else {
+            std::vector<int> iids_col;
+            for (const IT2& col_name : ids) {
+                int j = get_column_index(col_name);
+                iids_col.push_back(j);
+            }
+
+            return DataFrameVisitor<Range<int>, RangeVec<int>>(Range<int>(0, size<0>()), RangeVec<int>(iids_col));
+        }
+    }
+    template <int axis = 0, class IT2, class INT2>
+    auto loc(const Array<IT2, INT2>& ids)
+    {
+        return loc<axis>(ids.values);
+    }
+    template <int axis = 0, class IT2, class INT2>
+    auto loc(const Index<IT2, INT2>& ids)
+    {
+        return loc<axis>(ids.values);
+    }
+    template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>
+    auto loc(const Series<IT2, DT2, INT2, DNT2>& ids)
+    {
+        return loc<axis>(ids.values);
+    }
+
+    /// @loc by bool mask
+    /// @tparam axis
+    /// @param mask
+    /// @return
+    template <int axis = 0>
+    auto loc(const std::vector<bool>& mask)
+    {
+        if constexpr (axis == 0) {
+            if (mask.size() != size<0>()) {
+                throw std::format("size not match: {}!={}", mask.size(), size<0>());
+            }
+            std::vector<int> iids_row;
+
+            for (int i = 0; i < mask.size(); i++) {
+                if (mask[i]) {
+                    iids_row.push_back(i);
+                }
+            }
+            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range(0, size<1>()));
+
+        } else {
+            if (mask.size() != size<1>()) {
+                throw std::format("size not match: {}!={}", mask.size(), size<1>());
+            }
+            std::vector<int> iids_col;
+
+            for (int j = 0; j < mask.size(); j++) {
+                iids_col.push_back(j);
+            }
+            return DataFrameVisitor<Range<int>, RangeVec<int>>(Range<int>(0, size<0>()), RangeVec<int>(iids_col));
+        }
+    }
+
+    template <int axis = 0, class INT2>
+    auto loc(const Array<bool, INT2>& mask)
+    {
+        return loc<axis>(mask.values);
+    }
+    template <int axis = 0, class INT2>
+    auto loc(const Index<bool, INT2>& mask)
+    {
+        return loc<axis>(mask.values);
+    }
+    template <int axis = 0, class IT2, class INT2, class DNT2>
+    auto loc(const Series<IT2, bool, INT2, DNT2>& mask)
+    {
+        if constexpr (axis == 0) {
+            std::vector<int> iids_row;
+            for (int i = 0; i < size<0>(); i++) {
+                IT id = pidx->iloc(i);
+                if (mask.loc(id)) {
+                    iids_row.push_back(i);
+                }
+            }
+            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range<int>(0, size<1>()));
+
+        } else {
+            std::vector<int> iids_col;
+            for (int j = 0; j < size<1>(); j++) {
+                DNT col_name = iloc<1>(j).get_name();
+                if (mask.loc(col_name)) {
+                    iids_col.push_back(j);
+                }
+            }
+            return DataFrameVisitor<Range<int>, RangeVec<int>>(*this, Range<int>(0, size<0>()), RangeVec<int>(iids_col));
+        }
     }
 
     std::string to_string(int mx_row = 10, int mx_col = 10) const
