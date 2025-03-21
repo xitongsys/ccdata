@@ -45,6 +45,7 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
     DEFINE_SERIESGROUP_AGG_FUNC(double, var)
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
+    
 };
 
 template <class KT, class DNT2>

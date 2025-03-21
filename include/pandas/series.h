@@ -4,6 +4,8 @@
 #include <ostream>
 #include <sstream>
 #include <vector>
+#include <map>
+#include <set>
 
 #include "pandas/array.h"
 #include "pandas/index.h"

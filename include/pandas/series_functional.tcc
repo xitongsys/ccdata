@@ -157,6 +157,40 @@ Series bfill(const DT2& v, int limit = 1) const
     return sr;
 }
 
+/// @cumsum
+void _cumsum()
+{
+    DT s = 0;
+    for (int i = 0; i < size(); i++) {
+        if (!pandas::isnan(iloc(i))) {
+            s = s + iloc(i);
+            iloc_ref(i) = s;
+        }
+    }
+}
+Series cumsum()
+{
+    Series sr = *this;
+    sr._cumsum();
+    return sr;
+}
+
+/// @pow
+/// @param n
+void _pow(double n)
+{
+    for (int i = 0; i < size(); i++) {
+        DT v = iloc(i);
+        iloc_ref(i) = std::pow(v, n);
+    }
+}
+Series pow(double n)
+{
+    Series sr = *this;
+    sr._pow(n);
+    return sr;
+}
+
 DT sum() const
 {
     DT s(0);

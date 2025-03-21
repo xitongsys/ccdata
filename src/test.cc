@@ -49,7 +49,7 @@ void test2()
     cout << "-----------------------------" << endl;
 
     auto start2 = high_resolution_clock::now();
-    cout << sr1.rolling(100, 1).sum() << endl;
+    cout << sr1.rolling(10000, 1).std() << endl;
     auto end2 = high_resolution_clock::now();
     duration<double, nano> dt2 = end2 - start2;
     cout << double(dt2.count()) / 1e6 << endl;
@@ -94,7 +94,7 @@ void test3()
     auto dg = df2.groupby(df2.iloc<1>(1)).sum();
     cout << dg << endl;
 
-    cout << df.shift(2) << endl;
+    cout << df.shift(2).rolling(3,3).std() << endl;
 }
 
 int main()
