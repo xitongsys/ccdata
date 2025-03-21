@@ -28,7 +28,7 @@
     template <class IT2, class DT2, class INT2, class DNT2>                   \
     Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                \
     {                                                                         \
-        Index<IT, INT> index;                                           \
+        Index<IT, INT> index;                                                 \
         for (int i = 0; i < pidx->size(); i++) {                              \
             index._append(pidx->iloc(i));                                     \
         }                                                                     \
@@ -108,7 +108,7 @@ DEFINE_SERIES_OPERATOR(~)
     Series<IT, bool, INT, DNT> operator OP(const T2 & val) const                         \
     {                                                                                    \
         Array<bool, DNT> values = this->values OP val;                                   \
-        return Series(this->pidx, values);                                               \
+        return Series<IT, bool, INT, DNT>(*pidx, values);                                \
     }                                                                                    \
                                                                                          \
     template <class DT2, class DNT2>                                                     \
@@ -118,13 +118,13 @@ DEFINE_SERIES_OPERATOR(~)
             throw std::format("size not match: {}!={}", ar.size(), size());              \
         }                                                                                \
         Array<bool, DNT> vals = values OP ar;                                            \
-        return Series(pidx, vals);                                                       \
+        return Series<IT, bool, INT, DNT>(*pidx, vals);                                  \
     }                                                                                    \
                                                                                          \
     template <class IT2, class DT2, class INT2, class DNT2>                              \
     Series<IT, bool, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
     {                                                                                    \
-        Index<IT, INT> index;                                                      \
+        Index<IT, INT> index;                                                            \
         for (int i = 0; i < pidx->size(); i++) {                                         \
             index._append(pidx->iloc(i));                                                \
         }                                                                                \
@@ -134,7 +134,7 @@ DEFINE_SERIES_OPERATOR(~)
         Series<IT, DT, INT, DNT> sr1 = this->reindex(index);                             \
         Series<IT, DT2, INT, DNT2> sr2 = sr.reindex(index);                              \
         Array<bool, DNT> vals = sr1.values OP sr2.values;                                \
-        return Series(index, vals);                                                      \
+        return Series<IT, bool, INT, DNT>(index, vals);                                  \
     }
 
 DEFINE_SERIES_OPERATOR(>)

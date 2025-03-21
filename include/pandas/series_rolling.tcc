@@ -29,23 +29,6 @@ public:
     {
     }
 
-    template <class DT2>
-    Series<IT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
-    {
-        Series<IT, DT2, INT, DNT> res(sr);
-
-        for (int i = 0; i < sr.size(); i++) {
-            int b = std::max(0, i - window + 1), e = i;
-            SeriesVisitor<Range<int>> sv(sr, Range<int>(b, e + 1));
-            if (min_periods > 0 && sv.count() < min_periods) {
-                res.iloc_ref(i) = pandas::nan<DT2>();
-            } else {
-                res.iloc_ref(i) = func(sv);
-            }
-        }
-        return res;
-    }
-
     /// rolling functions
 
     Series<IT, int, INT, DNT> count()
@@ -164,8 +147,6 @@ public:
         Series<IT, int, INT, DNT> cs = count();
         Series ss = sum();
 
-        
-
         Series<IT, double, INT, DNT> res(sr.get_name());
         for (int i = 0; i < sr.size(); i++) {
             IT id = sr.pidx->iloc(i);
@@ -196,12 +177,31 @@ public:
         return var().pow(0.5);
     }
 
+    ////////// common agg /////////////////////
+
+    template <class DT2>
+    Series<IT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
+    {
+        Series<IT, DT2, INT, DNT> res(sr);
+
+        for (int i = 0; i < sr.size(); i++) {
+            int b = std::max(0, i - window + 1), e = i;
+            SeriesVisitor<Range<int>> sv(sr, Range<int>(b, e + 1));
+            if (min_periods > 0 && sv.count() < min_periods) {
+                res.iloc_ref(i) = pandas::nan<DT2>();
+            } else {
+                res.iloc_ref(i) = func(sv);
+            }
+        }
+        return res;
+    }
+
 #define DEFINE_SERIESROLLING_AGG_FUNC(TYPE, FUN)                                                                                  \
     Series<IT, TYPE, INT, DNT> FUN()                                                                                              \
     {                                                                                                                             \
         return agg<TYPE>([](SeriesVisitor<Range<int>>& sv) -> TYPE { return pandas::FUN<TYPE, SeriesVisitor<Range<int>>>(sv); }); \
     }
-    // DEFINE_SERIESROLLING_AGG_FUNC(double, std)
+    DEFINE_SERIESROLLING_AGG_FUNC(double, median)
 };
 
 SeriesRolling rolling(int window, int min_periods)

@@ -11,8 +11,8 @@
         return res;                                                         \
     }                                                                       \
                                                                             \
-    template <class T2>                                                     \
-    Array operator OP(const Array<T2>& ar) const                            \
+    template <class T2, class NT2>                                          \
+    Array operator OP(const Array<T2, NT2>& ar) const                       \
     {                                                                       \
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
@@ -43,8 +43,8 @@ DEFINE_ARRAY_OPERATOR(^)
         return *this;                                                       \
     }                                                                       \
                                                                             \
-    template <class T2>                                                     \
-    Array& operator OP(const Array<T2>& ar)                                 \
+    template <class T2, class NT2>                                          \
+    Array& operator OP(const Array<T2, NT2>& ar)                            \
     {                                                                       \
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
@@ -80,22 +80,22 @@ DEFINE_ARRAY_OPERATOR(~)
 
 #define DEFINE_ARRAY_OPERATOR(OP)                                           \
     template <class T2>                                                     \
-    Array<Bool> operator OP(const T2 & val) const                           \
+    Array<bool, NT> operator OP(const T2 & val) const                       \
     {                                                                       \
-        Array<Bool> res;                                                    \
+        Array<bool, NT> res;                                                \
         for (auto& v : values) {                                            \
             res._append(v OP val);                                          \
         }                                                                   \
         return res;                                                         \
     }                                                                       \
                                                                             \
-    template <class T2>                                                     \
-    Array<Bool> operator OP(const Array<T2>& ar) const                      \
+    template <class T2, class NT2>                                          \
+    Array<bool, NT> operator OP(const Array<T2, NT2>& ar) const             \
     {                                                                       \
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
         }                                                                   \
-        Array<Bool> res;                                                    \
+        Array<bool, NT> res;                                                \
         for (int i = 0; i < size(); i++) {                                  \
             res._append(values[i] OP ar.values[i]);                         \
         }                                                                   \

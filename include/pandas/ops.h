@@ -173,4 +173,22 @@ double std(IT& it)
     return std::pow(v, 0.5);
 }
 
+template <class T, class IT>
+double median(IT& it)
+{
+    std::vector<T> vs;
+    while (it.has_left()) {
+        vs.push_back(it.next());
+    }
+    int n = vs.size();
+    if (n == 0) {
+        return pandas::nan<double>();
+    }
+    if (n & 1) {
+        return vs[n / 2];
+    } else {
+        return ((double)vs[n / 2 - 1] + (double)vs[n / 2]) / 2;
+    }
+}
+
 } // namespace pandas

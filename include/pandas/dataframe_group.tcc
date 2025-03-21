@@ -100,7 +100,7 @@ DataFrameGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr)
 
     DataFrameGroup<KT> dg;
     for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size(1)));
+        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size<1>()));
         dg.items.emplace(it->first, std::move(dv));
     }
 

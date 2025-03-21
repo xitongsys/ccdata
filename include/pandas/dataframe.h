@@ -124,9 +124,10 @@ public:
         return res;
     }
 
-    size_t size(int axis = 0) const
+    template <int axis = 0>
+    size_t size() const
     {
-        if (axis == 0) {
+        if constexpr (axis == 0) {
             return pidx->size();
         } else {
             return values.size();
@@ -159,7 +160,7 @@ public:
             values[i].values._append(ar.iloc(i));
         }
 
-        return size(0);
+        return size<0>();
     }
 
     template <class INT2>
@@ -229,7 +230,7 @@ public:
     }
 
     template <int axis = 0>
-    auto iloc(int i)
+    auto iloc(int i) const
     {
         if constexpr (axis == 0) {
             Series<DNT, DT, std::string, IT> row;
@@ -275,11 +276,11 @@ public:
     {
         if constexpr (axis == 0) {
             Range<int> it_row(bgn, end, step);
-            Range<int> it_col(0, size(1), 1);
+            Range<int> it_col(0, size<1>(), 1);
             return DataFrameVisitor<Range<int>, Range<int>>(*this, it_row, it_col);
 
         } else {
-            Range<int> it_row(0, size(0), step);
+            Range<int> it_row(0, size<0>(), step);
             Range<int> it_col(bgn, end, 1);
             return DataFrameVisitor<Range<int>, Range<int>>(*this, it_row, it_col);
         }
@@ -291,22 +292,35 @@ public:
         using SIR = typename Index<IT, INT>::template IndexRange;
 
         if constexpr (axis == 0) {
-            Range<int> it_col(0, size(1), 1);
+            Range<int> it_col(0, size<1>(), 1);
             return DataFrameVisitor<SIR, Range<int>>(*this, SIR(*pidx, bgn, end), it_col);
 
         } else {
             std::vector<DNT> cols;
-            for (int i = 0; i < size(1); i++) {
+            for (int i = 0; i < size<1>(); i++) {
                 DNT col = values[i].get_name();
                 if (col >= bgn && col <= end) {
                     cols.push_back(col);
                 }
             }
 
-            Range<int> it_row(0, size(0), 1);
+            Range<int> it_row(0, size<0>(), 1);
             RangeVec<DNT> it_rv;
             return DataFrameVisitor<Range<int>, RangeVec<DNT>>(*this, it_row, it_rv);
         }
+    }
+
+    DataFrameVisitor<RangeVec<int>, Range<int>> loc(const Series<IT, bool>& mask)
+    {
+        std::vector<int> iids;
+        for (int i = 0; i < size<0>(); i++) {
+            IT id = pidx->iloc(i);
+            if (mask.loc(id)) {
+                iids.push_back(i);
+            }
+        }
+
+        return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids), Range<int>(0, size<1>()));
     }
 
     std::string to_string(int mx_row = 10, int mx_col = 10) const

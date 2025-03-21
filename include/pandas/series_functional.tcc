@@ -15,6 +15,25 @@ Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func)
     sr._rename(this->get_name());
     return sr;
 }
+
+/// @dropna
+Series dropna()
+{
+    Series sr(get_name());
+    for (int i = 0; i < size(); i++) {
+        DT v = iloc(i);
+        if (!pandas::isnan(v)) {
+            IT id = pidx->iloc(i);
+            sr._append(id, v);
+        }
+    }
+    return sr;
+}
+void _dropna()
+{
+    *this = dropna();
+}
+
 /// @diff
 /// @param periods
 void _diff(int periods)

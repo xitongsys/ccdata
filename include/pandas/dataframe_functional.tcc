@@ -3,6 +3,26 @@
 // template<class IT, class DT, class INT, class DNT>
 // class DataFrame {
 
+/// @dropna
+/// @param how
+DataFrame dropna(const std::string& how = "any")
+{
+    Series<IT, int, INT, DNT> ds_cnt = count<1>();
+
+    if (how == "all") {
+        Series<IT, bool, INT, DNT> mask = (ds_cnt > 0);
+        return loc(mask).to_frame();
+
+    } else if (how == "any") {
+        Series<IT, bool, INT, DNT> mask = (ds_cnt == size<1>());
+        return loc(mask).to_frame();
+    }
+}
+void _dropna(const std::string& how = "any")
+{
+    *this = dropna(how);
+}
+
 /// @diff
 /// @param periods
 void _diff(int periods)
@@ -81,16 +101,42 @@ DataFrame bfill(int limit) const
     return df;
 }
 
-#define DEFINE_DATAFRAME_FUNCS(DT2, FUN)          \
-    Series<DNT, DT2> FUN()                        \
-    {                                             \
-        Index<DNT> idx(columns());          \
-        Array<DT2> vals;                          \
-        for (int i = 0; i < values.size(); i++) { \
-            vals._append(values[i].FUN());        \
-        }                                         \
-        vals._rename(#FUN);                       \
-        return Series<DNT, DT2>(idx, vals);       \
+DataFrame<DNT, DT, std::string, IT> T() const
+{
+    std::vector<IT> cols;
+    for (int i = 0; i < size<0>(); i++) {
+        IT id = pidx->iloc(i);
+        cols.push_back(id);
+    }
+
+    std::vector<Array<DT, DNT>> rows;
+    for (int j = 0; j < size<1>(); j++) {
+        Array<DT, DNT> row(iloc<1>(j).get_name());
+        for (int i = 0; i < size<0>(); i++) {
+            DT val = iloc(i, j);
+            row._append(val);
+        }
+        rows.push_back(std::move(row));
+    }
+
+    return DataFrame<DNT, DT, std::string, IT>(cols, rows);
+}
+
+#define DEFINE_DATAFRAME_FUNCS(DT2, FUN)              \
+    template <int axis = 0>                           \
+    auto FUN()                                        \
+    {                                                 \
+        if constexpr (axis == 0) {                    \
+            Index<DNT> idx(columns());                \
+            Array<DT2> vals;                          \
+            for (int i = 0; i < values.size(); i++) { \
+                vals._append(values[i].FUN());        \
+            }                                         \
+            vals._rename(#FUN);                       \
+            return Series<DNT, DT2>(idx, vals);       \
+        } else {                                      \
+            return T().FUN<0>();                      \
+        }                                             \
     }
 
 DEFINE_DATAFRAME_FUNCS(int, count)

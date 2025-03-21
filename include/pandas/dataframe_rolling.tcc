@@ -47,6 +47,7 @@ public:
     DEFINE_DATAFRAME_ROLLING_FUNC(double, mean)
     DEFINE_DATAFRAME_ROLLING_FUNC(double, var)
     DEFINE_DATAFRAME_ROLLING_FUNC(double, std)
+    DEFINE_DATAFRAME_ROLLING_FUNC(double, median)
 };
 
 DataFrameRolling rolling(int window, int min_periods)
