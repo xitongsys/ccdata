@@ -80,7 +80,7 @@ void test1()
 void test3()
 {
     DataFrame<int, double> df({ "a", "b", "c" });
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 100; i++) {
         df._append_row(Array<double, int>({ 1, 2, 3 }, i));
     }
     cout << df << endl;
@@ -93,6 +93,8 @@ void test3()
 
     auto dg = df2.groupby(df2.iloc<1>(1)).sum();
     cout << dg << endl;
+
+    cout << df.shift(2) << endl;
 }
 
 int main()

@@ -52,23 +52,23 @@ void _shift(int offset)
 {
     if (abs(offset) >= size()) {
         for (int i = 0; i < size(); i++) {
-            iloc(i) = pandas::nan<DT>();
+            iloc_ref(i) = pandas::nan<DT>();
         }
 
     } else if (offset > 0) {
         for (int i = offset; i < size(); i++) {
-            iloc(i) = iloc(i - offset);
+            iloc_ref(i) = iloc(i - offset);
         }
         for (int i = 0; i < offset; i++) {
-            iloc(i) = pandas::nan<DT>();
+            iloc_ref(i) = pandas::nan<DT>();
         }
 
     } else if (offset < 0) {
         for (int i = 0; i < size() + offset; i++) {
-            iloc(i) = iloc(i - offset);
+            iloc_ref(i) = iloc(i - offset);
         }
         for (int i = size() - offset; i < size(); i++) {
-            iloc(i) = pandas::nan<DT>();
+            iloc_ref(i) = pandas::nan<DT>();
         }
     }
 }
