@@ -13,7 +13,9 @@ namespace csv {
         bool in_quote = false;
         std::stringstream ss;
         char a, b;
+        char end = '\n';
         while (in.get(a)) {
+            end = a;
             if (a == '"') {
                 if (in_quote) {
                     if (in.eof()) {
@@ -56,7 +58,8 @@ namespace csv {
             }
         }
 
-        if (in.eof() && a != '\n') {
+        if (in.eof() && end != '\n') {
+            std::cout << a << " " << int(a) << std::endl;
             cells.push_back(ss.str());
         }
 
@@ -73,8 +76,6 @@ namespace csv {
         }
 
         std::vector<std::string> headers = read_row(in, delimiter);
-
-        std::cout << headers.size() << std::endl;
 
         int col_cnt = headers.size();
         for (int j = 0; j < col_cnt; j++) {
@@ -93,6 +94,9 @@ namespace csv {
 
         while (!in.eof()) {
             std::vector<std::string> row = read_row(in, delimiter);
+            if (row.size() == 0) {
+                continue;
+            }
             if (row.size() != col_cnt) {
                 throw std::format("csv format error: {}", row.size());
             }
