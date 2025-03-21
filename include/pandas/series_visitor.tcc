@@ -10,10 +10,35 @@ public:
     IIT it;
     std::vector<int> iids;
 
+    SeriesVisitor(const SeriesVisitor& sv)
+        : sr(sv.sr)
+        , it(sv.it)
+        , iids(sv.iids)
+    {
+    }
+
+    SeriesVisitor(SeriesVisitor&& sv)
+        : sr(sv.sr)
+        , it(std::move(sv.it))
+        , iids(std::move(sv.iids))
+    {
+    }
+
     SeriesVisitor(Series<IT, DT, INT, DNT>& sr_, const IIT& it_)
         : sr(sr_)
         , it(it_)
     {
+    }
+
+    SeriesVisitor(Series<IT, DT, INT, DNT>& sr_, IIT&& it_)
+        : sr(sr_)
+        , it(it_)
+    {
+    }
+
+    DNT get_name()
+    {
+        return sr.get_name();
     }
 
     inline bool has_left()
@@ -82,6 +107,11 @@ public:
     {
         Series ds = sp2.to_series();
         (*this) = ds;
+    }
+
+    void operator=(const SeriesVisitor& sv2)
+    {
+        (*this) = sv2;
     }
 
     // functions that need iids

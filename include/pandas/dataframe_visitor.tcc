@@ -11,6 +11,8 @@ public:
     IITCOL it_col;
     std::vector<int> iids_row, iids_col;
 
+    using SV = typename Series<IT, DT, INT, DNT>::template SeriesVisitor<IITROW>;
+
     DataFrameVisitor(DataFrame<IT, DT, INT, DNT>& df_, const IITROW& it_row_, const IITCOL& it_col_)
         : df(df_)
         , it_row(it_row_)
@@ -35,5 +37,28 @@ public:
         }
 
         return DataFrame(srs);
+    }
+
+    std::vector<SV> to_series_visitors()
+    {
+        std::vector<SV> svs;
+        it_col.reset();
+        while (it_col.has_left()) {
+            int j = it_col.next();
+            svs.push_back(SV(df.iloc_ref<1>(j), it_row));
+        }
+        return svs;
+    }
+
+    std::vector<DNT> columns()
+    {
+        std::vector<DNT> cols;
+        it_col.reset();
+        while (it_col.has_left()) {
+            int j = it_col.next();
+            DNT col_name = df.iloc<1>(j).get_name();
+            cols.push_back(col_name);
+        }
+        return cols;
     }
 };

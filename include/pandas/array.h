@@ -52,6 +52,12 @@ public:
         }
     }
 
+    Array(std::vector<T>&& vals, const NT& name = NT {})
+        : Array(name)
+    {
+        values = vals;
+    }
+
     template <class T2>
     Array(const std::initializer_list<T2>& vals, const NT& name = NT {})
         : Array(name)

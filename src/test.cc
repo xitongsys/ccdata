@@ -1,9 +1,9 @@
 #include "pandas/array.h"
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
+#include "pandas/index.h"
 #include "pandas/pandastype.h"
 #include "pandas/series.h"
-#include "pandas/index.h"
 
 #include <chrono>
 #include <iostream>
@@ -87,9 +87,11 @@ void test3()
 
     cout << df.sum() << endl;
 
-    auto df2 = df.rolling(5,1).mean();
+    auto df2 = df.rolling(5, 1).mean();
 
-    cout << df2.iloc(1,5,1).to_frame() << endl;
+    cout << df2.iloc(1, 5, 1).to_frame() << endl;
+
+    cout << df2.groupby(df2.iloc<1>(1)).sum() << endl;
 }
 
 int main()

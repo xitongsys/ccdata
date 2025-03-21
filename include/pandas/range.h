@@ -67,10 +67,30 @@ public:
     std::vector<T> vs;
     int cur = 0;
 
+    RangeVec() { }
+
     RangeVec(const std::vector<T>& vs_)
         : vs(vs_)
+        , cur(0)
     {
-        cur = 0;
+    }
+
+    RangeVec(std::vector<T>&& vs_)
+        : vs(vs_)
+        , cur(0)
+    {
+    }
+
+    RangeVec(const RangeVec& rv)
+        : vs(rv.vs)
+        , cur(rv.cur)
+    {
+    }
+
+    RangeVec(RangeVec&& rv)
+        : vs(std::move(rv.vs))
+        , cur(rv.cur)
+    {
     }
 
     inline bool has_left() const

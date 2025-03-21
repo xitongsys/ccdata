@@ -30,13 +30,41 @@ public:
         pidx = std::make_shared<Index<IT, INT>>(idx);
     }
 
-    DataFrame(const Array<DNT>& columns)
+    DataFrame(const std::vector<DNT>& columns)
     {
         pidx = std::make_shared<Index<IT, INT>>();
         for (int i = 0; i < columns.size(); i++) {
-            values.push_back(Series<IT, DT, INT, DNT>(columns.iloc(i)));
+            values.push_back(Series<IT, DT, INT, DNT>(columns[i]));
         }
         reassign_index();
+    }
+
+    DataFrame(const std::vector<DNT>& columns, const std::vector<Array<DT, IT>>& rows)
+    {
+        pidx = std::make_shared<Index<IT, INT>>();
+        for (int j = 0; j < columns.size(); j++) {
+            values.push_back(Series<IT, DT, INT, DNT>(columns[j]));
+        }
+
+        for (int i = 0; i < rows.size(); i++) {
+            const Array<DT, IT>& row = rows[i];
+            IT id = row.get_name();
+            pidx->_append(id);
+            for (int j = 0; j < columns.size(); j++) {
+                values[j]._append(id, row.iloc(j));
+            }
+        }
+
+        reassign_index();
+    }
+
+    DataFrame(const Index<IT, INT>& idx, const std::vector<Array<DT, DNT>>& cols)
+    {
+        pidx = std::make_shared<Index<IT, INT>>(idx);
+        for (auto& col : cols) {
+            Series<IT, DT, INT, DNT> sr(pidx, col);
+            values.emplace_back(std::move(sr));
+        }
     }
 
     DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& srs)
@@ -217,6 +245,18 @@ public:
         }
     }
 
+    template <int axis = 0>
+    auto& iloc_ref(int i)
+    {
+        if constexpr (axis == 0) {
+            throw std::format("DataFrame not support iloc_ref for rows");
+
+        } else {
+            Series<IT, DT, INT, DNT>& col = values[i];
+            return col;
+        }
+    }
+
     template <int axis = 0, class T2>
     auto loc(T2 key)
     {
@@ -290,6 +330,7 @@ public:
     }
 
 #include "pandas/dataframe_functional.tcc"
+#include "pandas/dataframe_group.tcc"
 #include "pandas/dataframe_op.tcc"
 #include "pandas/dataframe_rolling.tcc"
 };
