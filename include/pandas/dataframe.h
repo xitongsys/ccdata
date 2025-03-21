@@ -54,8 +54,6 @@ public:
             for (int j = 0; j < columns.size(); j++) {
                 values[j]._append(id, row.iloc(j));
             }
-
-            
         }
 
         reassign_index();
@@ -311,18 +309,43 @@ public:
         }
     }
 
-    std::string to_string() const
+    std::string to_string(int mx_row = 10, int mx_col = 10) const
     {
+        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_row), "\n");
+        std::vector<std::vector<std::string>> col_lines;
+
+        if (values.size() > mx_col) {
+            for (int j = 0; j < mx_col / 2; j++) {
+                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+            }
+
+            std::vector<std::string> empty_lines;
+            for (int i = 0; i < col_lines[0].size(); i++) {
+                empty_lines.push_back("...");
+            }
+            col_lines.push_back(empty_lines);
+
+            for (int j = values.size() - mx_col / 2; j < values.size(); j++) {
+                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+            }
+
+        } else {
+            for (int j = 0; j < values.size(); j++) {
+                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+            }
+        }
+
         std::stringstream ss;
-        ss << "columns:[";
-        for (int i = 0; i < size(1); i++) {
-            ss << values[i].get_name() << ",";
+        for (int i = 0; i < idx_lines.size(); i++) {
+            ss << idx_lines[i] << " ";
+            for (int j = 0; j < col_lines.size(); j++) {
+                ss << col_lines[j][i] << " ";
+            }
+            if (i + 1 < idx_lines.size()) {
+                ss << "\n";
+            }
         }
-        ss << "]\n";
-        ss << pidx->to_string() << "\n";
-        for (int i = 0; i < size(1); i++) {
-            ss << pandas::to_string(values[i].values) << "\n";
-        }
+
         return ss.str();
     }
 

@@ -195,12 +195,19 @@ public:
         return Series<IT2, DT2>(idx, vals);
     }
 
-    std::string to_string() const
+    std::string to_string(int mx_cnt = 10) const
     {
-        std::stringstream ss;
-        ss << pidx->to_string() << "\n";
-        ss << values.to_string() << "\n";
-        return ss.str();
+        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_cnt), "\n");
+        std::vector<std::string> val_lines = pandas::split(values.to_string(mx_cnt), "\n");
+        if (idx_lines.size() != val_lines.size()) {
+            throw std::format("size not match: {}!={}", idx_lines.size(), val_lines.size());
+        }
+        std::vector<std::string> lines;
+        for (int i = 0; i < idx_lines.size(); i++) {
+            lines.push_back(idx_lines[i] + " " + val_lines[i]);
+        }
+
+        return pandas::line_width_adjust(pandas::join(lines, "\n"));
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Series& sr)

@@ -157,13 +157,6 @@ Series bfill(const DT2& v, int limit = 1) const
     return sr;
 }
 
-
-
-
-
-
-
-
 DT sum() const
 {
     DT s(0);

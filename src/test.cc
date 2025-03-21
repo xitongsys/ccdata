@@ -69,7 +69,7 @@ void test2()
 
 void test1()
 {
-    Index<int> si;
+    Index<int> si("a");
     for (int i = 0; i < 10; i++) {
         si._append(i);
     }
@@ -92,8 +92,6 @@ void test3()
     cout << df2.iloc(1, 5, 1).to_frame() << endl;
 
     auto dg = df2.groupby(df2.iloc<1>(1)).sum();
-
-    cout<<"===="<<endl;
     cout << dg << endl;
 }
 

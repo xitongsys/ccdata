@@ -28,6 +28,11 @@ public:
     {
     }
 
+    Index(const NT& name)
+        : values(name)
+    {
+    }
+
     Index(size_t n, const T& init_val)
         : values(n, init_val)
     {
@@ -188,11 +193,9 @@ public:
         return si;
     }
 
-    std::string to_string() const
+    std::string to_string(int mx_cnt = 10) const
     {
-        std::stringstream ss;
-        ss << "Index: {" << values.to_string() << "}";
-        return ss.str();
+        return values.to_string(mx_cnt);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Index<T>& idx)

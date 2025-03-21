@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "pandas/pandastype.h"
+#include "pandas/string.h"
 #include "pandas/util.h"
 
 namespace pandas {
@@ -255,22 +256,24 @@ public:
     std::string to_string(int mx_cnt = 10) const
     {
         std::stringstream ss;
+
+        ss << pandas::to_string(get_name()) << "\n";
+
         if (size() > mx_cnt) {
             for (int i = 0; i < mx_cnt / 2; i++) {
-                ss << pandas::to_string(values[i]) << ",";
+                ss << pandas::to_string(values[i]) << "\n";
             }
-            ss << "...";
+            ss << "...\n";
             for (int i = size() - mx_cnt / 2; i < size(); i++) {
-                ss << pandas::to_string(values[i]) << ",";
+                ss << pandas::to_string(values[i]) << "\n";
             }
         } else {
             for (int i = 0; i < size(); i++) {
-                ss << pandas::to_string(values[i]) << ",";
+                ss << pandas::to_string(values[i]) << "\n";
             }
         }
 
-        std::string s = std::format("{}:[{}]", get_name(), ss.str());
-        return s;
+        return pandas::line_width_adjust(ss.str());
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Array& ar)
