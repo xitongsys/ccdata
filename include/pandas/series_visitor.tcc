@@ -60,7 +60,7 @@ public:
 
     Series<IT, DT, INT, DNT> to_series()
     {
-        Series<IT, DT, INT, DNT> res;
+        Series<IT, DT, INT, DNT> res(sr.get_name());
         it.reset();
         while (it.has_left()) {
             int i = it.next();

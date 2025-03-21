@@ -40,6 +40,7 @@ public:
             std::vector<SV> svs = dv.to_series_visitors();
             for (auto& sv : svs) {
                 DT2 v = func(sv);
+                row._append(v);
             }
             rows.emplace_back(row);
         }

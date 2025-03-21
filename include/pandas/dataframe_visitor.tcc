@@ -29,7 +29,7 @@ public:
             idx._append(df.pidx->iloc(i));
         }
 
-        std::vector<Series<IT, DT, INT, DNT>> srs;
+        std::vector<Series<IT,DT,INT,DNT>> srs;
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();

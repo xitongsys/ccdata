@@ -50,9 +50,12 @@ public:
             const Array<DT, IT>& row = rows[i];
             IT id = row.get_name();
             pidx->_append(id);
+
             for (int j = 0; j < columns.size(); j++) {
                 values[j]._append(id, row.iloc(j));
             }
+
+            
         }
 
         reassign_index();

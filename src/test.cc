@@ -91,7 +91,10 @@ void test3()
 
     cout << df2.iloc(1, 5, 1).to_frame() << endl;
 
-    cout << df2.groupby(df2.iloc<1>(1)).sum() << endl;
+    auto dg = df2.groupby(df2.iloc<1>(1)).sum();
+
+    cout<<"===="<<endl;
+    cout << dg << endl;
 }
 
 int main()
