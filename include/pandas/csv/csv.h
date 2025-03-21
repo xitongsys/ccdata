@@ -12,21 +12,20 @@ namespace csv {
         std::vector<std::string> cells;
         bool in_quote = false;
         std::stringstream ss;
-
-        while (!in.eof()) {
-            char a;
-            in >> a;
+        char a, b;
+        while (in.get(a)) {
             if (a == '"') {
                 if (in_quote) {
                     if (in.eof()) {
                         cells.push_back(ss.str());
+                        ss.str("");
                         break;
                     }
-                    char b;
-                    in >> b;
+                    in.get(b);
                     if (b == delimiter || b == '\n') {
                         in_quote = false;
                         cells.push_back(ss.str());
+                        ss.str("");
                     } else {
                         ss << b;
                     }
@@ -41,7 +40,7 @@ namespace csv {
 
                 } else {
                     cells.push_back(ss.str());
-                    ss.clear();
+                    ss.str("");
                 }
 
             } else if (a == '\n') {
@@ -49,12 +48,18 @@ namespace csv {
                     ss << a;
                 } else {
                     cells.push_back(ss.str());
+                    ss.str("");
                     break;
                 }
             } else {
                 ss << a;
             }
         }
+
+        if (in.eof() && a != '\n') {
+            cells.push_back(ss.str());
+        }
+
         return cells;
     }
 
@@ -68,6 +73,8 @@ namespace csv {
         }
 
         std::vector<std::string> headers = read_row(in, delimiter);
+
+        std::cout << headers.size() << std::endl;
 
         int col_cnt = headers.size();
         for (int j = 0; j < col_cnt; j++) {
@@ -87,7 +94,7 @@ namespace csv {
         while (!in.eof()) {
             std::vector<std::string> row = read_row(in, delimiter);
             if (row.size() != col_cnt) {
-                throw std::format("csv format error");
+                throw std::format("csv format error: {}", row.size());
             }
             for (int j = 0; j < col_cnt; j++) {
                 res[j]._append(row[j]);
