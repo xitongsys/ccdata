@@ -177,7 +177,7 @@ public:
         return var().pow(0.5);
     }
 
-    ////////// common agg /////////////////////
+    ////////// general agg func /////////////////////
 
     template <class DT2>
     Series<IT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
@@ -190,6 +190,7 @@ public:
             if (min_periods > 0 && sv.count() < min_periods) {
                 res.iloc_ref(i) = pandas::nan<DT2>();
             } else {
+                sv.reset();
                 res.iloc_ref(i) = func(sv);
             }
         }

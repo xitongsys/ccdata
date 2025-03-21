@@ -17,7 +17,7 @@
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
         }                                                                   \
-        Array<T> res = *this;                                               \
+        Array res = *this;                                                  \
         for (int i = 0; i < size(); i++) {                                  \
             res.values[i] = res.values[i] OP ar.values[i];                  \
         }                                                                   \
@@ -67,7 +67,7 @@ DEFINE_ARRAY_OPERATOR(^=)
 #define DEFINE_ARRAY_OPERATOR(OP)    \
     Array operator OP() const        \
     {                                \
-        Array<T> res = *this;        \
+        Array res = *this;           \
         for (auto& v : res.values) { \
             v = OP v;                \
         }                            \

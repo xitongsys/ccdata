@@ -41,6 +41,11 @@ public:
         return sr.get_name();
     }
 
+    void reset()
+    {
+        it.reset();
+    }
+
     inline bool has_left()
     {
         return it.has_left();

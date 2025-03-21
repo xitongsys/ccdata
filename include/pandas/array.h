@@ -35,8 +35,8 @@ public:
         values = std::vector<T>(size, init_val);
     }
 
-    template <class T2>
-    Array(const Array<T2>& ar, const NT& name = NT {})
+    template <class T2, class NT2>
+    Array(const Array<T2, NT2>& ar, const NT& name = NT {})
         : Array(name)
     {
         for (int i = 0; i < ar.size(); i++) {
@@ -84,8 +84,8 @@ public:
         name = std::move(ar.name);
     }
 
-    template <class T2>
-    Array& operator=(const Array<T2>& ar)
+    template <class T2, class NT2>
+    Array& operator=(const Array<T2, NT2>& ar)
     {
         values.clear();
         for (int i = 0; i < ar.size(); i++) {
@@ -150,8 +150,8 @@ public:
         values.clear();
     }
 
-    template <class T2>
-    void _append(const Array<T2>& ar)
+    template <class T2, class NT2>
+    void _append(const Array<T2, NT2>& ar)
     {
         for (int i = 0; i < ar.size(); i++) {
             _append((T)(ar.iloc(i)));
@@ -169,30 +169,30 @@ public:
         return values.size();
     }
 
-    Array<Int, NT> duplicated(const std::string& keep)
+    Array<bool, NT> duplicated(const std::string& keep)
     {
-        Array<Int, NT> dup;
+        Array<bool, NT> dup;
         std::map<T, int> mp;
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
                 if (mp.count(v)) {
-                    dup._append(1);
+                    dup._append(true);
                 } else {
-                    dup._append(0);
+                    dup._append(false);
                 }
                 mp[v] = i;
             }
         } else if (keep == "last") {
             for (int i = 0; i < size(); i++) {
-                dup._append(0);
+                dup._append(false);
             }
             for (int i = size() - 1; i >= 0; i--) {
                 T& v = iloc(i);
                 if (mp.count(v)) {
-                    dup.iloc(i) = 1;
+                    dup.iloc(i) = true;
                 } else {
-                    dup.iloc(i) = 0;
+                    dup.iloc(i) = false;
                 }
                 mp[v] = i;
             }
@@ -200,7 +200,7 @@ public:
         } else if (keep == "false") {
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
-                dup._append(0);
+                dup._append(false);
                 if (mp.count(v) == 0) {
                     mp[v] = 0;
                 }
@@ -209,7 +209,7 @@ public:
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
                 if (mp.count(v) > 1) {
-                    dup.iloc(i) = 1;
+                    dup.iloc(i) = true;
                 }
             }
         } else {
@@ -285,8 +285,10 @@ public:
 #include "pandas/array_op.tcc"
 };
 
-template <class T, class NT>
-Array<T, NT> concat_0(const Array<T, NT>& ar1, const Array<T, NT>& ar2)
+template <
+    class T, class NT,
+    class T2, class NT2>
+Array<T, NT> concat_0(const Array<T, NT>& ar1, const Array<T2, NT2>& ar2)
 {
     Array<T, NT> res = ar1;
     for (int i = 0; i < ar2.size(); i++) {
