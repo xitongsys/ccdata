@@ -18,6 +18,7 @@ add_executable(test
     src/pandas/util.cc
     src/pandas/ops.cc
     src/pandas/string.cc
+    src/pandas/csv/csv.cc
     src/test.cc)
 
 
