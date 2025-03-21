@@ -129,6 +129,22 @@ DataFrame pow(double n) const
     return df;
 }
 
+/// @replace
+template <class DT2, class DT3>
+void _replace(const DT2& v_old, const DT3& v_new)
+{
+    for (auto& sr : values) {
+        sr._replace(v_old, v_new);
+    }
+}
+template <class DT2, class DT3>
+DataFrame replace(const DT2& v_old, const DT3& v_new)
+{
+    DataFrame df = *this;
+    df._replace(v_old, v_new);
+    return df;
+}
+
 /// @T
 /// @return
 DataFrame<DNT, DT, std::string, IT> T() const

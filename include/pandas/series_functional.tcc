@@ -210,6 +210,28 @@ Series pow(double n)
     return sr;
 }
 
+/// @replace
+/// @tparam DT2
+/// @tparam DT3
+/// @param v_old
+/// @param v_new
+template <class DT2, class DT3>
+void _replace(const DT2& v_old, const DT3& v_new)
+{
+    for (int i = 0; i < size(); i++) {
+        if (iloc(i) == v_old) {
+            iloc_ref(i) = v_new;
+        }
+    }
+}
+template <class DT2, class DT3>
+Series replace(const DT2& v_old, const DT3& v_new)
+{
+    Series ds = *this;
+    ds._replace(v_old, v_new);
+    return ds;
+}
+
 DT sum() const
 {
     DT s(0);
