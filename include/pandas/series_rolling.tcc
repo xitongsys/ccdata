@@ -60,12 +60,12 @@ public:
         int cnt = 0;
         for (int i = 0; i < n; i++) {
             DT v = sr.iloc(i);
-            int j = i - window;
             if (!pandas::isnan(v)) {
                 s += v;
                 cnt++;
             }
 
+            int j = i - window;
             if (j >= 0 && !pandas::isnan(sr.iloc(j))) {
                 cnt--;
                 s -= sr.iloc(j);
@@ -73,6 +73,8 @@ public:
 
             if (cnt >= min_periods) {
                 res.iloc_ref(i) = s;
+            } else {
+                res.iloc_ref(i) = pandas::nan<DT>();
             }
         }
         return res;

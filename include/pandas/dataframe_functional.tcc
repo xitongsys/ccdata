@@ -101,6 +101,36 @@ DataFrame bfill(int limit) const
     return df;
 }
 
+/// @cumsum
+void _cumsum()
+{
+    for (auto& sr : values) {
+        sr._cumsum();
+    }
+}
+DataFrame cumsum() const
+{
+    DataFrame df = *this;
+    df._cumsum();
+    return df;
+}
+
+/// @pow
+void _pow(double n)
+{
+    for (auto& sr : values) {
+        sr._pow(n);
+    }
+}
+DataFrame pow(double n) const
+{
+    DataFrame df = *this;
+    df._pow(n);
+    return df;
+}
+
+/// @T
+/// @return
 DataFrame<DNT, DT, std::string, IT> T() const
 {
     std::vector<IT> cols;
