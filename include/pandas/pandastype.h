@@ -166,6 +166,4 @@ constexpr PandasTypeId pandas_type_to_id()
     }
 }
 
-#include "pandas/pandastype_str.tcc"
-
 }
