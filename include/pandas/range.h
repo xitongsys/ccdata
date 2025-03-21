@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "pandas/Iterator.h"
+#include "pandas/index.h"
 
 namespace pandas {
 

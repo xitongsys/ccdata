@@ -1,4 +1,5 @@
 #include "pandas/array.h"
+#include "pandas/csv/csv.h"
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/index.h"
@@ -101,11 +102,20 @@ void test3()
     std::cout << df.map<double>([](const double& a) -> double { return a * a; }) << std::endl;
 }
 
+void test4()
+{
+    std::vector<Array<std::string, std::string>> cols = csv::read_csv("a.csv", true, ',');
+    Index<int> idx(Range<int>(0, cols[0].size()));
+    auto df = DataFrame(idx, cols);
+
+    cout << df << endl;
+}
+
 int main()
 {
 
     try {
-        test3();
+        test4();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

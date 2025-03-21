@@ -33,6 +33,13 @@ public:
     {
     }
 
+    Index(Range<T> rg)
+    {
+        while (rg.has_left()) {
+            _append(rg.next());
+        }
+    }
+
     Index(size_t n, const T& init_val)
         : values(n, init_val)
     {
