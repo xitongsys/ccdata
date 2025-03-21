@@ -3,7 +3,7 @@
 // template<class IT, class DT, class INT, class DNT>
 // class Series {
 template <class DT2>
-Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func)
+Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
 {
     Series<IT, DT2, INT, DNT> sr;
     for (int i = 0; i < size(); i++) {

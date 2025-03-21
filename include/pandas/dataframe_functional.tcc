@@ -3,6 +3,16 @@
 // template<class IT, class DT, class INT, class DNT>
 // class DataFrame {
 
+template <class DT2>
+DataFrame<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
+{
+    std::vector<Series<IT, DT2, INT, DNT>> srs;
+    for (int j = 0; j < size<1>(); j++) {
+        srs.push_back(iloc<1>(j).map(func));
+    }
+    return DataFrame<IT, DT2, INT, DNT>(srs);
+}
+
 /// @dropna
 /// @param how
 DataFrame dropna(const std::string& how = "any")
