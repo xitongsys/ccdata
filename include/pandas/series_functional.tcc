@@ -10,7 +10,7 @@ Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
         const IT& id = pidx->iloc(i);
         const DT& val = values.iloc(i);
         DT2 mval = func(val);
-        sr._append(id, val);
+        sr._append(id, mval);
     }
     sr._rename(this->get_name());
     return sr;
