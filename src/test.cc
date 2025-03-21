@@ -80,7 +80,7 @@ void test1()
 void test3()
 {
     DataFrame<int, double> df({ "a", "b", "c" });
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 30; i++) {
         df._append_row(Array<double, int>({ 1, 2, 3 }, i));
     }
     cout << df << endl;
@@ -97,6 +97,8 @@ void test3()
     cout << df.shift(2).rolling(3, 3).max().dropna() << endl;
 
     std::cout << df.median<1>() << std::endl;
+
+    std::cout << df.map<double>([](const double& a) -> double { return a * a; }) << std::endl;
 }
 
 int main()
