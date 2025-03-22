@@ -104,7 +104,7 @@ void test3()
 
 void test4()
 {
-    std::vector<Array<std::string, std::string>> cols = csv::read_csv("a.csv", true, ',');
+    std::vector<Array<std::string, std::string>> cols = csv::read_csv("c:/Users/zxt/Downloads/a.csv", true, ',');
     Index<int> idx(Range<int>(0, cols[0].size()));
     auto df = DataFrame(idx, cols);
 

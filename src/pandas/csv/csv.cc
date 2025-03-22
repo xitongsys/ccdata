@@ -7,7 +7,7 @@
 namespace pandas {
 namespace csv {
 
-    std::vector<std::string> read_row(std::ifstream& in, char delimiter = ',')
+    std::vector<std::string> read_row(std::istream& in, char delimiter = ',')
     {
         std::vector<std::string> cells;
         bool in_quote = false;
@@ -59,14 +59,13 @@ namespace csv {
         }
 
         if (in.eof() && end != '\n') {
-            std::cout << a << " " << int(a) << std::endl;
             cells.push_back(ss.str());
         }
 
         return cells;
     }
 
-    std::vector<Array<std::string, std::string>> read_csv(const std::string& filename, bool has_header = true, char delimiter = ',')
+      std::vector<Array<std::string, std::string>> read_csv(const std::string& filename, bool has_header = true, char delimiter = ',')
     {
         std::vector<Array<std::string, std::string>> res;
         std::ifstream in(filename);
@@ -92,8 +91,9 @@ namespace csv {
             }
         }
 
+        int c = 0;
         while (!in.eof()) {
-            std::vector<std::string> row = read_row(in, delimiter);
+            std::vector<std::string> row(read_row(in, delimiter));
             if (row.size() == 0) {
                 continue;
             }
@@ -103,6 +103,7 @@ namespace csv {
             for (int j = 0; j < col_cnt; j++) {
                 res[j]._append(row[j]);
             }
+            c++;
         }
 
         return res;
