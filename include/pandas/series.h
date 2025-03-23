@@ -166,9 +166,11 @@ public:
 
         for (int i = 0; i < index.size(); i++) {
             IT2 id = index.iloc(i);
-            DT val = pandas::nan<DT>();
+            DT val = DT {};
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
+            } else {
+                val = pandas::nan<DT>();
             }
             res._append(id, val);
         }

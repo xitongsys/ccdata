@@ -30,10 +30,16 @@
     {                                                                         \
         Index<IT, INT> index;                                                 \
         for (int i = 0; i < pidx->size(); i++) {                              \
-            index._append(pidx->iloc(i));                                     \
+            IT id = pidx->iloc(i);                                            \
+            if (!index.has(id)) {                                             \
+                index._append(id);                                            \
+            }                                                                 \
         }                                                                     \
         for (int i = 0; i < sr.size(); i++) {                                 \
-            index._append(sr.pidx->iloc(i));                                  \
+            IT id = sr.pidx->iloc(i);                                         \
+            if (!index.has(id)) {                                             \
+                index._append(id);                                            \
+            }                                                                 \
         }                                                                     \
         auto sr1 = reindex(index);                                            \
         auto sr2 = sr.reindex(index);                                         \
@@ -126,10 +132,16 @@ DEFINE_SERIES_OPERATOR(~)
     {                                                                                    \
         Index<IT, INT> index;                                                            \
         for (int i = 0; i < pidx->size(); i++) {                                         \
-            index._append(pidx->iloc(i));                                                \
+            IT id = pidx->iloc(i);                                                       \
+            if (!index.has(id)) {                                                        \
+                index._append(id);                                                       \
+            }                                                                            \
         }                                                                                \
         for (int i = 0; i < sr.size(); i++) {                                            \
-            index._append(sr.pidx->iloc(i));                                             \
+            IT id = sr.pidx->iloc(i);                                                    \
+            if (!index.has(id)) {                                                        \
+                index._append(id);                                                       \
+            }                                                                            \
         }                                                                                \
         Series<IT, DT, INT, DNT> sr1 = this->reindex(index);                             \
         Series<IT, DT2, INT, DNT2> sr2 = sr.reindex(index);                              \

@@ -44,7 +44,31 @@ void test_series_constructors()
     Array<int> vals2({ 2, 3, 4 }, "sr5");
     Series<int, int> sr5(ids2, vals2);
     assert(sr5.size() == 3);
+}
 
+void test_series_operator()
+{
+    Series<int, double> sr({ 0, 1, 2 }, { 1, 2, 3 }, "sr1");
+    sr += 1;
+    assert(sr.sum() == 9);
+
+    sr = sr + 2;
+    assert(sr.sum() == 15);
+
+    sr = sr * 2;
+    assert(sr.sum() == 30);
+
+    sr = sr / 2;
+    assert(sr.sum() == 15);
+
+    auto sr2 = sr.astype<int, int>();
+    sr2 = sr2 % 2;
+    assert(sr2.sum() == 1);
+
+    auto sr3 = sr + sr2;
+    assert(sr3.sum() == 16);
+
+    std::cout << sr3 << std::endl;
 }
 
 int main()
@@ -52,6 +76,7 @@ int main()
 
     try {
         test_series_constructors();
+        test_series_operator();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
