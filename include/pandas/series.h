@@ -48,6 +48,19 @@ public:
         }
     }
 
+    Series(const std::vector<IT>& ids, const std::vector<DT>& vals, const DNT& name)
+        : Series()
+    {
+        if (ids.size() != vals.size()) {
+            throw std::format("index size and value size not match: {}!={}", ids.size(), vals.size());
+        }
+        for (int i = 0; i < ids.size(); i++) {
+            _append(ids[i], vals[i]);
+        }
+
+        _rename(name);
+    }
+
     Series(const Index<IT, INT>& idx, const Array<DT, DNT>& vals)
     {
         if (idx.size() != vals.size()) {
@@ -71,38 +84,6 @@ public:
         : Series(pidx, vals)
     {
         _rename(name);
-    }
-
-    template <class T>
-    Series(const T& idx, const DNT& name)
-    {
-        auto ptr = std::make_shared<T>(idx);
-        pidx = std::static_pointer_cast<Index<IT, INT>>(ptr);
-        for (int i = 0; i < pidx->size(); i++) {
-            values._append(pandas::nan<DT>());
-        }
-        _rename(name);
-    }
-
-    template <class T>
-    Series(const T& idx, const Array<DT, DNT>& vals, const DNT& name)
-    {
-        if (idx.size() != vals.size()) {
-            throw std::format("index values size not match: {}!={}", idx.size(), vals.size());
-        }
-        auto ptr = std::make_shared<T>(idx);
-        pidx = std::static_pointer_cast<Index<IT, INT>>(ptr);
-        values = vals;
-        _rename(name);
-    }
-
-    void _append(const IT& id, const DT& val)
-    {
-        if (pidx->has(id)) {
-            throw std::format("append failed: duplicated key");
-        }
-        pidx->_append(id);
-        values._append(val);
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
@@ -154,6 +135,15 @@ public:
     DNT get_name() const
     {
         return values.get_name();
+    }
+
+    void _append(const IT& id, const DT& val)
+    {
+        if (pidx->has(id)) {
+            throw std::format("append failed: duplicated key");
+        }
+        pidx->_append(id);
+        values._append(val);
     }
 
     template <class IT2>

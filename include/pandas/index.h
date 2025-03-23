@@ -73,6 +73,14 @@ public:
         _update_index();
     }
 
+    Index(const std::vector<T>& vs, const NT& name = NT {})
+    {
+        for (T& v : vs) {
+            _append(v);
+        }
+        _rename(name);
+    }
+
     NT get_name() const
     {
         return values.name;
