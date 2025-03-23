@@ -279,6 +279,45 @@ public:
     {
         return loc(ids.values);
     }
+    SeriesVisitor<RangeVec<int>> loc(const std::vector<IT>& ids)
+    {
+        std::vector<int> iids;
+        for (int i = 0; i < ids.size(); i++) {
+            IT id = ids[i];
+            int j = pidx->loc_i(id);
+            iids.push_back(j);
+        }
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+    }
+
+    /// @iloc
+    /// @tparam IT2
+    /// @param iids
+    /// @return
+    template <class IT2>
+    SeriesVisitor<RangeVec<int>> iloc(const std::vector<IT2>& iids)
+    {
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+    }
+    template <class IT2, class INT2>
+    SeriesVisitor<RangeVec<int>> iloc(const Array<IT2, INT2>& iids)
+    {
+        return loc(iids.values);
+    }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    SeriesVisitor<RangeVec<int>> iloc(const Series<IT2, DT2, INT2, DNT2>& iids)
+    {
+        return loc(iids.values);
+    }
+    template <class IT2, class INT2>
+    SeriesVisitor<RangeVec<int>> iloc(const Index<IT2, INT2>& iids)
+    {
+        return loc(iids.values);
+    }
+    SeriesVisitor<RangeVec<int>> iloc(const std::vector<int>& iids)
+    {
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+    }
 
     /// @loc by mask
     /// @param mask
@@ -366,20 +405,6 @@ public:
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
-            res._append(id, val);
-        }
-        return res;
-    }
-
-    Series dropna() const
-    {
-        Series res;
-        for (int i = 0; i < size(); i++) {
-            if (isnan(iloc(i))) {
-                continue;
-            }
-            const IT& id = pidx->iloc(i);
-            const DT& val = values.iloc(i);
             res._append(id, val);
         }
         return res;

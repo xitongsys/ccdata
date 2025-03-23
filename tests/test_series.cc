@@ -68,7 +68,42 @@ void test_series_operator()
     auto sr3 = sr + sr2;
     assert(sr3.sum() == 16);
 
-    std::cout << sr3 << std::endl;
+    auto sr4 = sr > sr2;
+    assert((sr4.astype<int, int>().sum()) == 3);
+
+    auto sr5 = sr < sr2;
+    assert(sr5.sum() == 0);
+}
+
+void test_series_loc()
+{
+    Series<int, double> sr({ 1, 2, 3 }, { 2, 3, 4 }, "sr");
+    sr.loc_ref(1) = 4;
+    assert((sr.iloc(0) == 4) && (sr.loc(1) == 4) && (sr.loc(2) == 3));
+
+    sr.loc(2, 3) = 5;
+    assert((sr.loc(2) == 5) & (sr.loc(3) == 5));
+
+    sr.iloc(1, 2) = 6;
+    assert((sr.iloc(1) == 6) && (sr.iloc(2) == 5));
+
+    sr.loc(std::vector<int>({ 1, 2 })) = 7;
+    assert((sr.iloc(0) == 7) && (sr.iloc(1) == 7));
+
+    sr.iloc({ 1, 2 }) = 8;
+    assert((sr.iloc(1) == 8) && (sr.iloc(2) == 8));
+
+    sr.loc(sr > 7) = 9;
+    assert((sr.iloc(1) == 9) && sr.iloc(2) == 9);
+
+    sr.loc({1,1}) = 1;
+    assert(sr.iloc(0)==1);
+
+    cout << sr << endl;
+}
+
+void test_series_functional()
+{
 }
 
 int main()
@@ -77,6 +112,7 @@ int main()
     try {
         test_series_constructors();
         test_series_operator();
+        test_series_loc();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
