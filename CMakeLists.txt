@@ -3,32 +3,38 @@ project ("ccdata")
 
 add_compile_options(/W0)
 
-
-
-
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Oy /GL /GS- /W4 /WX /DNDEBUG")
-set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG /OPT:REF")
-
-
-
-#add_library(ccdata )
-add_executable(test 
-    src/pandas/datetime.cc
-    src/pandas/util.cc
-    src/pandas/ops.cc
-    src/pandas/string.cc
-    src/pandas/csv/csv.cc
-    src/test.cc)
-
-
 include_directories(include)
 
-# DataFrame
-#include_directories(third_party/DataFrame/include)
-#add_subdirectory(third_party/DataFrame)
-#target_link_libraries(qnn PUBLIC DataFrame)
+file(GLOB_RECURSE SOURCES "src/*.cc")
+
+add_library(ccdata STATIC ${SOURCES})
 
 
-set_property(TARGET test PROPERTY CXX_STANDARD 20)
+# 头文件目录（供其他项目使用）
+target_include_directories(${PROJECT_NAME}
+    PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
 
+# 安装规则
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
+    LIBRARY DESTINATION lib      # 共享库
+    ARCHIVE DESTINATION lib      # 静态库
+    RUNTIME DESTINATION bin      # Windows DLL
+    INCLUDES DESTINATION include
+)
+
+install(
+    DIRECTORY include/ 
+    DESTINATION include
+    FILES_MATCHING PATTERN "*.h"
+)
+
+set_property(TARGET ccdata PROPERTY CXX_STANDARD 20)
+
+
+enable_testing()
+add_subdirectory("tests")

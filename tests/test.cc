@@ -115,7 +115,7 @@ int main()
 {
 
     try {
-        test4();
+        test3();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

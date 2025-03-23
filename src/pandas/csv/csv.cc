@@ -65,7 +65,7 @@ namespace csv {
         return cells;
     }
 
-      std::vector<Array<std::string, std::string>> read_csv(const std::string& filename, bool has_header = true, char delimiter = ',')
+    std::vector<Array<std::string, std::string>> read_csv(const std::string& filename, bool has_header = true, char delimiter = ',')
     {
         std::vector<Array<std::string, std::string>> res;
         std::ifstream in(filename);
