@@ -27,7 +27,7 @@ void test_concat_array()
     auto id_1 = concat<1>(id1, id2);
     assert((id_1.size() == 3) && (id_1.iloc(0) == std::tuple<int, int>(1, 2)));
 
-    cout << "test_concat_array PASSED" << endl;
+    cout << "[PASS] test_concat_array" << endl;
 }
 
 void test_concat_index()
@@ -41,7 +41,7 @@ void test_concat_index()
     auto id_1 = concat<1>(id1, id2);
     assert((id_1.size() == 3) && (id_1.iloc(0) == std::tuple<int, int>(1, 2)));
 
-    cout << "test_concat_index PASSED" << endl;
+    cout << "[PASS] test_concat_index" << endl;
 }
 
 void test_concat_series()
@@ -55,7 +55,28 @@ void test_concat_series()
     auto df = concat<1>(sr1, sr2);
     assert((df.size<0>() == 4) && (df.size<1>() == 2) && pandas::isnan(df.iloc(0, 1)) && (df.iloc(3, 1) == 2));
 
-    cout << "test_concat_series PASSED" << endl;
+    cout << "[PASS] test_concat_series" << endl;
+}
+
+void test_concat_dataframe()
+{
+    DataFrame<int, double> df1(std::vector<int>({ 0, 1 }), std::vector<std::string>({ "a", "b" }));
+    df1._fillna(1);
+    DataFrame<int, double> df2(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "a", "b", "c" }));
+    df2._fillna(2);
+
+    auto df_0 = concat<0>(df1, df2);
+    assert((df_0.size<0>() == 4) && (pandas::isnan(df_0.iloc(0, 2))) && (df_0.iloc(3, 2) == 2));
+
+    DataFrame<int, double> df3(std::vector<int>({ 0, 1, 2 }), std::vector<std::string>({ "a", "b" }));
+    df3._fillna(1);
+    DataFrame<int, double> df4(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "c", "d" }));
+    df4._fillna(2);
+
+    auto df_1 = concat<1>(df3, df4);
+    assert((df_1.size<0>() == 4) && (pandas::isnan(df_1.iloc(0, 2))) && (pandas::isnan(df_1.iloc(3, 0))));
+
+    cout << "[PASS] test_concat_dataframe" << endl;
 }
 
 int main()
@@ -64,6 +85,7 @@ int main()
         test_concat_array();
         test_concat_index();
         test_concat_series();
+        test_concat_dataframe();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

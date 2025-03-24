@@ -264,10 +264,10 @@ auto concat(
 {
     if constexpr (axis == 0) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<0>(df2, dfs...);
-        auto cols = concat<0>(Index<IT1>(df1.columns()), Index<IT2>(df_tail.columns()));
+        auto cols = concat<0>(Index<DNT1>(df1.columns()), Index<DNT2>(df_tail.columns()));
         DataFrame<IT1, DT1, INT1, DNT1> df = df1.reindex<1>(cols);
-        for (int i = 0; i < df_tail.size(); i++) {
-            const IT2& id = df_tail.pidx->iloc(i);
+
+        for (int i = 0; i < df_tail.size<0>(); i++) {
             df._append_row(df_tail.iloc<0>(i));
         }
         return df;

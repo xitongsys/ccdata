@@ -98,7 +98,7 @@ public:
     }
 
     template <int axis, class T2>
-    auto reindex(const std::vector<T2>& ids)
+    auto reindex(const std::vector<T2>& ids) const
     {
         if constexpr (axis == 0) {
             std::vector<Series<T2, DT, INT, DNT>> srs;
@@ -112,7 +112,7 @@ public:
             for (const T2& col_name : ids) {
                 int j = get_column_index(col_name);
                 if (j < 0) {
-                    Series<IT, DT, INT, T2> sr(*pidx);
+                    Series<IT, DT, INT, T2> sr(*pidx, col_name);
                     srs.push_back(sr);
                 } else {
                     srs.push_back(iloc<1>(j).astype<IT, DT, INT, T2>());
@@ -126,7 +126,7 @@ public:
     }
 
     template <int axis, class IT2, class INT2>
-    auto reindex(const Array<IT2, INT2>& ids)
+    auto reindex(const Array<IT2, INT2>& ids) const
     {
         if constexpr (axis == 0) {
             auto df = reindex<0>(ids.values);
@@ -142,7 +142,7 @@ public:
     }
 
     template <int axis, class IT2, class INT2>
-    auto reindex(const Index<IT2, INT2>& ids)
+    auto reindex(const Index<IT2, INT2>& ids) const
     {
         if constexpr (axis == 0) {
             auto df = reindex<0>(ids.values);
@@ -269,8 +269,8 @@ public:
         if constexpr (axis == 0) {
             Series<DNT, DT, std::string, IT> row;
             IT id = pidx->iloc(i);
-            for (int i = 0; i < size(1); i++) {
-                row._append(values[i].get_name(), values[i].iloc(i));
+            for (int j = 0; j < size<1>(); j++) {
+                row._append(values[j].get_name(), values[j].iloc(i));
             }
             row._rename(id);
             return row;
