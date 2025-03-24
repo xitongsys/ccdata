@@ -76,5 +76,5 @@ public:
         }
     }
 
-    
+#include "pandas/dataframe_visitor_op.tcc"
 };
