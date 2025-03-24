@@ -54,7 +54,7 @@
                                                                                     \
         } else if constexpr (axis == 1) {                                           \
             for (auto& sr : res.values) {                                           \
-                DNT& col_name = sr.get_name();                                      \
+                DNT col_name = sr.get_name();                                       \
                 if (sr2.pidx->has(col_name)) {                                      \
                     sr = sr OP sr2.loc(col_name);                                   \
                 } else {                                                            \
@@ -138,7 +138,7 @@ DataFrame operator~()
                                                                                     \
         } else if constexpr (axis == 1) {                                           \
             for (auto& sr : values) {                                               \
-                DNT& col_name = sr.get_name();                                      \
+                DNT col_name = sr.get_name();                                       \
                 if (sr2.pidx->has(col_name)) {                                      \
                     sr OP sr2.loc(col_name);                                        \
                 } else {                                                            \
@@ -221,7 +221,7 @@ DEFINE_DATAFRAME_OPERATOR(^=)
         } else if constexpr (axis == 1) {                                                   \
             std::vector<Series<IT, bool, INT, DNT>> srs;                                    \
             for (auto& sr : values) {                                                       \
-                DNT& col_name = sr.get_name();                                              \
+                DNT col_name = sr.get_name();                                               \
                 if (sr2.pidx->has(col_name)) {                                              \
                     srs.push_back(sr OP sr2.loc(col_name));                                 \
                 } else {                                                                    \

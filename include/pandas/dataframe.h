@@ -25,6 +25,32 @@ public:
         pidx = std::make_shared<Index<IT, INT>>();
     }
 
+    DataFrame(const DataFrame& df)
+    {
+        pidx = std::make_shared<Index<IT, INT>>(*df.pidx);
+        values = df.values;
+    }
+
+    DataFrame(DataFrame&& df)
+    {
+        pidx = df.pidx;
+        values = std::move(df.values);
+    }
+
+    DataFrame& operator=(const DataFrame& df)
+    {
+        pidx = std::make_shared<Index<IT, INT>>(*df.pidx);
+        values = df.values;
+        return *this;
+    }
+
+    DataFrame& operator=(DataFrame&& df)
+    {
+        pidx = df.pidx;
+        values = std::move(df.values);
+        return *this;
+    }
+
     DataFrame(const Index<IT, INT>& idx)
     {
         pidx = std::make_shared<Index<IT, INT>>(idx);
