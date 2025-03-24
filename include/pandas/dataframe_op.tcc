@@ -1,32 +1,71 @@
 #pragma once
 
-// template<class IT, class DT>
-// class Series {
-
-#define DEFINE_DATAFRAME_OPERATOR(OP)                                              \
-    template <class T2>                                                            \
-    DataFrame operator OP(const T2& val)                                           \
-    {                                                                              \
-        DataFrame res = *this;                                                     \
-        for (auto& sr : res.values) {                                              \
-            sr = sr OP val;                                                        \
-        }                                                                          \
-        return res;                                                                \
-    }                                                                              \
-                                                                                   \
-    template <class IT2, class DT2, class INT2, class DNT2>                        \
-    DataFrame operator OP(const DataFrame<IT2, DT2, INT2, DNT2>& val)              \
-    {                                                                              \
-        DataFrame res = *this;                                                     \
-        for (auto& sr : res.values) {                                              \
-            DNT col = sr.get_name();                                               \
-            int i = val.get_column_index(col);                                     \
-            if (i < 0) {                                                           \
-                throw std::format("columns {} not found", pandas::to_string(col)); \
-            }                                                                      \
-            sr = sr OP val.values[i];                                              \
-        }                                                                          \
-        return res;                                                                \
+// template<class IT, class DT, class INT, class DNT>
+// class DataFrame {
+#define DEFINE_DATAFRAME_OPERATOR(OP)                                               \
+    template <class T2>                                                             \
+    DataFrame operator OP(const T2& val)                                            \
+    {                                                                               \
+        DataFrame res = *this;                                                      \
+        for (auto& sr : res.values) {                                               \
+            sr = sr OP val;                                                         \
+        }                                                                           \
+        return res;                                                                 \
+    }                                                                               \
+    template <int axis = 0, class T2>                                               \
+    DataFrame operator OP(const std::vector<T2>& vals)                              \
+    {                                                                               \
+        DataFrame res = *this;                                                      \
+        if constexpr (axis == 0) {                                                  \
+            for (auto& sr : res.values) {                                           \
+                sr = sr OP vals;                                                    \
+            }                                                                       \
+            return res;                                                             \
+                                                                                    \
+        } else if constexpr (axis == 1) {                                           \
+            if (vals.size() != size<1>()) {                                         \
+                throw std::format("size not match: {}:{}", vals.size(), size<1>()); \
+            }                                                                       \
+                                                                                    \
+            for (int j = 0; j < size<1>(); j++) {                                   \
+                res.values[j] = res.values[j] OP vals[j];                           \
+            }                                                                       \
+            return res;                                                             \
+                                                                                    \
+        } else {                                                                    \
+            throw std::format("axis not supported: {}", axis);                      \
+        }                                                                           \
+    }                                                                               \
+    template <int axis = 0, class T2, class NT2>                                    \
+    DataFrame operator OP(const Array<T2, NT2>& vals)                               \
+    {                                                                               \
+        return operator OP<axis, T2>(vals.values);                                  \
+    }                                                                               \
+                                                                                    \
+    template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>           \
+    DataFrame operator OP(const Series<IT2, DT2, INT2, DNT2>& sr2)                  \
+    {                                                                               \
+        DataFrame res = *this;                                                      \
+        if constexpr (axis == 0) {                                                  \
+            for (auto& sr : res.values) {                                           \
+                sr = sr OP sr2;                                                     \
+            }                                                                       \
+            return res;                                                             \
+                                                                                    \
+        } else if constexpr (axis == 1) {                                           \
+            for (auto& sr : res.values) {                                           \
+                DNT& col_name = sr.get_name();                                      \
+                if (sr2.pidx->has(col_name)) {                                      \
+                    sr = sr OP sr2.loc(col_name);                                   \
+                } else {                                                            \
+                    sr = sr OP pandas::nan<DT>();                                   \
+                }                                                                   \
+            }                                                                       \
+            return res;                                                             \
+                                                                                    \
+        } else {                                                                    \
+            throw std::format("axis not support: {}", axis);                        \
+        }                                                                           \
     }
 
 DEFINE_DATAFRAME_OPERATOR(+)
@@ -38,67 +77,80 @@ DEFINE_DATAFRAME_OPERATOR(&)
 DEFINE_DATAFRAME_OPERATOR(|)
 DEFINE_DATAFRAME_OPERATOR(^)
 
+DataFrame operator~()
+{
+    DataFrame res = *this;
+    for (int j = 0; j < res.size<1>(); j++) {
+        res.values[j] = ~res.values[j];
+    }
+    return res;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 #define DEFINE_DATAFRAME_OPERATOR(OP)                                               \
-    template <int axis, class T2>                                                   \
-    DataFrame operator OP(const std::vector<T2>& vals)                              \
+    template <class T2>                                                             \
+    DataFrame& operator OP(const T2 & val)                                          \
     {                                                                               \
-        DataFrame res = *this;                                                      \
+        for (auto& sr : values) {                                                   \
+            sr OP val;                                                              \
+        }                                                                           \
+        return *this;                                                               \
+    }                                                                               \
+    template <int axis = 0, class T2>                                               \
+    DataFrame& operator OP(const std::vector<T2>& vals)                             \
+    {                                                                               \
         if constexpr (axis == 0) {                                                  \
-            for (auto& sr : res.values) {                                           \
-                sr = sr OP vals;                                                    \
+            for (auto& sr : values) {                                               \
+                sr OP vals;                                                         \
             }                                                                       \
-            return res;                                                             \
+            return *this;                                                           \
                                                                                     \
-        } else {                                                                    \
+        } else if constexpr (axis == 1) {                                           \
             if (vals.size() != size<1>()) {                                         \
                 throw std::format("size not match: {}:{}", vals.size(), size<1>()); \
             }                                                                       \
                                                                                     \
-            for (int i = 0; i < size(); i++) {                                      \
-                for (int j = 0; j < vals.size(); j++) {                             \
-                    res.iloc_ref(i, j) = res.iloc(i, j) OP vals[j];                 \
-                }                                                                   \
+            for (int j = 0; j < size<1>(); j++) {                                   \
+                values[j] OP vals[j];                                               \
             }                                                                       \
-            return res;                                                             \
+            return *this;                                                           \
+                                                                                    \
+        } else {                                                                    \
+            throw std::format("axis not supported: {}", axis);                      \
+            return *this;                                                           \
         }                                                                           \
     }                                                                               \
-    template <int axis, class T2, class NT2>                                        \
-    DataFrame operator OP(const Array<T2, NT2>& vals)                               \
+    template <int axis = 0, class T2, class NT2>                                    \
+    DataFrame& operator OP(const Array<T2, NT2>& vals)                              \
     {                                                                               \
         return operator OP<axis, T2>(vals.values);                                  \
     }                                                                               \
                                                                                     \
-    template <int axis, class IT2, class DT2, class INT2, class DNT2>               \
-    DataFrame operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                   \
+    template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>           \
+    DataFrame& operator OP(const Series<IT2, DT2, INT2, DNT2>& sr2)                 \
     {                                                                               \
-        DataFrame res = *this;                                                      \
         if constexpr (axis == 0) {                                                  \
+            for (auto& sr : values) {                                               \
+                sr OP sr2;                                                          \
+            }                                                                       \
+            return *this;                                                           \
+                                                                                    \
+        } else if constexpr (axis == 1) {                                           \
+            for (auto& sr : values) {                                               \
+                DNT& col_name = sr.get_name();                                      \
+                if (sr2.pidx->has(col_name)) {                                      \
+                    sr OP sr2.loc(col_name);                                        \
+                } else {                                                            \
+                    sr OP pandas::nan<DT>();                                        \
+                }                                                                   \
+            }                                                                       \
+            return *this;                                                           \
+                                                                                    \
         } else {                                                                    \
+            throw std::format("axis not support: {}", axis);                        \
+            return *this;                                                           \
         }                                                                           \
-    }
-
-#define DEFINE_DATAFRAME_OPERATOR(OP)                                              \
-    template <class T2>                                                            \
-    DataFrame& operator OP(const T2 & val)                                         \
-    {                                                                              \
-        for (auto& sr : values) {                                                  \
-            sr OP val;                                                             \
-        }                                                                          \
-        return *this;                                                              \
-    }                                                                              \
-                                                                                   \
-    template <class IT2, class DT2, class INT2, class DNT2>                        \
-    DataFrame& operator OP(const DataFrame<IT2, DT2, INT2, DNT2>& val)             \
-    {                                                                              \
-        for (auto& sr : values) {                                                  \
-            DNT col = sr.get_name();                                               \
-            int i = val.get_column_index(col);                                     \
-            if (i < 0) {                                                           \
-                throw std::format("columns {} not found", pandas::to_string(col)); \
-            }                                                                      \
-            sr OP val.values[i];                                                   \
-        }                                                                          \
-        return *this;                                                              \
     }
 
 DEFINE_DATAFRAME_OPERATOR(+=)
@@ -110,19 +162,7 @@ DEFINE_DATAFRAME_OPERATOR(&=)
 DEFINE_DATAFRAME_OPERATOR(|=)
 DEFINE_DATAFRAME_OPERATOR(^=)
 
-#define DEFINE_DATAFRAME_OPERATOR(OP) \
-    DataFrame operator OP() const     \
-    {                                 \
-        DataFrame res = *this;        \
-        for (auto& sr : res.values) { \
-            sr = OP sr;               \
-        }                             \
-        return res;                   \
-    }
-
-DEFINE_DATAFRAME_OPERATOR(~)
-
-/////////// cmp operator /////////////////
+//////////////////////// cmp operator /////////////////////////////////////////////////////////////
 #define DEFINE_DATAFRAME_OPERATOR(OP)                                                     \
     template <class T2>                                                                   \
     DataFrame<IT, bool, INT, DNT> operator OP(const T2 & val) const                       \
@@ -156,42 +196,3 @@ DEFINE_DATAFRAME_OPERATOR(<)
 DEFINE_DATAFRAME_OPERATOR(<=)
 DEFINE_DATAFRAME_OPERATOR(==)
 DEFINE_DATAFRAME_OPERATOR(!=)
-
-#define DEFINE_DATAFRAME_ROW_OPERATOR(FUN, OP)                               \
-    template <class DT2, class DNT2>                                         \
-    DataFrame FUN##_row(const Array<DT2, DNT2>& ar)                          \
-    {                                                                        \
-        if (ar.size() != size(1)) {                                          \
-            throw std::format("size not mathch {}!={}", ar.size(), size(1)); \
-        }                                                                    \
-                                                                             \
-        DataFrame res = *this;                                               \
-        for (int i = 0; i < size(0); i++) {                                  \
-            for (int j = 0; j < size(1); j++) {                              \
-                res.iloc_ref(i, j) = res.iloc(i, j) OP ar.iloc(j);           \
-            }                                                                \
-        }                                                                    \
-        return res;                                                          \
-    }                                                                        \
-                                                                             \
-    template <class IT2, class DT2, class INT2, class DNT2>                  \
-    DataFrame FUN##_row(const Series<IT2, DT2, INT2, DNT2>& sr)              \
-    {                                                                        \
-        if (sr.size() != size(1)) {                                          \
-            throw std::format("size not mathch {}!={}", sr.size(), size(1)); \
-        }                                                                    \
-                                                                             \
-        DataFrame res = *this;                                               \
-        for (int j = 0; j < size(1); j++) {                                  \
-            IT id = res.values[j].get_name();                                \
-            DT2 val = sr.loc(id);                                            \
-            values[j] = values[j] OP val;                                    \
-        }                                                                    \
-        return res;                                                          \
-    }
-
-DEFINE_DATAFRAME_ROW_OPERATOR(add, +)
-DEFINE_DATAFRAME_ROW_OPERATOR(subtract, -)
-DEFINE_DATAFRAME_ROW_OPERATOR(multiply, *)
-DEFINE_DATAFRAME_ROW_OPERATOR(div, /)
-DEFINE_DATAFRAME_ROW_OPERATOR(mod, %)
