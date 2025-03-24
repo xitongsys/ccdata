@@ -50,6 +50,18 @@ public:
         _rename(name);
     }
 
+    Series(std::shared_ptr<Index<IT, INT>> pidx, const std::vector<DT>& vals, const DNT& name = DNT {})
+    {
+        if (pidx->size() != vals.size()) {
+            throw std::format("index size and value size not match: {}!={}", pidx->size(), vals.size());
+        }
+        this->pidx = pidx;
+        for (int i = 0; i < pidx->size(); i++) {
+            values._append(vals[i]);
+        }
+        _rename(name);
+    }
+
     Series(const std::vector<IT>& ids, const std::vector<DT>& vals, const DNT& name = DNT {})
         : Series()
     {
@@ -152,13 +164,13 @@ public:
         return res;
     }
 
-    template <class IT2, class INT2>
-    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
+    template <class IT2>
+    Series<IT2, DT, INT, DNT> reindex(const std::vector<IT2>& index) const
     {
-        Series<IT2, DT, INT2, DNT> res;
+        Series<IT2, DT, INT, DNT> res;
 
         for (int i = 0; i < index.size(); i++) {
-            IT2 id = index.iloc(i);
+            IT2 id = index[i];
             DT val = DT {};
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
@@ -169,7 +181,22 @@ public:
         }
 
         res._rename(get_name());
+        return res;
+    }
 
+    template <class IT2, class INT2>
+    Series<IT2, DT, INT2, DNT> reindex(const Array<IT2, INT2>& index) const
+    {
+        auto res = reindex(index.values).astype<IT2, DT, INT2, DNT>();
+        res._rename(index.get_name());
+        return res;
+    }
+
+    template <class IT2, class INT2>
+    Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
+    {
+        auto res = reindex(index.values).astype<IT2, DT, INT2, DNT>();
+        res._rename(index.get_name());
         return res;
     }
 
@@ -179,7 +206,7 @@ public:
         auto idx = pidx->astype<IT2, INT2>();
         auto vals = values.astype<DT2, DNT2>();
 
-        return Series<IT2, DT2>(idx, vals);
+        return Series<IT2, DT2, INT2, DNT2>(idx, vals);
     }
 
     std::string to_string(int mx_cnt = 10) const
@@ -407,21 +434,5 @@ public:
 #include "pandas/series_group.tcc"
 #include "pandas/series_rolling.tcc"
 };
-
-template <
-    class IT1, class DT1, class INT1, class DNT1,
-    class IT2, class DT2, class INT2, class DNT2>
-Series<IT1, DT1, INT1, DNT1> concat_0(
-    const Series<IT1, DT1, INT1, DNT1>& sr1,
-    const Series<IT2, DT2, INT2, DNT2>& sr2)
-{
-    Series<IT1, DT1, INT1, DNT1> sr = sr1;
-    for (int i = 0; i < sr2.size(); i++) {
-        const IT2& id = sr2.pidx->iloc(i);
-        const DT2& val = sr2.iloc(i);
-        sr1._append(id, val);
-    }
-    return sr1;
-}
 
 }

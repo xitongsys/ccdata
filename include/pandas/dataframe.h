@@ -67,10 +67,10 @@ public:
         }
     }
 
-    DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& srs)
+    DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& cols)
     {
         pidx = std::make_shared<Index<IT, INT>>();
-        for (auto& sr : srs) {
+        for (auto& sr : cols) {
             int n = sr.pidx->size();
             for (int i = 0; i < n; i++) {
                 IT id = sr.pidx->iloc(i);
@@ -80,21 +80,14 @@ public:
             }
         }
 
-        for (int i = 0; i < srs.size(); i++) {
-            values.push_back(srs[i].reindex(*pidx));
+        for (int i = 0; i < cols.size(); i++) {
+            DNT col_name = cols[i].get_name();
+            if (has<1>(col_name)) {
+                throw std::format("duplicated column: {}", pandas::to_string(col_name));
+            }
+            values.push_back(cols[i].reindex(*pidx));
             values[i].pidx = pidx;
         }
-    }
-
-    DataFrame<IT, DT, INT, DNT> reindex(const Index<IT, INT>& idx)
-    {
-        DataFrame<IT, DT, INT, DNT> df(idx);
-        for (int i = 0; i < values.size(); i++) {
-            Series<IT, DT, INT, DNT> sr = values[i].reindex(*df.pidx);
-            sr.pidx = df.pidx;
-            df.values._append(sr);
-        }
-        return df;
     }
 
     void reassign_index()
@@ -104,12 +97,63 @@ public:
         }
     }
 
-    void _reindex(const Index<IT, INT>& idx)
+    template <int axis, class T2>
+    auto reindex(const std::vector<T2>& ids)
     {
-        pidx = std::make_shared<Index<IT, INT>>(idx);
-        for (int i = 0; i < values.size(); i++) {
-            values[i] = values[i].reindex(idx);
-            values[i].pidx = pidx;
+        if constexpr (axis == 0) {
+            std::vector<Series<T2, DT, INT, DNT>> srs;
+            for (int j = 0; j < size<1>(); j++) {
+                srs.push_back(iloc<1>(j).reindex(ids));
+            }
+            return DataFrame<T2, DT, INT, DNT>(srs);
+
+        } else if constexpr (axis == 1) {
+            std::vector<Series<IT, DT, INT, T2>> srs;
+            for (const T2& col_name : ids) {
+                int j = get_column_index(col_name);
+                if (j < 0) {
+                    Series<IT, DT, INT, T2> sr(*pidx);
+                    srs.push_back(sr);
+                } else {
+                    srs.push_back(iloc<1>(j).astype<IT, DT, INT, T2>());
+                }
+            }
+            return DataFrame<IT, DT, INT, T2>(srs);
+
+        } else {
+            throw std::format("axis not supported: {}", axis);
+        }
+    }
+
+    template <int axis, class IT2, class INT2>
+    auto reindex(const Array<IT2, INT2>& ids)
+    {
+        if constexpr (axis == 0) {
+            auto df = reindex<0>(ids.values);
+            df.pidx->_rename(ids.get_name());
+            return df;
+
+        } else if constexpr (axis == 1) {
+            return reindex<1>(ids.values);
+
+        } else {
+            throw std::format("axis not supported: {}", axis);
+        }
+    }
+
+    template <int axis, class IT2, class INT2>
+    auto reindex(const Index<IT2, INT2>& ids)
+    {
+        if constexpr (axis == 0) {
+            auto df = reindex<0>(ids.values);
+            df.pidx->_rename(ids.get_name());
+            return df;
+
+        } else if constexpr (axis == 1) {
+            return reindex<1>(ids.values);
+
+        } else {
+            throw std::format("axis not supported: {}", axis);
         }
     }
 
@@ -132,6 +176,21 @@ public:
         }
     }
 
+    template <int axis = 0, class T2>
+    bool has(const T2& v)
+    {
+        if constexpr (axis == 0) {
+            return pidx->has(v);
+
+        } else if constexpr (axis == 1) {
+            return get_column_index(v) >= 0;
+
+        } else {
+            throw std::format("axis not supported: {}", axis);
+            return false;
+        }
+    }
+
     int get_column_index(const DNT& name) const
     {
         for (int i = 0; i < values.size(); i++) {
@@ -142,76 +201,56 @@ public:
         return -1;
     }
 
-    int _append_row(const Array<DT, IT>& ar)
+    template <class IT2, class DT2>
+    int _append_row(const IT2& id, const std::vector<DT2>& row)
     {
-        if (ar.size() != values.size()) {
-            throw std::format("row size not match: {}!={}", ar.size(), values.size());
+        if (row.size() != size<1>()) {
+            throw std::format("size not match: {}!={}", row.size(), size<1>());
         }
-
-        IT id = ar.get_name();
         pidx->_append(id);
-        for (int i = 0; i < values.size(); i++) {
-            values[i].values._append(ar.iloc(i));
+        for (int i = 0; i < row.size(); i++) {
+            values[i].values._append(row[i]);
         }
-
         return size<0>();
+    }
+
+    template <class IT2, class DT2>
+    int _append_row(const Array<DT2, IT2>& ar)
+    {
+        return _append_row(ar.get_name(), ar.values);
     }
 
     template <class INT2>
     int _append_row(const Series<DNT, DT, INT2, IT>& sr)
     {
-        if (sr.size() != values.size()) {
-            throw std::format("row size not match: {}!={}", sr.size(), values.size());
-        }
-
-        IT id = sr.get_name();
-        pidx->_append(id);
-
-        for (int i = 0; i < values.size(); i++) {
-            bool ok = false;
-            DNT col = values[i].get_name();
-            DT value = sr.loc(col);
-            values[i]._append(value);
-        }
-        return size();
+        auto sr2 = sr.reindex(columns());
+        return _append_row(sr.values);
     }
 
-    int _append_col(const Array<DT, DNT>& ar)
+    template <class DT2, class DNT2>
+    int _append_col(const DNT2& col_name, const std::vector<DT2>& col)
     {
-        if (ar.size() != size()) {
-            throw std::format("append size not match: {}!={}", ar.size(), size());
+        if (col.size() != size<0>()) {
+            throw std::format("size not match: {}!={}", col.size(), size<0>());
         }
-        if (get_column_index(ar.get_name()) >= 0) {
-            throw std::format("duplicated column name: {}", ar.get_name());
+        if (has<1>(col_name)) {
+            throw std::format("duplicated column: {}", pandas::to_string(col_name));
         }
-
-        auto sr = Series(pidx, ar, ar.name);
-        values.push_back(sr);
-        return size(1);
+        values.push_back(Series<IT, DT, INT, DNT>(pidx, col, col_name));
+        return size<1>();
     }
 
-    int _append_col(const Series<IT, DT, INT, DNT>& sr)
+    template <class DT2, class DNT2>
+    int _append_col(const Array<DT2, DNT2>& ar)
     {
-        if (get_column_index(sr.get_name()) >= 0) {
-            throw std::format("duplicated column name: {}", sr.get_name());
-        }
+        return _append_col(ar.get_name(), ar.values);
+    }
 
-        for (int i = 0; i < sr.size(); i++) {
-            IT id = sr.pidx->iloc(i);
-            if (!pidx->has(id)) {
-                pidx->_append(id);
-            }
-        }
-
-        for (int i = 0; i < values.size(); i++) {
-            values[i] = values[i].reindex(*pidx);
-            values[i].pidx = pidx;
-        }
-
+    template <class IT2, class DT2, class INT2, class DNT2>
+    int _append_col(const Series<IT2, DT2, INT2, DNT2>& sr)
+    {
         auto sr2 = sr.reindex(*pidx);
-        sr2.pidx = pidx;
-        values.push_back(sr2);
-        return values.size();
+        return _append_col(sr2.values);
     }
 
     inline DT iloc(int ri, int ci) const
@@ -467,67 +506,5 @@ public:
 #include "pandas/dataframe_op.tcc"
 #include "pandas/dataframe_rolling.tcc"
 };
-
-template <
-    class IT, class DT, class INT, class DNT,
-    class IT2, class DT2, class INT2, class DNT2>
-DataFrame<IT, DT, INT, DNT> concat_1(
-    Series<IT, DT, INT, DNT>& sr1,
-    Series<IT2, DT2, INT2, DNT2>& sr2)
-{
-    if (sr1.get_name() == sr2.get_name()) {
-        throw std::format("columns have same name: {}", sr1.get_name());
-    }
-
-    Index<IT, INT> idx;
-    for (int i = 0; i < sr1.size(); i++) {
-        idx._append(sr1.pidx->iloc(i));
-    }
-    for (int i = 0; i < sr2.size(); i++) {
-        idx._append(sr2.pidx->iloc(i));
-    }
-
-    Series<IT, DT, INT, DNT> sr1_new = sr1.reindex(idx);
-    Series<IT, DT2, INT, DNT2> sr2_new = sr2.reindex(idx);
-
-    DataFrame<IT, DT, INT, DNT> df;
-    df.pidx = std::make_shared<Index<IT, INT>>(idx);
-
-    sr1_new.pidx = df.pidx;
-    sr2_new.pidx = df.pidx;
-
-    df.values.emplace_back(std::move(sr1_new));
-    df.values.emplace_back(std::move(sr2_new));
-
-    return df;
-}
-
-template <
-    class IT, class DT, class INT, class DNT,
-    class IT2, class DT2, class INT2, class DNT2>
-DataFrame<IT, DT, INT, DNT> concat_1(
-    const DataFrame<IT, DT, INT, DNT>& df,
-    const Series<IT2, DT2, INT2, DNT2>& sr)
-{
-    for (int i = 0; i < df.values.size(); i++) {
-        if (df.values[i].name() == sr.name()) {
-            throw std::format("columns have same name: {}", sr.name());
-        }
-    }
-
-    Index<IT, INT> idx;
-    for (int i = 0; i < df.size(); i++) {
-        idx._append(df.pidx->iloc(i));
-    }
-    for (int i = 0; i < sr.size(); i++) {
-        idx._append(sr.pidx->iloc(i));
-    }
-
-    DataFrame<IT, DT, INT, DNT> df_new = df.reindex(idx);
-    Series<IT, DT2, INT, DNT2> sr_new = sr.reindex(idx);
-    df_new.values._append(sr_new);
-
-    return df_new;
-}
 
 }

@@ -29,7 +29,7 @@ public:
             idx._append(df.pidx->iloc(i));
         }
 
-        std::vector<Series<IT,DT,INT,DNT>> srs;
+        std::vector<Series<IT, DT, INT, DNT>> srs;
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();
@@ -61,4 +61,20 @@ public:
         }
         return cols;
     }
+
+    template <class DT2>
+    void operator=(const DT2& v)
+    {
+        it_row.reset();
+        while (it_row.has_left()) {
+            it_col.reset();
+            int i = it_row.next();
+            while (it_col.has_left()) {
+                int j = it_col.next();
+                df.iloc_ref(i, j) = v;
+            }
+        }
+    }
+
+    
 };

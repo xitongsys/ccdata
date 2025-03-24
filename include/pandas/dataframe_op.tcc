@@ -38,6 +38,45 @@ DEFINE_DATAFRAME_OPERATOR(&)
 DEFINE_DATAFRAME_OPERATOR(|)
 DEFINE_DATAFRAME_OPERATOR(^)
 
+#define DEFINE_DATAFRAME_OPERATOR(OP)                                               \
+    template <int axis, class T2>                                                   \
+    DataFrame operator OP(const std::vector<T2>& vals)                              \
+    {                                                                               \
+        DataFrame res = *this;                                                      \
+        if constexpr (axis == 0) {                                                  \
+            for (auto& sr : res.values) {                                           \
+                sr = sr OP vals;                                                    \
+            }                                                                       \
+            return res;                                                             \
+                                                                                    \
+        } else {                                                                    \
+            if (vals.size() != size<1>()) {                                         \
+                throw std::format("size not match: {}:{}", vals.size(), size<1>()); \
+            }                                                                       \
+                                                                                    \
+            for (int i = 0; i < size(); i++) {                                      \
+                for (int j = 0; j < vals.size(); j++) {                             \
+                    res.iloc_ref(i, j) = res.iloc(i, j) OP vals[j];                 \
+                }                                                                   \
+            }                                                                       \
+            return res;                                                             \
+        }                                                                           \
+    }                                                                               \
+    template <int axis, class T2, class NT2>                                        \
+    DataFrame operator OP(const Array<T2, NT2>& vals)                               \
+    {                                                                               \
+        return operator OP<axis, T2>(vals.values);                                  \
+    }                                                                               \
+                                                                                    \
+    template <int axis, class IT2, class DT2, class INT2, class DNT2>               \
+    DataFrame operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                   \
+    {                                                                               \
+        DataFrame res = *this;                                                      \
+        if constexpr (axis == 0) {                                                  \
+        } else {                                                                    \
+        }                                                                           \
+    }
+
 #define DEFINE_DATAFRAME_OPERATOR(OP)                                              \
     template <class T2>                                                            \
     DataFrame& operator OP(const T2 & val)                                         \

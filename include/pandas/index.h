@@ -220,15 +220,4 @@ public:
     }
 };
 
-template <class IT, class NT, class IT2, class NT2>
-Index<IT, NT> concat_0(const Index<IT, NT>& idx1, const Index<IT2, NT2>& idx2)
-{
-    Index<IT, NT> idx_merge = idx1;
-    for (int i = 0; i < idx2.size(); i++) {
-        const IT& id = idx2.iloc(i);
-        idx_merge._append(id);
-    }
-    return idx_merge;
-}
-
 }

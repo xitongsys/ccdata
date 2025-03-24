@@ -1,4 +1,5 @@
 #include "pandas/array.h"
+#include "pandas/concat.h"
 #include "pandas/csv/csv.h"
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
@@ -17,11 +18,14 @@ using namespace std::chrono;
 
 void test01()
 {
-    DataFrame<int, double> df(std::vector<int>({ 1, 2 }), std::vector<std::string>({ "a", "b" }));
-    df = df.fillna(1);
-    cout << df << endl;
+    Index<int> id1(Array<int>({ 1, 2, 3 }, "id1"));
+    Index<int> id2(Array<int>({ 2, 3, 4 }, "id2"));
 
-    cout << df.corr<1>() << endl;
+    auto id_0 = concat<0>(id1, id2);
+    cout << id_0 << endl;
+
+    auto id_1 = concat<1>(id1, id2);
+    cout << id_1 << endl;
 }
 
 int main()
