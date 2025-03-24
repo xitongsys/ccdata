@@ -6,10 +6,11 @@
 #include <map>
 #include <optional>
 #include <vector>
+#include <format>
 
 #include "pandas/array.h"
 #include "pandas/iterator.h"
-#include "pandas/pandastype.h"
+#include "pandas/ops.h"
 #include "pandas/range.h"
 #include "pandas/util.h"
 

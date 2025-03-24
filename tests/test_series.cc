@@ -44,6 +44,8 @@ void test_series_constructors()
     Array<int> vals2({ 2, 3, 4 }, "sr5");
     Series<int, int> sr5(ids2, vals2);
     assert(sr5.size() == 3);
+
+    cout << "[PASS] test_series_constructors" << endl;
 }
 
 void test_series_operator()
@@ -73,6 +75,15 @@ void test_series_operator()
 
     auto sr5 = sr < sr2;
     assert(sr5.sum() == 0);
+
+    Series<int, double> sr6({ 1, 2 }, { 3, 4 }, "sr6");
+    sr6 += 1;
+    assert((sr6.iloc(0) == 4) && (sr6.iloc(1) == 5));
+
+    auto sr7 = sr6 + vector<int>({1,2});
+    assert((sr7.iloc(0)==5) && (sr7.iloc(1)==7));
+
+    cout << "[PASS] test_series_operator" << endl;
 }
 
 void test_series_loc()
@@ -98,6 +109,8 @@ void test_series_loc()
 
     sr.loc({ 1, 1 }) = 1;
     assert(sr.iloc(0) == 1);
+
+    cout << "[PASS] test_series_loc" << endl;
 }
 
 void test_series_functional()
@@ -119,7 +132,7 @@ void test_series_functional()
     auto sr4 = sr.diff(-1);
     assert((pandas::isnan<double>(sr4.iloc(1))) && (sr4.iloc(0) == -7));
 
-    cout << sr3 << endl;
+    cout << "[PASS] test_series_functional" << endl;
 }
 
 int main()

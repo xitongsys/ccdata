@@ -43,8 +43,8 @@
             } else {                                                          \
                 res.iloc_ref(i) = val OP pandas::nan<DT>();                   \
             }                                                                 \
-            return res;                                                       \
         }                                                                     \
+        return res;                                                           \
     }
 
 DEFINE_SERIES_OPERATOR(+)

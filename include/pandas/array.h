@@ -1,14 +1,16 @@
 #pragma once
 
+#include <format>
 #include <functional>
 #include <initializer_list>
 #include <iostream>
 #include <list>
 #include <map>
 #include <optional>
+#include <string>
 #include <vector>
 
-#include "pandas/pandastype.h"
+#include "pandas/ops.h"
 #include "pandas/string.h"
 #include "pandas/util.h"
 
@@ -36,8 +38,8 @@ public:
     }
 
     template <class T2, class NT2>
-    Array(const Array<T2, NT2>& ar, const NT& name = NT {})
-        : Array(name)
+    Array(const Array<T2, NT2>& ar)
+        : Array(ar.name)
     {
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
