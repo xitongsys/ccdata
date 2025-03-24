@@ -163,31 +163,93 @@ DEFINE_DATAFRAME_OPERATOR(|=)
 DEFINE_DATAFRAME_OPERATOR(^=)
 
 //////////////////////// cmp operator /////////////////////////////////////////////////////////////
-#define DEFINE_DATAFRAME_OPERATOR(OP)                                                     \
-    template <class T2>                                                                   \
-    DataFrame<IT, bool, INT, DNT> operator OP(const T2 & val) const                       \
-    {                                                                                     \
-        std::vector<Series<IT, bool, INT, DNT>> srs;                                      \
-        for (auto& sr : values) {                                                         \
-            auto sr2 = sr OP val;                                                         \
-            srs.emplace_back(sr2);                                                        \
-        }                                                                                 \
-        return DataFrame<IT, bool, INT, DNT>(srs);                                        \
-    }                                                                                     \
-                                                                                          \
-    template <class IT2, class DT2, class INT2, class DNT2>                               \
-    DataFrame<IT, bool, INT, DNT> operator OP(const DataFrame<IT2, DT2, INT2, DNT2>& val) \
-    {                                                                                     \
-        DataFrame<IT, bool, INT, DNT> res = *this;                                        \
-        for (auto& sr : res.values) {                                                     \
-            DNT col = sr.get_name();                                                      \
-            int i = val.get_column_index(col);                                            \
-            if (i < 0) {                                                                  \
-                throw std::format("columns {} not found", pandas::to_string(col));        \
-            }                                                                             \
-            sr = sr OP val.values[i];                                                     \
-        }                                                                                 \
-        return res;                                                                       \
+#define DEFINE_DATAFRAME_OPERATOR(OP)                                                       \
+    template <class T2>                                                                     \
+    DataFrame<IT, bool, INT, DNT> operator OP(const T2 & val) const                         \
+    {                                                                                       \
+        std::vector<Series<IT, bool, INT, DNT>> srs;                                        \
+        for (auto& sr : values) {                                                           \
+            auto sr2 = sr OP val;                                                           \
+            srs.emplace_back(sr2);                                                          \
+        }                                                                                   \
+        return DataFrame<IT, bool, INT, DNT>(srs);                                          \
+    }                                                                                       \
+                                                                                            \
+    template <int axis = 0, class T2>                                                       \
+    DataFrame<IT, bool, INT, DNT> operator OP(const std::vector<T2>& vals)                  \
+    {                                                                                       \
+        if constexpr (axis == 0) {                                                          \
+            std::vector<Series<IT, bool, INT, DNT>> srs;                                    \
+            for (auto& sr : values) {                                                       \
+                srs.push_back(sr OP vals);                                                  \
+            }                                                                               \
+            DataFrame<IT, bool, INT, DNT> res(srs);                                         \
+            return res;                                                                     \
+                                                                                            \
+        } else if constexpr (axis == 1) {                                                   \
+            if (vals.size() != size<1>()) {                                                 \
+                throw std::format("size not match: {}:{}", vals.size(), size<1>());         \
+            }                                                                               \
+            std::vector<Series<IT, bool, INT, DNT>> srs;                                    \
+            for (int j = 0; j < size<1>(); j++) {                                           \
+                srs.push_back(values[j] OP vals[j]);                                        \
+            }                                                                               \
+            DataFrame<IT, bool, INT, DNT> res(srs);                                         \
+            return res;                                                                     \
+                                                                                            \
+        } else {                                                                            \
+            throw std::format("axis not supported: {}", axis);                              \
+        }                                                                                   \
+    }                                                                                       \
+    template <int axis = 0, class T2, class NT2>                                            \
+    DataFrame<IT, bool, INT, DNT> operator OP(const Array<T2, NT2>& vals)                   \
+    {                                                                                       \
+        return operator OP <axis, T2>(vals.values);                                          \
+    }                                                                                       \
+                                                                                            \
+    template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>                   \
+    DataFrame<IT, bool, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr2)      \
+    {                                                                                       \
+        if constexpr (axis == 0) {                                                          \
+            std::vector<Series<IT, bool, INT, DNT>> srs;                                    \
+            for (auto& sr : values) {                                                       \
+                srs.push_back(sr OP sr2);                                                   \
+            }                                                                               \
+            DataFrame<IT, bool, INT, DNT> res(srs);                                         \
+            return res;                                                                     \
+                                                                                            \
+        } else if constexpr (axis == 1) {                                                   \
+            std::vector<Series<IT, bool, INT, DNT>> srs;                                    \
+            for (auto& sr : values) {                                                       \
+                DNT& col_name = sr.get_name();                                              \
+                if (sr2.pidx->has(col_name)) {                                              \
+                    srs.push_back(sr OP sr2.loc(col_name));                                 \
+                } else {                                                                    \
+                    throw std::format("column not found: {}", pandas::to_string(col_name)); \
+                }                                                                           \
+            }                                                                               \
+            DataFrame<IT, bool, INT, DNT> res(srs);                                         \
+            return res;                                                                     \
+                                                                                            \
+        } else {                                                                            \
+            throw std::format("axis not support: {}", axis);                                \
+        }                                                                                   \
+    }                                                                                       \
+                                                                                            \
+    template <class IT2, class DT2, class INT2, class DNT2>                                 \
+    DataFrame<IT, bool, INT, DNT> operator OP(const DataFrame<IT2, DT2, INT2, DNT2>& val)   \
+    {                                                                                       \
+        std::vector<Series<IT, bool, INT, DNT>> srs;                                        \
+        for (auto& sr : values) {                                                       \
+            DNT col = sr.get_name();                                                        \
+            int i = val.get_column_index(col);                                              \
+            if (i < 0) {                                                                    \
+                throw std::format("columns {} not found", pandas::to_string(col));          \
+            }                                                                               \
+            srs.push_back(sr OP val.values[i]);                                             \
+        }                                                                                   \
+        DataFrame<IT, bool, INT, DNT> res(srs);                                             \
+        return res;                                                                         \
     }
 
 DEFINE_DATAFRAME_OPERATOR(>)

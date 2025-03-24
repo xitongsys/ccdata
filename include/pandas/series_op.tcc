@@ -124,39 +124,42 @@ DEFINE_SERIES_OPERATOR(^=)
     Series<IT, bool, INT, DNT> operator OP(const T2 & val) const                         \
     {                                                                                    \
         Array<bool, DNT> values = this->values OP val;                                   \
-        return Series<IT, bool, INT, DNT>(*pidx, values);                                \
+        auto res = Series<IT, bool, INT, DNT>(*pidx, values);                            \
+        return res;                                                                      \
+    }                                                                                    \
+                                                                                         \
+    template <class DT2>                                                                 \
+    Series<IT, bool, INT, DNT> operator OP(const std::vector<DT2>& vals) const           \
+    {                                                                                    \
+        if (vals.size() != size()) {                                                     \
+            throw std::format("size not match: {}!={}", vals.size(), size());            \
+        }                                                                                \
+        Array<bool, DNT> ar = values OP vals;                                            \
+        auto res = Series<IT, bool, INT, DNT>(*pidx, ar);                                \
+        return res;                                                                      \
     }                                                                                    \
                                                                                          \
     template <class DT2, class DNT2>                                                     \
     Series<IT, bool, INT, DNT> operator OP(const Array<DT2, DNT2>& ar) const             \
     {                                                                                    \
-        if (ar.size() != size()) {                                                       \
-            throw std::format("size not match: {}!={}", ar.size(), size());              \
-        }                                                                                \
-        Array<bool, DNT> vals = values OP ar;                                            \
-        return Series<IT, bool, INT, DNT>(*pidx, vals);                                  \
+        return (*this)OP ar.values;                                                      \
     }                                                                                    \
                                                                                          \
     template <class IT2, class DT2, class INT2, class DNT2>                              \
     Series<IT, bool, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
     {                                                                                    \
-        Index<IT, INT> index;                                                            \
-        for (int i = 0; i < pidx->size(); i++) {                                         \
+        Series<IT, bool, INT, DNT> res(get_name());                                      \
+        for (int i = 0; i < size(); i++) {                                               \
             IT id = pidx->iloc(i);                                                       \
-            if (!index.has(id)) {                                                        \
-                index._append(id);                                                       \
+            DT val = iloc(i);                                                            \
+            if (sr.pidx->has(id)) {                                                      \
+                res._append(id, val OP sr.loc(id));                                      \
+            } else {                                                                     \
+                throw std::format("key not found: {}", pandas::to_string(id));           \
             }                                                                            \
         }                                                                                \
-        for (int i = 0; i < sr.size(); i++) {                                            \
-            IT id = sr.pidx->iloc(i);                                                    \
-            if (!index.has(id)) {                                                        \
-                index._append(id);                                                       \
-            }                                                                            \
-        }                                                                                \
-        Series<IT, DT, INT, DNT> sr1 = this->reindex(index);                             \
-        Series<IT, DT2, INT, DNT2> sr2 = sr.reindex(index);                              \
-        Array<bool, DNT> vals = sr1.values OP sr2.values;                                \
-        return Series<IT, bool, INT, DNT>(index, vals);                                  \
+        res.pidx->_rename(pidx->get_name());                                             \
+        return res;                                                                      \
     }
 
 DEFINE_SERIES_OPERATOR(>)

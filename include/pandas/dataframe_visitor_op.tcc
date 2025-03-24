@@ -32,35 +32,23 @@ DEFINE_DATAFRAMEVISITOR_OPERATOR(^)
 
 DEFINE_DATAFRAMEVISITOR_OPERATOR(~)
 
-#define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP)                   \
-    template <class T>                                         \
-    void operator OP(const T& val)                             \
-    {                                                          \
-        it.reset();                                            \
-        while (it.has_left()) {                                \
-            int i = it.next();                                 \
-            sr.iloc_ref(i) OP val;                             \
-        }                                                      \
-    }                                                          \
-                                                               \
-    template <class DT2, class DNT2>                           \
-    void operator OP(const Array<DT2, DNT2>& ar)               \
-    {                                                          \
-        it.reset();                                            \
-        for (int i = 0; i < ar.size() && it.has_left(); i++) { \
-            sr.iloc_ref(i) OP ar.iloc(i);                      \
-        }                                                      \
-    }                                                          \
-                                                               \
-    template <class IT2, class DT2, class INT2, class DNT2>    \
-    void operator OP(const Series<IT2, DT2, INT2, DNT2>& sr2)  \
-    {                                                          \
-        it.reset();                                            \
-        while (it.has_left()) {                                \
-            int i = it.next();                                 \
-            IT id = sr.pidx->iloc(i);                          \
-            sr.iloc_ref(i) OP sr2.loc(id);                     \
-        }                                                      \
+/////////////////////////////////////////////////////////////////////////////
+
+#define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP) \
+    template <class T>                       \
+    DataFrame& operator OP(const T & val)    \
+    {                                        \
+        it_row.reset();                      \
+        it_col.reset();                      \
+        while (it_col.has_left()) {          \
+            int j = it_col.next();           \
+            it_row.reset();                  \
+            while (it_row.has_left()) {      \
+                int i = it_row.next();       \
+                iloc_ref(i, j) OP val;       \
+            }                                \
+        }                                    \
+        return *this;                        \
     }
 
 DEFINE_SERIESVISITOR_OPERATOR(+=)
@@ -72,7 +60,8 @@ DEFINE_SERIESVISITOR_OPERATOR(&=)
 DEFINE_SERIESVISITOR_OPERATOR(|=)
 DEFINE_SERIESVISITOR_OPERATOR(^=)
 
-/////////// cmp operator /////////////////
+////////////////////////////////////// cmp operator ////////////////////////////////////////////
+
 #define DEFINE_SERIESVISITOR_OPERATOR(OP)                                                \
     template <class T2>                                                                  \
     Series<IT, bool, INT, DNT> operator OP(const T2 & val) const                         \
