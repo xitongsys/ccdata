@@ -203,3 +203,22 @@ DEFINE_DATAFRAME_FUNCS(double, mean)
 DEFINE_DATAFRAME_FUNCS(double, var)
 DEFINE_DATAFRAME_FUNCS(double, std)
 DEFINE_DATAFRAME_FUNCS(double, median)
+
+template <int axis = 1>
+auto corr()
+{
+    if constexpr (axis == 1) {
+        DataFrame<DNT, double, std::string, DNT> df_corr(columns(), columns());
+        for (int i = 0; i < size<1>(); i++) {
+            for (int j = i; j < size<1>(); j++) {
+                double c = iloc<1>(i).corr(iloc<1>(j));
+                df_corr.iloc_ref(i, j) = c;
+                df_corr.iloc_ref(j, i) = c;
+            }
+        }
+        return df_corr;
+
+    } else {
+        return T().corr<1>();
+    }
+}

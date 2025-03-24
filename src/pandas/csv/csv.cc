@@ -109,5 +109,50 @@ namespace csv {
         return res;
     }
 
+
+    template <>
+    std::string format_csv_string(const std::string& s)
+    {
+        std::stringstream ss;
+        ss << '"';
+        for (int i = 0; i < s.size(); i++) {
+            char a = s[i];
+            ss << a;
+            if (a == '"') {
+                ss << '"';
+            }
+        }
+        ss << '"';
+        return ss.str();
+    }
+
+    void write_csv(const std::string& filename, const std::vector<std::string>& cols, char delimiter)
+    {
+        std::ofstream out(filename);
+
+        if (!out.is_open()) {
+            throw std::format("failed open file {}", filename);
+        }
+
+        if (cols.size() == 0) {
+            out.close();
+            return;
+        }
+
+        int R = cols[0].size(), C = cols.size();
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                out << cols[j][i];
+                if (j + 1 < C) {
+                    out << delimiter;
+                } else {
+                    out << '\n';
+                }
+            }
+        }
+
+        out.close();
+    }
+
 }
 }

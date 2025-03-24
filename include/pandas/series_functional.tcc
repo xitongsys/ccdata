@@ -15,6 +15,16 @@ Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
     sr._rename(this->get_name());
     return sr;
 }
+template <class DT2>
+void _map(std::function<DT2(const DT&)> const& func)
+{
+    for (int i = 0; i < size(); i++) {
+        const IT& id = pidx->iloc(i);
+        const DT& val = values.iloc(i);
+        DT2 mval = func(val);
+        iloc_ref(i) = mval;
+    }
+}
 
 /// @dropna
 Series dropna()
@@ -36,7 +46,7 @@ void _dropna()
 
 /// @diff
 /// @param periods
-void _diff(int periods)
+void _diff(int periods = 1)
 {
     if (periods < 0) {
         for (int i = 0; i < size(); i++) {
@@ -58,7 +68,7 @@ void _diff(int periods)
         }
     }
 }
-Series diff(int periods) const
+Series diff(int periods = 1) const
 {
     Series sr = *this;
     sr._diff(periods);
@@ -108,7 +118,7 @@ void _fillna(const DT2& v)
         const IT& id = pidx->iloc(i);
         const DT& val = values.iloc(i);
         if (isnan(val)) {
-            iloc(i) = v;
+            iloc_ref(i) = v;
         }
     }
 }
@@ -321,4 +331,59 @@ double median() const
     } else {
         return sr.iloc(n / 2);
     }
+}
+
+/// @corr
+/// @tparam DT2
+/// @tparam DNT2
+/// @param y
+/// @return
+template <class DT2>
+double corr(const std::vector<DT2>& y) const
+{
+    if (y.size() != size()) {
+        throw std::format("size not match: {}!={}", y.size(), size());
+    }
+    double sum_y = 0;
+    for (int i = 0; i < y.size(); i++) {
+        sum_y += y[i];
+    }
+    double mn_x = mean(), mn_y = sum_y / size();
+    double s_up = 0, s_down_x = 0, s_down_y = 0;
+    for (int i = 0; i < size(); i++) {
+        double xi = iloc(i);
+        double yi = y[i];
+        if (pandas::isnan<double>(xi) || pandas::isnan<double>(yi)) {
+            continue;
+        }
+        s_up += (xi - mn_x) * (yi - mn_y);
+        s_down_x += (xi - mn_x) * (xi - mn_x);
+        s_down_y += (yi - mn_y) * (yi - mn_y);
+    }
+    double c = s_up / std::pow(s_down_x * s_down_y, 0.5);
+    return c;
+}
+template <class DT2, class DNT2>
+double corr(const Array<DT2, DNT2>& y) const
+{
+    return corr(y.values);
+}
+template <class IT2, class DT2, class INT2, class DNT2>
+double corr(const Series<IT2, DT2, INT2, DNT2>& y) const
+{
+    double mn_x = mean(), mn_y = y.mean();
+    double s_up = 0, s_down_x = 0, s_down_y = 0;
+    for (int i = 0; i < size(); i++) {
+        IT id = pidx->iloc(i);
+        double xi = iloc(i);
+        double yi = y.loc(id);
+        if (pandas::isnan<double>(xi) || pandas::isnan<double>(yi)) {
+            continue;
+        }
+        s_up += (xi - mn_x) * (yi - mn_y);
+        s_down_x += (xi - mn_x) * (xi - mn_x);
+        s_down_y += (yi - mn_y) * (yi - mn_y);
+    }
+    double c = s_up / std::pow(s_down_x * s_down_y, 0.5);
+    return c;
 }

@@ -75,7 +75,7 @@ public:
 
     Index(const std::vector<T>& vs, const NT& name = NT {})
     {
-        for (T& v : vs) {
+        for (const T& v : vs) {
             _append(v);
         }
         _rename(name);

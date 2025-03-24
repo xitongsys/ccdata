@@ -32,23 +32,25 @@ public:
         _rename(name);
     }
 
-    Series(const Index<IT, INT>& idx)
+    Series(const Index<IT, INT>& idx, const DNT& name = DNT {})
     {
         this->pidx = std::make_shared<Index<IT, INT>>(idx);
         for (int i = 0; i < idx.size(); i++) {
             values._append(pandas::nan<DT>());
         }
+        _rename(name);
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx)
+    Series(std::shared_ptr<Index<IT, INT>> pidx, const DNT& name = DNT {})
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
             values._append(pandas::nan<DT>());
         }
+        _rename(name);
     }
 
-    Series(const std::vector<IT>& ids, const std::vector<DT>& vals, const DNT& name)
+    Series(const std::vector<IT>& ids, const std::vector<DT>& vals, const DNT& name = DNT {})
         : Series()
     {
         if (ids.size() != vals.size()) {
@@ -78,12 +80,6 @@ public:
         }
         this->pidx = pidx;
         values = vals;
-    }
-
-    Series(std::shared_ptr<Index<IT, INT>> pidx, const Array<DT, DNT>& vals, const DNT& name)
-        : Series(pidx, vals)
-    {
-        _rename(name);
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
@@ -139,9 +135,6 @@ public:
 
     void _append(const IT& id, const DT& val)
     {
-        if (pidx->has(id)) {
-            throw std::format("append failed: duplicated key");
-        }
         pidx->_append(id);
         values._append(val);
     }

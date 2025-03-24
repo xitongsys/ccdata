@@ -190,9 +190,9 @@ public:
             for (int i = size() - 1; i >= 0; i--) {
                 T& v = iloc(i);
                 if (mp.count(v)) {
-                    dup.iloc(i) = true;
+                    dup.iloc_ref(i) = true;
                 } else {
-                    dup.iloc(i) = false;
+                    dup.iloc_ref(i) = false;
                 }
                 mp[v] = i;
             }
@@ -209,7 +209,7 @@ public:
             for (int i = 0; i < size(); i++) {
                 T& v = iloc(i);
                 if (mp.count(v) > 1) {
-                    dup.iloc(i) = true;
+                    dup.iloc_ref(i) = true;
                 }
             }
         } else {

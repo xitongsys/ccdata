@@ -30,13 +30,12 @@ public:
         pidx = std::make_shared<Index<IT, INT>>(idx);
     }
 
-    DataFrame(const std::vector<DNT>& columns)
+    DataFrame(const std::vector<IT>& ids, const std::vector<DNT>& columns)
     {
-        pidx = std::make_shared<Index<IT, INT>>();
-        for (int i = 0; i < columns.size(); i++) {
-            values.push_back(Series<IT, DT, INT, DNT>(columns[i]));
+        pidx = std::make_shared<Index<IT, INT>>(ids);
+        for (int j = 0; j < columns.size(); j++) {
+            _append_col(Series<IT, DT, INT, DNT>(pidx, columns[j]));
         }
-        reassign_index();
     }
 
     DataFrame(const std::vector<DNT>& columns, const std::vector<Array<DT, IT>>& rows)
@@ -114,13 +113,12 @@ public:
         }
     }
 
-    Array<DNT> columns() const
+    std::vector<DNT> columns() const
     {
-        Array<DNT> res;
+        std::vector<DNT> res;
         for (int i = 0; i < values.size(); i++) {
-            res._append(values[i].get_name());
+            res.push_back(values[i].get_name());
         }
-
         return res;
     }
 
@@ -151,10 +149,6 @@ public:
         }
 
         IT id = ar.get_name();
-        if (pidx->has(id)) {
-            throw std::format("duplicated id: {}", pandas::to_string(id));
-        }
-
         pidx->_append(id);
         for (int i = 0; i < values.size(); i++) {
             values[i].values._append(ar.iloc(i));
@@ -171,11 +165,8 @@ public:
         }
 
         IT id = sr.get_name();
-        if (pidx->has(id)) {
-            throw std::format("duplicated id: {}", to_string(id));
-        }
-
         pidx->_append(id);
+
         for (int i = 0; i < values.size(); i++) {
             bool ok = false;
             DNT col = values[i].get_name();
@@ -204,8 +195,12 @@ public:
         if (get_column_index(sr.get_name()) >= 0) {
             throw std::format("duplicated column name: {}", sr.get_name());
         }
+
         for (int i = 0; i < sr.size(); i++) {
-            pidx->append(sr.pidx->iloc(i));
+            IT id = sr.pidx->iloc(i);
+            if (!pidx->has(id)) {
+                pidx->_append(id);
+            }
         }
 
         for (int i = 0; i < values.size(); i++) {
