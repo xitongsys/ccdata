@@ -166,7 +166,7 @@ public:
         return res;
     }
 
-    template <int axis = 0>
+    template <int axis>
     size_t size() const
     {
         if constexpr (axis == 0) {
@@ -176,7 +176,7 @@ public:
         }
     }
 
-    template <int axis = 0, class T2>
+    template <int axis, class T2>
     bool has(const T2& v)
     {
         if constexpr (axis == 0) {
@@ -263,7 +263,7 @@ public:
         return values[ci].iloc_ref(ri);
     }
 
-    template <int axis = 0>
+    template <int axis>
     auto iloc(int i) const
     {
         if constexpr (axis == 0) {
@@ -281,7 +281,7 @@ public:
         }
     }
 
-    template <int axis = 0>
+    template <int axis>
     auto& iloc_ref(int i)
     {
         if constexpr (axis == 0) {
@@ -293,7 +293,7 @@ public:
         }
     }
 
-    template <int axis = 0, class T2>
+    template <int axis, class T2>
     auto loc(T2 key)
     {
         if constexpr (axis == 0) {
@@ -305,7 +305,7 @@ public:
         }
     }
 
-    template <int axis = 0>
+    template <int axis>
     DataFrameVisitor<Range<int>, Range<int>> iloc(int bgn, int end, int step)
     {
         if constexpr (axis == 0) {
@@ -320,7 +320,7 @@ public:
         }
     }
 
-    template <int axis = 0, class KEY>
+    template <int axis, class KEY>
     auto loc(const KEY& bgn, const KEY& end)
     {
         using SIR = typename Index<IT, INT>::template IndexRange;
@@ -349,7 +349,7 @@ public:
     /// @tparam axis
     /// @param ids
     /// @return
-    template <int axis = 0, class IT2>
+    template <int axis, class IT2>
     auto loc(const std::vector<IT2>& ids)
     {
         if constexpr (axis == 0) {
@@ -371,17 +371,17 @@ public:
             return DataFrameVisitor<Range<int>, RangeVec<int>>(Range<int>(0, size<0>()), RangeVec<int>(iids_col));
         }
     }
-    template <int axis = 0, class IT2, class INT2>
+    template <int axis, class IT2, class INT2>
     auto loc(const Array<IT2, INT2>& ids)
     {
         return loc<axis>(ids.values);
     }
-    template <int axis = 0, class IT2, class INT2>
+    template <int axis, class IT2, class INT2>
     auto loc(const Index<IT2, INT2>& ids)
     {
         return loc<axis>(ids.values);
     }
-    template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>
+    template <int axis, class IT2, class DT2, class INT2, class DNT2>
     auto loc(const Series<IT2, DT2, INT2, DNT2>& ids)
     {
         return loc<axis>(ids.values);
@@ -391,7 +391,7 @@ public:
     /// @tparam axis
     /// @param mask
     /// @return
-    template <int axis = 0>
+    template <int axis>
     auto loc(const std::vector<bool>& mask)
     {
         if constexpr (axis == 0) {
@@ -420,17 +420,17 @@ public:
         }
     }
 
-    template <int axis = 0, class INT2>
+    template <int axis, class INT2>
     auto loc(const Array<bool, INT2>& mask)
     {
         return loc<axis>(mask.values);
     }
-    template <int axis = 0, class INT2>
+    template <int axis, class INT2>
     auto loc(const Index<bool, INT2>& mask)
     {
         return loc<axis>(mask.values);
     }
-    template <int axis = 0, class IT2, class INT2, class DNT2>
+    template <int axis, class IT2, class INT2, class DNT2>
     auto loc(const Series<IT2, bool, INT2, DNT2>& mask)
     {
         if constexpr (axis == 0) {

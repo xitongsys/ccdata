@@ -179,7 +179,7 @@ DataFrame<DNT, DT, std::string, IT> T() const
 }
 
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)              \
-    template <int axis = 0>                           \
+    template <int axis>                               \
     auto FUN()                                        \
     {                                                 \
         if constexpr (axis == 0) {                    \
@@ -204,7 +204,7 @@ DEFINE_DATAFRAME_FUNCS(double, var)
 DEFINE_DATAFRAME_FUNCS(double, std)
 DEFINE_DATAFRAME_FUNCS(double, median)
 
-template <int axis = 1>
+template <int axis>
 auto corr()
 {
     if constexpr (axis == 1) {
