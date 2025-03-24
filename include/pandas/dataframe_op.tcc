@@ -204,7 +204,7 @@ DEFINE_DATAFRAME_OPERATOR(^=)
     template <int axis = 0, class T2, class NT2>                                            \
     DataFrame<IT, bool, INT, DNT> operator OP(const Array<T2, NT2>& vals)                   \
     {                                                                                       \
-        return operator OP <axis, T2>(vals.values);                                          \
+        return operator OP <axis, T2>(vals.values);                                         \
     }                                                                                       \
                                                                                             \
     template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>                   \
@@ -240,7 +240,7 @@ DEFINE_DATAFRAME_OPERATOR(^=)
     DataFrame<IT, bool, INT, DNT> operator OP(const DataFrame<IT2, DT2, INT2, DNT2>& val)   \
     {                                                                                       \
         std::vector<Series<IT, bool, INT, DNT>> srs;                                        \
-        for (auto& sr : values) {                                                       \
+        for (auto& sr : values) {                                                           \
             DNT col = sr.get_name();                                                        \
             int i = val.get_column_index(col);                                              \
             if (i < 0) {                                                                    \
