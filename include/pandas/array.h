@@ -284,6 +284,7 @@ public:
         return os;
     }
 
+#include "pandas/array_functional.tcc"
 #include "pandas/array_op.tcc"
 };
 

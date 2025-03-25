@@ -55,18 +55,36 @@ public:
     void strptime(const std::string& s, const std::string& fmt);
 
     Datetime();
-    Datetime(int year, int month, int day, int hour = 0, int minute = 0, int second = 0, int nanosec = 0);
+    Datetime(
+        int year, int month, int day,
+        int hour = 0, int minute = 0, int second = 0,
+        long long nanosec = 0);
+
     Datetime(const Datetime& dt);
+
     Datetime& operator=(const Datetime& dt);
-    bool operator==(const Datetime& dt);
-    bool operator>(const Datetime& dt);
-    bool operator<(const Datetime& dt);
+    bool operator==(const Datetime& dt) const;
+    bool operator>(const Datetime& dt) const;
+    bool operator<(const Datetime& dt) const;
+    bool operator>=(const Datetime& dt) const;
+    bool operator<=(const Datetime& dt) const;
+    bool operator!=(const Datetime& dt) const;
 
     // Datetime operator+(const TimeDelta& dt);
     // Datetime operator-(const TimeDelta& dt);
     // Datetime operator+=(const TimeDelta& dt);
     // Datetime operator-=(const TimeDelta& dt);
     // TimeDelta operator-(const Datetime& t);
+
+    struct Number {
+        int year, month, day;
+        int hour, minute, second;
+        long long nanosec;
+    };
+
+    Number number() const;
+
+    Datetime date() const;
 
     std::string to_string() const;
 

@@ -27,6 +27,17 @@ void test_datetime()
     dt3.strptime("20250102030405", "%Y%m%d%H%M%S");
     assert(dt3.to_string() == "2025-01-02 03:04:05");
 
+    assert(dt3.date() == Datetime(2025, 1, 2));
+
+    Series<Datetime, double> y("y");
+    y._append(Datetime(2025, 1, 1, 9), 1);
+    y._append(Datetime(2025, 1, 1, 10), 3);
+    y._append(Datetime(2025, 1, 2, 9), -1);
+    y._append(Datetime(2025, 1, 2, 10), 2);
+
+    auto dg = y.groupby(y.pidx->values.map<Datetime>([](const Datetime& dt) -> Datetime { return dt.date(); })).sum();
+    assert((dg.iloc(0) == 4) && (dg.iloc(1) == 1));
+
     cout << "[PASS] test_datetime" << endl;
 }
 

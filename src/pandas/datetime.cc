@@ -7,6 +7,24 @@ Datetime::Datetime()
     isnan = true;
 }
 
+Datetime::Number Datetime::number() const
+{
+    std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch());
+    std::time_t tt = sec.count();
+    std::tm tm = *std::localtime(&tt);
+
+    Datetime::Number num = {
+        tm.tm_year + 1900,
+        tm.tm_mon + 1,
+        tm.tm_mday,
+        tm.tm_hour,
+        tm.tm_min,
+        tm.tm_sec,
+        0,
+    };
+    return num;
+}
+
 Datetime::Datetime(const Datetime& dt)
 {
     t = dt.t;
@@ -20,22 +38,43 @@ Datetime& Datetime::operator=(const Datetime& dt)
     return *this;
 }
 
-bool Datetime::operator>(const Datetime& dt)
+bool Datetime::operator>(const Datetime& dt) const
 {
     return t > dt.t;
 }
 
-bool Datetime::operator<(const Datetime& dt)
+bool Datetime::operator<(const Datetime& dt) const
 {
     return t < dt.t;
 }
 
-bool Datetime::operator==(const Datetime& dt)
+bool Datetime::operator==(const Datetime& dt) const
 {
     return t == dt.t;
 }
 
-Datetime::Datetime(int year, int month, int day, int hour, int minute, int second, int nanosec)
+bool Datetime::operator>=(const Datetime& dt) const
+{
+    return t >= dt.t;
+}
+
+bool Datetime::operator<=(const Datetime& dt) const
+{
+    return t <= dt.t;
+}
+
+bool Datetime::operator!=(const Datetime& dt) const
+{
+    return t != dt.t;
+}
+
+Datetime Datetime::date() const
+{
+    Datetime::Number num = number();
+    return Datetime(num.year, num.month, num.day, 0, 0, 0, 0);
+}
+
+Datetime::Datetime(int year, int month, int day, int hour, int minute, int second, long long nanosec)
 {
     isnan = false;
     std::tm tm = {};
