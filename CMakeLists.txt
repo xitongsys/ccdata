@@ -11,7 +11,6 @@ target_include_directories(ccdata PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
 
-# 安装规则
 install(
     TARGETS ccdata
     EXPORT ccdataTargets
