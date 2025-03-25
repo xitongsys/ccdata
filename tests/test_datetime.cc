@@ -38,6 +38,9 @@ void test_datetime()
     auto dg = y.groupby(y.pidx->values.map<Datetime>([](const Datetime& dt) -> Datetime { return dt.date(); })).sum();
     assert((dg.iloc(0) == 4) && (dg.iloc(1) == 1));
 
+    auto td = Datetime(2025, 1, 1, 0) - Datetime(2025, 1, 1, 1);
+    assert(td == TimeDelta(0, -1, 0, 0, 0));
+
     cout << "[PASS] test_datetime" << endl;
 }
 
@@ -49,9 +52,6 @@ int main()
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
-
-    } catch (...) {
-        cout << "ERROR: unknown" << endl;
     }
 
     return 0;

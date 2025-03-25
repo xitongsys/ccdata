@@ -2,6 +2,129 @@
 
 namespace pandas {
 
+///// TimeDelta //////////////////
+
+TimeDelta::TimeDelta()
+{
+    days = 0;
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    nanosecs = 0;
+}
+
+TimeDelta::TimeDelta(const TimeDelta& dt)
+{
+    days = dt.days;
+    hours = dt.hours;
+    minutes = dt.minutes;
+    seconds = dt.seconds;
+    nanosecs = dt.nanosecs;
+}
+
+TimeDelta::TimeDelta(long long total_nanosecs)
+{
+    days = total_nanosecs / DAY;
+    total_nanosecs %= DAY;
+
+    hours = total_nanosecs / HOUR;
+    total_nanosecs %= HOUR;
+
+    minutes = total_nanosecs / MINUTE;
+    total_nanosecs %= MINUTE;
+
+    seconds = total_nanosecs / SECOND;
+    total_nanosecs %= SECOND;
+
+    nanosecs = total_nanosecs;
+}
+
+TimeDelta::TimeDelta(long long d, long long h, long long m, long long s, long long ns)
+    : days(d)
+    , hours(h)
+    , minutes(m)
+    , seconds(s)
+    , nanosecs(ns)
+{
+}
+
+long long TimeDelta::total_nanosecs() const
+{
+    long long nanos = days * DAY + hours * HOUR + minutes * MINUTE + seconds * SECOND + nanosecs;
+    return nanos;
+}
+
+double TimeDelta::total_seconds() const
+{
+    double nanos = total_nanosecs();
+    double secs = nanos / SECOND;
+    return secs;
+}
+
+bool TimeDelta::operator==(const TimeDelta& dt) const
+{
+    return total_nanosecs() == dt.total_nanosecs();
+}
+bool TimeDelta::operator>(const TimeDelta& dt) const
+{
+    return total_nanosecs() > dt.total_nanosecs();
+}
+bool TimeDelta::operator<(const TimeDelta& dt) const
+{
+    return total_nanosecs() < dt.total_nanosecs();
+}
+bool TimeDelta::operator>=(const TimeDelta& dt) const
+{
+    return total_nanosecs() >= total_nanosecs();
+}
+bool TimeDelta::operator<=(const TimeDelta& dt) const
+{
+    return total_nanosecs() <= total_nanosecs();
+}
+bool TimeDelta::operator!=(const TimeDelta& dt) const
+{
+    return total_nanosecs() != total_nanosecs();
+}
+
+TimeDelta TimeDelta::operator+(const TimeDelta& dt) const
+{
+    return TimeDelta(total_nanosecs() + dt.total_nanosecs());
+}
+TimeDelta TimeDelta::operator-(const TimeDelta& dt) const
+{
+    return TimeDelta(total_nanosecs() - dt.total_nanosecs());
+}
+
+void TimeDelta::operator=(const TimeDelta& dt)
+{
+    days = dt.days;
+    hours = dt.hours;
+    minutes = dt.minutes;
+    seconds = dt.seconds;
+    nanosecs = dt.nanosecs;
+}
+
+void TimeDelta::operator+=(const TimeDelta& dt)
+{
+    *this = ((*this) + dt);
+}
+void TimeDelta::operator-=(const TimeDelta& dt)
+{
+    *this = ((*this) - dt);
+}
+
+std::string TimeDelta::to_string() const
+{
+    return std::format("{} {:0>2}:{:0>2}:{:0>2}.{}", days, hours, minutes, seconds, nanosecs);
+}
+
+std::ostream& operator<<(std::ostream& os, const TimeDelta& dt)
+{
+    return os << dt.to_string();
+}
+
+///// Datetime //////////////////////
+
 Datetime::Datetime()
 {
     isnan = true;
@@ -23,6 +146,35 @@ Datetime::Number Datetime::number() const
         0,
     };
     return num;
+}
+
+int Datetime::year() const
+{
+    return number().year;
+}
+int Datetime::month() const
+{
+    return number().month;
+}
+int Datetime::day() const
+{
+    return number().day;
+}
+int Datetime::hour() const
+{
+    return number().hour;
+}
+int Datetime::minute() const
+{
+    return number().minute;
+}
+int Datetime::second() const
+{
+    return number().second;
+}
+long long Datetime::nansec() const
+{
+    return number().nanosec;
 }
 
 Datetime::Datetime(const Datetime& dt)
@@ -126,6 +278,35 @@ std::ostream& operator<<(std::ostream& os, const Datetime& dt)
 {
     os << dt.to_string();
     return os;
+}
+
+//// Datetime with TimeDelta
+
+Datetime Datetime::operator+(const TimeDelta& dt) const
+{
+    return Datetime(t + std::chrono::nanoseconds(dt.total_nanosecs()));
+}
+
+Datetime Datetime::operator-(const TimeDelta& dt) const
+{
+    return Datetime(t - std::chrono::nanoseconds(dt.total_nanosecs()));
+}
+
+void Datetime::operator+=(const TimeDelta& dt)
+{
+    t += std::chrono::nanoseconds(dt.total_nanosecs());
+}
+
+void Datetime::operator-=(const TimeDelta& dt)
+{
+    t -= std::chrono::nanoseconds(dt.total_nanosecs());
+}
+
+TimeDelta Datetime::operator-(const Datetime& t_) const
+{
+    auto dt = t - t_.t;
+    long long nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
+    return TimeDelta(nanos);
 }
 
 /////////////////////////
