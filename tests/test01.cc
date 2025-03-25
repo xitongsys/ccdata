@@ -4,7 +4,6 @@
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/index.h"
-#include "pandas/pandastype.h"
 #include "pandas/series.h"
 
 #include <cassert>

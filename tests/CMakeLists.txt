@@ -18,6 +18,10 @@ target_link_libraries(test_concat PRIVATE ccdata)
 add_test(NAME TestConcat COMMAND test_concat)
 set_property(TARGET test_concat PROPERTY CXX_STANDARD 20)
 
+add_executable(test_datetime test_datetime.cc)
+target_link_libraries(test_datetime PRIVATE ccdata)
+add_test(NAME TestDatetime COMMAND test_datetime)
+set_property(TARGET test_datetime PROPERTY CXX_STANDARD 20)
 
 add_executable(test01 test01.cc)
 target_link_libraries(test01 PRIVATE ccdata)

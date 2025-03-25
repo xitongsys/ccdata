@@ -35,6 +35,10 @@ T nan()
 template <class T>
 std::string to_string(const T& v)
 {
+    if (pandas::isnan<T>(v)) {
+        return "NaN";
+    }
+
     if constexpr (std::is_arithmetic_v<T>) {
         return std::to_string(v);
 
@@ -72,6 +76,13 @@ std::string to_string(const std::tuple<Ts...>& t)
 {
     return _to_string<0, Ts...>(t);
 }
+
+// std::string specify
+template <>
+bool isnan(const std::string& s);
+
+template <>
+std::string to_string(const std::string& s);
 
 // some common operators: sum/max/min...
 // IT is Iterator

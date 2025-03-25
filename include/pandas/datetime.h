@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <ostream>
 #include <sstream>
 #include <string>
 
@@ -47,8 +48,9 @@ class Datetime {
 
 public:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t;
+    bool isnan = false;
 
-    std::string strftime(const std::string& fmt);
+    std::string strftime(const std::string& fmt) const;
 
     void strptime(const std::string& s, const std::string& fmt);
 
@@ -65,6 +67,19 @@ public:
     // Datetime operator+=(const TimeDelta& dt);
     // Datetime operator-=(const TimeDelta& dt);
     // TimeDelta operator-(const Datetime& t);
+
+    std::string to_string() const;
+
+    friend std::ostream& operator<<(std::ostream& os, const Datetime& dt);
 };
+
+template <>
+std::string to_string(const Datetime& dt);
+
+template <>
+bool isnan(const Datetime& dt);
+
+template <>
+Datetime nan();
 
 }

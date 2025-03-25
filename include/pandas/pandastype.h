@@ -110,7 +110,7 @@ struct PandasType {
     std::string to_string() const
     {
         if (isnan()) {
-            return "nan";
+            return "NaN";
         }
 
         return std::to_string(value);
