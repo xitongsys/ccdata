@@ -130,6 +130,11 @@ Datetime::Datetime()
     isnan = true;
 }
 
+Datetime::Datetime(const std::string& s, const std::string& fmt)
+{
+    this->strptime(s, fmt);
+}
+
 Datetime::Number Datetime::number() const
 {
     std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch());

@@ -58,6 +58,7 @@ public:
     void strptime(const std::string& s, const std::string& fmt);
 
     Datetime();
+    Datetime(const std::string& s, const std::string& fmt = "%Y-%m-%d %H:%M:%S");
     Datetime(
         int year, int month, int day,
         int hour = 0, int minute = 0, int second = 0,
