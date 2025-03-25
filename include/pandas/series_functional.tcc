@@ -48,25 +48,7 @@ void _dropna()
 /// @param periods
 void _diff(int periods = 1)
 {
-    if (periods < 0) {
-        for (int i = 0; i < size(); i++) {
-            int j = i - periods;
-            if (j >= 0 && j < size()) {
-                iloc_ref(i) = iloc(i) - iloc(j);
-            } else {
-                iloc_ref(i) = pandas::nan<DT>();
-            }
-        }
-    } else {
-        for (int i = size() - 1; i >= 0; i--) {
-            int j = i - periods;
-            if (j >= 0 && j < size()) {
-                iloc_ref(i) = iloc(i) - iloc(j);
-            } else {
-                iloc_ref(i) = pandas::nan<DT>();
-            }
-        }
-    }
+    values._diff(periods);
 }
 Series diff(int periods = 1) const
 {
@@ -79,27 +61,7 @@ Series diff(int periods = 1) const
 /// @param offset
 void _shift(int offset)
 {
-    if (abs(offset) >= size()) {
-        for (int i = 0; i < size(); i++) {
-            iloc_ref(i) = pandas::nan<DT>();
-        }
-
-    } else if (offset > 0) {
-        for (int i = offset; i < size(); i++) {
-            iloc_ref(i) = iloc(i - offset);
-        }
-        for (int i = 0; i < offset; i++) {
-            iloc_ref(i) = pandas::nan<DT>();
-        }
-
-    } else if (offset < 0) {
-        for (int i = 0; i < size() + offset; i++) {
-            iloc_ref(i) = iloc(i - offset);
-        }
-        for (int i = size() - offset; i < size(); i++) {
-            iloc_ref(i) = pandas::nan<DT>();
-        }
-    }
+    values._shift(offset);
 }
 Series shift(int offset) const
 {
@@ -114,13 +76,7 @@ Series shift(int offset) const
 template <class DT2>
 void _fillna(const DT2& v)
 {
-    for (int i = 0; i < size(); i++) {
-        const IT& id = pidx->iloc(i);
-        const DT& val = values.iloc(i);
-        if (isnan(val)) {
-            iloc_ref(i) = v;
-        }
-    }
+    values._fillna(v);
 }
 template <class DT2>
 Series fillna(const DT2& v)
@@ -137,18 +93,7 @@ Series fillna(const DT2& v)
 template <class DT2>
 void _ffill(const DT2& v, int limit = 1)
 {
-    for (int i = size() - 1; i >= 0; i--) {
-        if (!pandas::isnan(iloc(i))) {
-            continue;
-        }
-        for (int j = i - 1; j >= i - limit && j >= 0; j--) {
-            DT v = iloc(j);
-            if (!pandas::isnan(v)) {
-                iloc_ref(i) = v;
-                break;
-            }
-        }
-    }
+    values._ffill(v, limit);
 }
 template <class DT2>
 Series ffill(const DT2& v, int limit = 1) const
@@ -165,18 +110,7 @@ Series ffill(const DT2& v, int limit = 1) const
 template <class DT2>
 void _bfill(const DT2& v, int limit = 1)
 {
-    for (int i = 0; i < size(); i++) {
-        if (!pandas::isnan(iloc(i))) {
-            continue;
-        }
-        for (int j = i + 1; j <= i + limit && j < size(); j++) {
-            DT v = iloc(j);
-            if (!pandas::isnan(v)) {
-                iloc_ref(i) = v;
-                break;
-            }
-        }
-    }
+    values._bfill(v, limit);
 }
 template <class DT2>
 Series bfill(const DT2& v, int limit = 1) const
@@ -189,13 +123,7 @@ Series bfill(const DT2& v, int limit = 1) const
 /// @cumsum
 void _cumsum()
 {
-    DT s = 0;
-    for (int i = 0; i < size(); i++) {
-        if (!pandas::isnan(iloc(i))) {
-            s = s + iloc(i);
-            iloc_ref(i) = s;
-        }
-    }
+    values._cumsum();
 }
 Series cumsum()
 {
@@ -208,10 +136,7 @@ Series cumsum()
 /// @param n
 void _pow(double n)
 {
-    for (int i = 0; i < size(); i++) {
-        DT v = iloc(i);
-        iloc_ref(i) = std::pow(v, n);
-    }
+    values._pow(n);
 }
 Series pow(double n)
 {
@@ -228,14 +153,10 @@ Series pow(double n)
 template <class DT2, class DT3>
 void _replace(const DT2& v_old, const DT3& v_new)
 {
-    for (int i = 0; i < size(); i++) {
-        if (iloc(i) == v_old) {
-            iloc_ref(i) = v_new;
-        }
-    }
+    values._replace(v_old, v_new);
 }
 template <class DT2, class DT3>
-Series replace(const DT2& v_old, const DT3& v_new)
+Series replace(const DT2& v_old, const DT3& v_new) const
 {
     Series ds = this->copy();
     ds._replace(v_old, v_new);
@@ -244,124 +165,48 @@ Series replace(const DT2& v_old, const DT3& v_new)
 
 DT sum() const
 {
-    DT s(0);
-    for (int i = 0; i < size(); i++) {
-        const DT& v = iloc(i);
-        if (isnan(v)) {
-            continue;
-        }
-        s += v;
-    }
-    return s;
+    return values.sum();
 }
 
 DT max() const
 {
-    DT res = pandas::nan<DT>();
-    for (int i = 0; i < size(); i++) {
-        const DT& v = iloc(i);
-        if (isnan(res) || v > res) {
-            res = v;
-        }
-    }
-    return res;
+    return values.max();
 }
 
 DT min() const
 {
-    DT res = pandas::nan<DT>();
-    for (int i = 0; i < size(); i++) {
-        const DT& v = iloc(i);
-        if (isnan(res) || v < res) {
-            res = v;
-        }
-    }
-    return res;
+    return values.min();
 }
 
 int count() const
 {
-    int cnt = 0;
-    for (int i = 0; i < size(); i++) {
-        const DT& v = iloc(i);
-        if (!isnan(v)) {
-            cnt += 1;
-        }
-    }
-    return cnt;
+    return values.count();
 }
 
 double mean() const
 {
-    double s(sum());
-    double mn = s / count();
-    return mn;
+    return values.mean();
 }
 
 double var() const
 {
-    double mn = mean();
-    double s = 0;
-    for (int i = 0; i < size(); i++) {
-        const double& v = iloc(i);
-        if (isnan(v)) {
-            continue;
-        }
-        s += (v - mn) * (v - mn);
-    }
-    return s / count();
+    return values.var();
 }
 
 double std() const
 {
-    double v = var();
-    return v.pow(0.5);
+    return values.std();
 }
 
 double median() const
 {
-    Series<IT, DT> sr = sort_values();
-    int n = sr.size();
-    if (n == 0) {
-        return pandas::nan<double>();
-    }
-
-    if (n % 2 == 0) {
-        return (sr.iloc(n / 2) + sr.iloc(n / 2 - 1)) / 2;
-    } else {
-        return sr.iloc(n / 2);
-    }
+    return values.median();
 }
 
-/// @corr
-/// @tparam DT2
-/// @tparam DNT2
-/// @param y
-/// @return
 template <class DT2>
 double corr(const std::vector<DT2>& y) const
 {
-    if (y.size() != size()) {
-        throw std::format("size not match: {}!={}", y.size(), size());
-    }
-    double sum_y = 0;
-    for (int i = 0; i < y.size(); i++) {
-        sum_y += y[i];
-    }
-    double mn_x = mean(), mn_y = sum_y / size();
-    double s_up = 0, s_down_x = 0, s_down_y = 0;
-    for (int i = 0; i < size(); i++) {
-        double xi = iloc(i);
-        double yi = y[i];
-        if (pandas::isnan<double>(xi) || pandas::isnan<double>(yi)) {
-            continue;
-        }
-        s_up += (xi - mn_x) * (yi - mn_y);
-        s_down_x += (xi - mn_x) * (xi - mn_x);
-        s_down_y += (yi - mn_y) * (yi - mn_y);
-    }
-    double c = s_up / std::pow(s_down_x * s_down_y, 0.5);
-    return c;
+    return values.corr(y);
 }
 template <class DT2, class DNT2>
 double corr(const Array<DT2, DNT2>& y) const
