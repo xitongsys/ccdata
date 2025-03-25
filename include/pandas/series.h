@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <format>
 #include <map>
 #include <ostream>
 #include <set>
@@ -10,8 +11,8 @@
 #include "pandas/array.h"
 #include "pandas/index.h"
 #include "pandas/ops.h"
-#include "pandas/pandastype.h"
 #include "pandas/range.h"
+#include "pandas/util.h"
 
 namespace pandas {
 // IT: index type, DT: data type, INT: index name type, DNT: data name type

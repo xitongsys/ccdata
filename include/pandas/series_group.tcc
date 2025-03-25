@@ -45,19 +45,18 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
     DEFINE_SERIESGROUP_AGG_FUNC(double, var)
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
-    
 };
 
-template <class KT, class DNT2>
-SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
+template <class KT>
+SeriesGroup<KT> groupby(const std::vector<KT>& vs)
 {
-    if (size() != sr.size()) {
-        throw std::format("size not match: {}!={}", sr.size(), size());
+    if (size() != vs.size()) {
+        throw std::format("size not match: {}!={}", vs.size(), size());
     }
 
     std::map<KT, std::vector<int>> iids_group;
     for (int i = 0; i < size(); i++) {
-        const KT& key = sr.iloc(i);
+        const KT& key = vs[i];
         iids_group[key].push_back(i);
     }
 
@@ -68,6 +67,12 @@ SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
     }
 
     return sg;
+}
+
+template <class KT, class DNT2>
+SeriesGroup<KT> groupby(const Array<KT, DNT2>& sr)
+{
+    return groupby(sr.values);
 }
 
 template <class IT2, class KT, class INT2, class DNT2>
