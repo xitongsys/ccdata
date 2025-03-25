@@ -43,7 +43,7 @@ void _diff(int periods)
 }
 DataFrame diff(int periods) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._diff(periods);
     return df;
 }
@@ -58,7 +58,7 @@ void _shift(int offset)
 }
 DataFrame shift(int offset) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._shift(offset);
     return df;
 }
@@ -76,7 +76,7 @@ void _fillna(const DT2& v)
 template <class DT2>
 DataFrame fillna(const DT2& v) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._fillna(v);
     return df;
 }
@@ -91,7 +91,7 @@ void _ffill(int limit)
 }
 DataFrame ffill(int limit) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._ffill(limit);
     return df;
 }
@@ -106,7 +106,7 @@ void _bfill(int limit)
 }
 DataFrame bfill(int limit) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._bfill(limit);
     return df;
 }
@@ -120,7 +120,7 @@ void _cumsum()
 }
 DataFrame cumsum() const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._cumsum();
     return df;
 }
@@ -134,7 +134,7 @@ void _pow(double n)
 }
 DataFrame pow(double n) const
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._pow(n);
     return df;
 }
@@ -150,7 +150,7 @@ void _replace(const DT2& v_old, const DT3& v_new)
 template <class DT2, class DT3>
 DataFrame replace(const DT2& v_old, const DT3& v_new)
 {
-    DataFrame df = *this;
+    DataFrame df = this->copy();
     df._replace(v_old, v_new);
     return df;
 }

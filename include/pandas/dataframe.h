@@ -39,7 +39,7 @@ public:
 
     DataFrame& operator=(const DataFrame& df)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*df.pidx);
+        pidx = df.pidx;
         values = df.values;
         return *this;
     }
@@ -114,6 +114,13 @@ public:
             values.push_back(cols[i].reindex(*pidx));
             values[i].pidx = pidx;
         }
+    }
+
+    DataFrame copy() const
+    {
+        DataFrame df = *this;
+        df.pidx = std::make_shared<Index<IT, INT>>(*pidx);
+        return df;
     }
 
     void reassign_index()

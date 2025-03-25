@@ -6,7 +6,7 @@
     template <class T2>                                                             \
     DataFrame operator OP(const T2& val)                                            \
     {                                                                               \
-        DataFrame res = *this;                                                      \
+        DataFrame res = this->copy();                                               \
         for (auto& sr : res.values) {                                               \
             sr = sr OP val;                                                         \
         }                                                                           \
@@ -15,7 +15,7 @@
     template <int axis = 0, class T2>                                               \
     DataFrame operator OP(const std::vector<T2>& vals)                              \
     {                                                                               \
-        DataFrame res = *this;                                                      \
+        DataFrame res = this->copy();                                               \
         if constexpr (axis == 0) {                                                  \
             for (auto& sr : res.values) {                                           \
                 sr = sr OP vals;                                                    \
@@ -39,13 +39,13 @@
     template <int axis = 0, class T2, class NT2>                                    \
     DataFrame operator OP(const Array<T2, NT2>& vals)                               \
     {                                                                               \
-        return operator OP<axis, T2>(vals.values);                                  \
+        return operator OP <axis, T2>(vals.values);                                 \
     }                                                                               \
                                                                                     \
     template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>           \
     DataFrame operator OP(const Series<IT2, DT2, INT2, DNT2>& sr2)                  \
     {                                                                               \
-        DataFrame res = *this;                                                      \
+        DataFrame res = this->copy();                                               \
         if constexpr (axis == 0) {                                                  \
             for (auto& sr : res.values) {                                           \
                 sr = sr OP sr2;                                                     \
@@ -79,7 +79,7 @@ DEFINE_DATAFRAME_OPERATOR(^)
 
 DataFrame operator~()
 {
-    DataFrame res = *this;
+    DataFrame res = this->copy();
     for (int j = 0; j < res.size<1>(); j++) {
         res.values[j] = ~res.values[j];
     }

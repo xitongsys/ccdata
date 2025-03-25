@@ -70,7 +70,7 @@ void _diff(int periods = 1)
 }
 Series diff(int periods = 1) const
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._diff(periods);
     return sr;
 }
@@ -103,7 +103,7 @@ void _shift(int offset)
 }
 Series shift(int offset) const
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._shift(offset);
     return sr;
 }
@@ -125,7 +125,7 @@ void _fillna(const DT2& v)
 template <class DT2>
 Series fillna(const DT2& v)
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._fillna(v);
     return sr;
 }
@@ -153,7 +153,7 @@ void _ffill(const DT2& v, int limit = 1)
 template <class DT2>
 Series ffill(const DT2& v, int limit = 1) const
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._ffill(v, limit);
     return sr;
 }
@@ -181,7 +181,7 @@ void _bfill(const DT2& v, int limit = 1)
 template <class DT2>
 Series bfill(const DT2& v, int limit = 1) const
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._bfill(v, limit);
     return sr;
 }
@@ -199,7 +199,7 @@ void _cumsum()
 }
 Series cumsum()
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._cumsum();
     return sr;
 }
@@ -215,7 +215,7 @@ void _pow(double n)
 }
 Series pow(double n)
 {
-    Series sr = *this;
+    Series sr = this->copy();
     sr._pow(n);
     return sr;
 }
@@ -237,7 +237,7 @@ void _replace(const DT2& v_old, const DT3& v_new)
 template <class DT2, class DT3>
 Series replace(const DT2& v_old, const DT3& v_new)
 {
-    Series ds = *this;
+    Series ds = this->copy();
     ds._replace(v_old, v_new);
     return ds;
 }

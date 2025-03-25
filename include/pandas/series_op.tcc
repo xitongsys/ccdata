@@ -7,7 +7,7 @@
     template <class T2>                                                       \
     Series operator OP(const T2& val)                                         \
     {                                                                         \
-        Series res = *this;                                                   \
+        Series res = this->copy();                                            \
         res.values = res.values OP val;                                       \
         return res;                                                           \
     }                                                                         \
@@ -18,7 +18,7 @@
         if (size() != vals.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), vals.size()); \
         }                                                                     \
-        Series res = *this;                                                   \
+        Series res = this->copy();                                            \
         for (int i = 0; i < size(); i++) {                                    \
             res.iloc_ref(i) = res.iloc(i) OP vals[i];                         \
         }                                                                     \
@@ -34,7 +34,7 @@
     template <class IT2, class DT2, class INT2, class DNT2>                   \
     Series operator OP(const Series<IT2, DT2, INT2, DNT2>& sr)                \
     {                                                                         \
-        Series res = *this;                                                   \
+        Series res = this->copy();                                            \
         for (int i = 0; i < res.size(); i++) {                                \
             IT id = res.pidx->iloc(i);                                        \
             DT val = res.iloc(i);                                             \
@@ -56,12 +56,12 @@ DEFINE_SERIES_OPERATOR(&)
 DEFINE_SERIES_OPERATOR(|)
 DEFINE_SERIES_OPERATOR(^)
 
-#define DEFINE_SERIES_OPERATOR(OP)           \
-    Series operator OP() const               \
-    {                                        \
-        Series<IT, DT, INT, DT> res = *this; \
-        res.values = OP res.values;          \
-        return res;                          \
+#define DEFINE_SERIES_OPERATOR(OP)                  \
+    Series operator OP() const                      \
+    {                                               \
+        Series<IT, DT, INT, DT> res = this->copy(); \
+        res.values = OP res.values;                 \
+        return res;                                 \
     }
 
 DEFINE_SERIES_OPERATOR(~)

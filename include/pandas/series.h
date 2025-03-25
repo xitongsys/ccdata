@@ -103,7 +103,7 @@ public:
 
     Series(const Series& sr)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*sr.pidx);
+        pidx = sr.pidx;
         values = sr.values;
     }
 
@@ -130,9 +130,16 @@ public:
 
     Series& operator=(const Series& sr)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*sr.pidx);
+        pidx = sr.pidx;
         values = sr.values;
         return *this;
+    }
+
+    Series copy() const
+    {
+        Series sr = *this;
+        sr.pidx = std::make_shared<Index<IT, INT>>(*pidx);
+        return sr;
     }
 
     size_t size() const
@@ -159,7 +166,7 @@ public:
 
     Series rename(const std::string& name)
     {
-        Series res = *this;
+        Series res = this->copy();
         res._rename(name);
         return res;
     }

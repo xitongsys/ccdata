@@ -32,6 +32,7 @@ void test_frame_operator()
     DataFrame<int, double> df1(std::vector<int>({ 0, 1 }), { "a", "b" });
     df1._fillna(1);
     df1._append_row(2, std::vector<double>({ 2, 3 }));
+
     assert(df1.iloc(2, 1) == 3);
 
     auto df2 = df1 + 1;
@@ -50,11 +51,8 @@ void test_frame_operator()
     auto df5 = df4.operator+ <1>(sr1);
     assert((df5.iloc(2, 1) == 9) && (df5.iloc(0, 0) == 7));
 
-    cout << df4 << endl;
-    cout << df5 << endl;
-
-    auto df6 = (df5 - 6).operator><1>(sr1);
-    cout << df6 << endl;
+    auto df6 = (df5 - 7).operator><1>(sr1);
+    assert((df6.iloc(0, 0) == false) && (df6.iloc(2, 1) == true));
 
     cout << "[PASS] test_frame_operator" << endl;
 }
