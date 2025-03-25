@@ -211,7 +211,7 @@ auto corr()
         DataFrame<DNT, double, std::string, DNT> df_corr(columns(), columns());
         for (int i = 0; i < size<1>(); i++) {
             for (int j = i; j < size<1>(); j++) {
-                double c = iloc<1>(i).corr(iloc<1>(j));
+                double c = iloc_ref<1>(i).values.corr(iloc_ref<1>(j).values);
                 df_corr.iloc_ref(i, j) = c;
                 df_corr.iloc_ref(j, i) = c;
             }
