@@ -172,7 +172,7 @@ DataFrame<DNT, DT, std::string, IT> T() const
             DT val = iloc(i, j);
             row._append(val);
         }
-        rows.push_back(std::move(row));
+        rows.emplace_back(std::move(row));
     }
 
     return DataFrame<DNT, DT, std::string, IT>(cols, rows);

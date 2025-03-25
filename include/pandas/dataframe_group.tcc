@@ -62,26 +62,32 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
 };
 
-template <class KT, class NT2>
-DataFrameGroup<KT> groupby(const Array<KT, NT2>& sr)
+template <class KT>
+DataFrameGroup<KT> groupby(const std::vector<KT>& vs)
 {
-    if (size() != sr.size()) {
-        throw std::format("size not match: {}!={}", sr.size(), size());
+    if (size<0>() != vs.size()) {
+        throw std::format("size not match: {}!={}", vs.size(), size<0>());
     }
 
     std::map<KT, std::vector<int>> iids_group;
-    for (int i = 0; i < size(); i++) {
-        const KT& key = sr.iloc(i);
+    for (int i = 0; i < size<0>(); i++) {
+        const KT& key = vs[i];
         iids_group[key].push_back(i);
     }
 
     DataFrameGroup<KT> dg;
     for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size(1)));
+        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size<1>()));
         dg.items.emplace(it->first, std::move(dv));
     }
 
     return dg;
+}
+
+template <class KT, class NT2>
+DataFrameGroup<KT> groupby(const Array<KT, NT2>& sr)
+{
+    return groupby(sr.values);
 }
 
 template <class KT, class INT2, class DNT2>

@@ -82,7 +82,7 @@ double var()
 double std()
 {
     double v = var();
-    return v.pow(0.5);
+    return std::pow(v, 0.5);
 }
 
 double median()

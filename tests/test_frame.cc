@@ -69,6 +69,25 @@ void test_frame_functional()
     cout << "[PASS] test_frame_functional" << endl;
 }
 
+void test_frame_groupby()
+{
+    DataFrame<int, double> df1(std::vector<int>(), { "a", "b" });
+    df1._append_row(1, std::vector<double>({ 1, 1 }));
+    df1._append_row(2, std::vector<double>({ 2, 2 }));
+    df1._append_row(3, std::vector<double>({ 3, 3 }));
+
+    cout << df1 << endl;
+
+    auto dg = df1.groupby(std::vector<std::string>({ "t1", "t2", "t2" })).sum();
+    assert((dg.iloc(0, 0) == 1) && (dg.iloc(1, 1) == 5));
+
+    df1._append_row(4, std::vector<double>({ pandas::nan<double>(), 1 }));
+    auto dg2 = df1.groupby(df1.pidx->values).count();
+    assert(dg2.iloc(3,0) == 0);
+
+    cout << "[PASS] test_frame_groupby" << endl;
+}
+
 int main()
 {
 
@@ -77,6 +96,7 @@ int main()
         test_frame_operator();
         test_frame_loc();
         test_frame_functional();
+        test_frame_groupby();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
