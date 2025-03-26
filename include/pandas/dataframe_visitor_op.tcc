@@ -69,10 +69,20 @@ DEFINE_DATAFRAMEVISITOR_OPERATOR(^=)
         DataFrame<IT, bool, INT, DNT> tmp = this->to_frame();       \
         return tmp OP val;                                          \
     }
-
 DEFINE_DATAFRAMEVISITOR_OPERATOR(>)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(>=)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(<)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(<=)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(==)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(!=)
+DEFINE_DATAFRAMEVISITOR_OPERATOR(&&)
+DEFINE_DATAFRAMEVISITOR_OPERATOR(||)
+
+#define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP)                  \
+    DataFrame<IT, bool, INT, DNT> operator OP() const         \
+    {                                                         \
+        DataFrame<IT, bool, INT, DNT> res = this->to_frame(); \
+        res = OP res;                                         \
+        return res;                                           \
+    }
+DEFINE_DATAFRAMEVISITOR_OPERATOR(!)

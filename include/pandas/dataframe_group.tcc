@@ -9,57 +9,63 @@ public:
     using SV = Series<IT, DT, INT, DNT>::SeriesVisitor<RangeVec<int>>;
     using DV = DataFrameVisitor<RangeVec<int>, Range<int>>;
 
-    std::map<KT, DV> items;
+    DataFrame& df;
+    Array<KT> keys;
 
-    DataFrameGroup() { }
+    DataFrameGroup(DataFrame& df_, const Array<KT>& keys_)
+        : df(df_)
+        , keys(keys_)
+    {
+    }
 
     DataFrameGroup(const DataFrameGroup& sg)
-        : items(sg.items)
+        : df(sg.df)
+        , keys(sg.keys)
     {
     }
 
     DataFrameGroup(DataFrameGroup&& sg)
-        : items(std::move(sg.items))
+        : keys(std::move(sg.keys))
+        , df(sg.df)
     {
     }
 
+    //////////////////// agg ////////////////////////
     template <class DT2>
     DataFrame<KT, DT2, INT, DNT> agg(std::function<DT2(SV&)> const& func)
     {
-        std::vector<DNT> col_names;
-        std::vector<Array<DT2, KT>> rows;
-        for (auto it = items.begin(); it != items.end(); it++) {
-            KT key = it->first;
-            DV& dv = it->second;
-
-            if (col_names.size() == 0) {
-                col_names = dv.columns();
-            }
-
-            Array<DT2, KT> row(key);
-            std::vector<SV> svs = dv.to_series_visitors();
-            for (auto& sv : svs) {
-                DT2 v = func(sv);
-                row._append(v);
-            }
-            rows.emplace_back(row);
+        std::vector<Series<KT, DT2, INT, DNT>> srs;
+        for (int j = 0; j < df.size<1>(); j++) {
+            srs.push_back(df.iloc_ref<1>(j).groupby(keys).agg(func));
         }
 
-        return DataFrame<KT, DT2, INT, DNT>(col_names, rows);
+        return DataFrame<KT, DT2, INT, DNT>(srs);
     }
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                     \
-    DataFrame<KT, TYPE, INT, DNT> FUN()                            \
-    {                                                              \
-        return agg<TYPE>([](SV& sr) -> TYPE { return sr.FUN(); }); \
+#define DEFINE_DATAFRAMEGROUP_AGG_FUNC(TYPE, FUN)                              \
+    DataFrame<KT, TYPE, INT, DNT> FUN()                                        \
+    {                                                                          \
+        return agg<TYPE>([](SV& sr) -> TYPE { return sr.to_series().FUN(); }); \
     }
-    DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
-    DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
-    DEFINE_SERIESGROUP_AGG_FUNC(DT, min)
-    DEFINE_SERIESGROUP_AGG_FUNC(int, count)
-    DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
-    DEFINE_SERIESGROUP_AGG_FUNC(double, var)
-    DEFINE_SERIESGROUP_AGG_FUNC(double, std)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(DT, sum)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(DT, max)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(DT, min)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(int, count)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(double, mean)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(double, var)
+    DEFINE_DATAFRAMEGROUP_AGG_FUNC(double, std)
+
+    //////////////////// apply /////////////////////////////////
+    template <class IT2, class DT2, class INT2, class DNT2>
+    DataFrame<std::tuple<KT, IT2>, DT2, INT, DNT> apply(std::function<Series<IT2, DT2, INT2, DNT2>(SV&)> const& func)
+    {
+        std::vector<Series<std::tuple<KT, IT2>, DT2, INT, DNT>> srs;
+        for (int j = 0; j < df.size<1>(); j++) {
+            srs.push_back(df.iloc_ref<1>(j).groupby(keys).apply(func));
+        }
+
+        return DataFrame<KT, DT2, INT, DNT>(srs);
+    }
 };
 
 template <class KT>
@@ -69,19 +75,7 @@ DataFrameGroup<KT> groupby(const std::vector<KT>& vs)
         throw std::format("size not match: {}!={}", vs.size(), size<0>());
     }
 
-    std::map<KT, std::vector<int>> iids_group;
-    for (int i = 0; i < size<0>(); i++) {
-        const KT& key = vs[i];
-        iids_group[key].push_back(i);
-    }
-
-    DataFrameGroup<KT> dg;
-    for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size<1>()));
-        dg.items.emplace(it->first, std::move(dv));
-    }
-
-    return dg;
+    return DataFrameGroup<KT>(*this, Array<KT>(vs));
 }
 
 template <class KT, class NT2>
@@ -90,25 +84,21 @@ DataFrameGroup<KT> groupby(const Array<KT, NT2>& sr)
     return groupby(sr.values);
 }
 
-template <class KT, class INT2, class DNT2>
-DataFrameGroup<KT> groupby(const Series<IT, KT, INT2, DNT2>& sr)
+template <class IT2, class KT, class INT2, class DNT2>
+DataFrameGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
 {
-    if (size() != sr.size()) {
-        throw std::format("size not match: {}!={}", sr.size(), size());
+    if (sr.size() != size<0>()) {
+        throw std::format("size not match: {}!={}", sr.size(), size<0>());
     }
 
-    std::map<KT, std::vector<int>> iids_group;
-    for (int i = 0; i < size(); i++) {
+    for (int i = 0; i < size<0>; i++) {
         IT id = pidx->iloc(i);
-        const KT& key = sr.loc(id);
-        iids_group[key].push_back(i);
+        if (!sr.pidx->has(id)) {
+            throw std::format("id not found: {}", pandas::to_string(id));
+        }
     }
 
-    DataFrameGroup<KT> dg;
-    for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto dv = DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(std::move(it->second)), Range<int>(0, size<1>()));
-        dg.items.emplace(it->first, std::move(dv));
-    }
+    auto sr2 = sr.reindex(*pidx);
 
-    return dg;
+    return groupby(sr2.values);
 }

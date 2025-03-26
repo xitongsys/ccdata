@@ -99,3 +99,15 @@ DEFINE_SERIESVISITOR_OPERATOR(<)
 DEFINE_SERIESVISITOR_OPERATOR(<=)
 DEFINE_SERIESVISITOR_OPERATOR(==)
 DEFINE_SERIESVISITOR_OPERATOR(!=)
+DEFINE_SERIESVISITOR_OPERATOR(&&)
+DEFINE_SERIESVISITOR_OPERATOR(||)
+
+#define DEFINE_SERIESVISITOR_OPERATOR(OP)                   \
+    Series<IT, bool, INT, DNT> operator OP() const          \
+    {                                                       \
+        Series<IT, bool, INT, DNT> res = this->to_series(); \
+        res = OP res;                                       \
+        return res;                                         \
+    }
+
+DEFINE_SERIESVISITOR_OPERATOR(!)

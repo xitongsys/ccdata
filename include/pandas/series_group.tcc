@@ -6,24 +6,32 @@
 template <class KT>
 class SeriesGroup {
 public:
+    Series& sr;
     std::map<KT, SeriesVisitor<RangeVec<int>>> items;
 
-    SeriesGroup() { }
+    SeriesGroup(Series& sr_)
+        : sr(sr_)
+    {
+    }
 
     SeriesGroup(const SeriesGroup& sg)
+        : sr(sg.sr)
     {
         items = sg.items;
     }
 
     SeriesGroup(SeriesGroup&& sg)
+        : sr(sg.sr)
     {
         items = std::move(sg.items);
     }
 
+    /////////////// agg ////////////////////////
+
     template <class DT2>
     Series<KT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<RangeVec<int>>&)> const& func)
     {
-        Series<KT, DT2, INT, DNT> res;
+        Series<KT, DT2, INT, DNT> res(sr.get_name());
         for (auto it = items.begin(); it != items.end(); it++) {
             KT key = it->first;
             SeriesVisitor<RangeVec<int>>& sv = it->second;
@@ -45,6 +53,23 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
     DEFINE_SERIESGROUP_AGG_FUNC(double, var)
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
+
+    //////////// apply ////////////////////////////
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series<std::tuple<KT, IT2>, DT2, INT2, DNT2> apply(std::function<Series<IT2, DT2, INT2, DNT2>(SeriesVisitor<RangeVec<int>>&)> const& func)
+    {
+        Series<std::tuple<KT, IT2>, DT2, INT, DNT> res(sr.get_name());
+        for (auto it = items.begin(); it != items.end(); it++) {
+            KT key = it->first;
+            auto ds = func(it->second);
+            for (int i = 0; i < ds.size(); i++) {
+                IT2 it = ds.pidx->iloc(i);
+                DT2 val = ds.iloc(i);
+                res._append(std::tuple(key, it), val);
+            }
+        }
+        return res;
+    }
 };
 
 template <class KT>
@@ -60,7 +85,7 @@ SeriesGroup<KT> groupby(const std::vector<KT>& vs)
         iids_group[key].push_back(i);
     }
 
-    SeriesGroup<KT> sg;
+    SeriesGroup<KT> sg(*this);
     for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
         auto sv = SeriesVisitor<RangeVec<int>>(*this, std::move(RangeVec<int>(std::move(it->second))));
         sg.items.emplace(it->first, std::move(sv));
@@ -89,7 +114,7 @@ SeriesGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
         iids_group[key].push_back(i);
     }
 
-    SeriesGroup<KT> sg;
+    SeriesGroup<KT> sg(*this);
     for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
         auto sv = SeriesVisitor<RangeVec<int>>(*this, std::move(RangeVec<int>(std::move(it->second))));
         sg.items.emplace(it->first, std::move(sv));
