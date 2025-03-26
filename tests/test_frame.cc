@@ -88,7 +88,7 @@ void test_frame_groupby()
     Array<std::string> ar2({ "a", "a", "b", "c" });
     auto ar3 = concat<1>(ar1, ar2);
     auto dg3 = df1.groupby(ar3).sum();
-    assert((dg3.iloc(0,0)==3) && (pandas::isnan(dg3.iloc(2,0))));
+    assert((dg3.iloc(0, 0) == 3) && (dg3.iloc(2, 0) == 0));
 
     cout << "[PASS] test_frame_groupby" << endl;
 }

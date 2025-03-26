@@ -3,6 +3,7 @@
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/index.h"
+#include "pandas/range.h"
 #include "pandas/series.h"
 
 #include <cassert>
@@ -47,6 +48,25 @@ void test_series_constructors()
     cout << "[PASS] test_series_constructors" << endl;
 }
 
+void test_series_groupby()
+{
+    Series<int, int> sr1(Range<int>(10, 0, -1).to_vec(), Range<int>(0, 10).to_vec(), "sr1");
+    Array<int> key1(Range<int>(0, 10).to_vec());
+    key1 %= 2;
+    auto dg1 = sr1.groupby(key1).sum();
+    assert((dg1.iloc(0) == 20) && (dg1.iloc(1) == 25));
+
+    using SV = Series<int, int>::SeriesVisitor<RangeVec<int>>;
+
+    auto dg2 = sr1.groupby(key1).apply<int, int, std::string, std::string>([](SV& sv) -> Series<int, int> {
+        auto ds = sv.to_series().sort_values().iloc(std::vector<int>({ 0, 1 })).to_series();
+        return ds;
+    });
+    assert((dg2.iloc(0) == 0) && (dg2.iloc(2) == 1));
+
+    cout << "[PASS] test_sereis_groupby" << endl;
+}
+
 void test_series_operator()
 {
     Series<int, double> sr({ 0, 1, 2 }, { 1, 2, 3 }, "sr1");
@@ -79,8 +99,8 @@ void test_series_operator()
     sr6 += 1;
     assert((sr6.iloc(0) == 4) && (sr6.iloc(1) == 5));
 
-    auto sr7 = sr6 + vector<int>({1,2});
-    assert((sr7.iloc(0)==5) && (sr7.iloc(1)==7));
+    auto sr7 = sr6 + vector<int>({ 1, 2 });
+    assert((sr7.iloc(0) == 5) && (sr7.iloc(1) == 7));
 
     cout << "[PASS] test_series_operator" << endl;
 }
@@ -142,6 +162,7 @@ int main()
         test_series_operator();
         test_series_loc();
         test_series_functional();
+        test_series_groupby();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
