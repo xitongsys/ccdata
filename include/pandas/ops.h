@@ -181,7 +181,7 @@ double var(IT& it)
 template <class T, class IT>
 double std(IT& it)
 {
-    double v = var(it);
+    double v = var<T, IT>(it);
     return std::pow(v, 0.5);
 }
 

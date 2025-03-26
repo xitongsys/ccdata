@@ -119,6 +119,7 @@ public:
     {
         DataFrame df = *this;
         df.pidx = std::make_shared<Index<IT, INT>>(*pidx);
+        df.reassign_index();
         return df;
     }
 

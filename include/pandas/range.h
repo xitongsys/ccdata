@@ -60,6 +60,16 @@ public:
     {
         cur = bgn;
     }
+
+    std::vector<int> to_vec()
+    {
+        reset();
+        std::vector<int> vs;
+        while (has_left()) {
+            vs.push_back(next());
+        }
+        return vs;
+    }
 };
 
 template <class T>

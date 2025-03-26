@@ -33,10 +33,10 @@ public:
         return res;
     }
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                                                          \
-    Series<KT, TYPE, INT, DNT> FUN()                                                                                                    \
-    {                                                                                                                                   \
-        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return pandas::FUN<TYPE, SeriesVisitor<RangeVec<int>>>(sv); }); \
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                           \
+    Series<KT, TYPE, INT, DNT> FUN()                                                                     \
+    {                                                                                                    \
+        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.to_series().FUN(); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, max)

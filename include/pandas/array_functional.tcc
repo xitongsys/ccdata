@@ -266,7 +266,7 @@ double mean() const
     return mn;
 }
 
-double var() const
+double var(double ddof = 1) const
 {
     double mn = mean();
     double s = 0;
@@ -277,12 +277,12 @@ double var() const
         }
         s += (v - mn) * (v - mn);
     }
-    return s / count();
+    return s / (count() - ddof);
 }
 
-double std() const
+double std(double ddof = 1) const
 {
-    double v = var();
+    double v = var(ddof);
     return std::pow(v, 0.5);
 }
 

@@ -188,14 +188,14 @@ double mean() const
     return values.mean();
 }
 
-double var() const
+double var(double ddof = 1) const
 {
-    return values.var();
+    return values.var(ddof);
 }
 
-double std() const
+double std(double ddof = 1) const
 {
-    return values.std();
+    return values.std(ddof);
 }
 
 double median() const

@@ -168,3 +168,15 @@ DEFINE_SERIES_OPERATOR(<)
 DEFINE_SERIES_OPERATOR(<=)
 DEFINE_SERIES_OPERATOR(==)
 DEFINE_SERIES_OPERATOR(!=)
+DEFINE_SERIES_OPERATOR(&&)
+DEFINE_SERIES_OPERATOR(||)
+
+#define DEFINE_SERIES_OPERATOR(OP)                            \
+    Series<IT, bool, INT, DNT> operator OP() const            \
+    {                                                         \
+        Array<bool, DNT> values = OP values;                  \
+        auto res = Series<IT, bool, INT, DNT>(*pidx, values); \
+        return res;                                           \
+    }
+
+DEFINE_SERIES_OPERATOR(!)

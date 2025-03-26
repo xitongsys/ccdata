@@ -39,7 +39,7 @@
     template <int axis = 0, class T2, class NT2>                                    \
     DataFrame operator OP(const Array<T2, NT2>& vals)                               \
     {                                                                               \
-        return operator OP <axis, T2>(vals.values);                                 \
+        return operator OP<axis, T2>(vals.values);                                  \
     }                                                                               \
                                                                                     \
     template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>           \
@@ -124,7 +124,7 @@ DataFrame operator~()
     template <int axis = 0, class T2, class NT2>                                    \
     DataFrame& operator OP(const Array<T2, NT2>& vals)                              \
     {                                                                               \
-        return operator OP<axis, T2>(vals.values);                                  \
+        return operator OP <axis, T2>(vals.values);                                 \
     }                                                                               \
                                                                                     \
     template <int axis = 0, class IT2, class DT2, class INT2, class DNT2>           \
@@ -258,3 +258,14 @@ DEFINE_DATAFRAME_OPERATOR(<)
 DEFINE_DATAFRAME_OPERATOR(<=)
 DEFINE_DATAFRAME_OPERATOR(==)
 DEFINE_DATAFRAME_OPERATOR(!=)
+DEFINE_DATAFRAME_OPERATOR(&&)
+DEFINE_DATAFRAME_OPERATOR(||)
+
+DataFrame<IT, bool, INT, DNT> operator!()
+{
+    std::vector<Series<IT, bool, INT, DNT>> srs;
+    for (auto& sr : values) {
+        srs.emplace_back(!sr);
+    }
+    return DataFrame<IT, bool, INT, DNT>(srs);
+}

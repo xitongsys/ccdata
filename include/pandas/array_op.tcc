@@ -108,3 +108,17 @@ DEFINE_ARRAY_OPERATOR(<)
 DEFINE_ARRAY_OPERATOR(<=)
 DEFINE_ARRAY_OPERATOR(==)
 DEFINE_ARRAY_OPERATOR(!=)
+DEFINE_ARRAY_OPERATOR(&&)
+DEFINE_ARRAY_OPERATOR(||)
+
+#define DEFINE_ARRAY_OPERATOR(OP)        \
+    Array<bool, NT> operator OP() const  \
+    {                                    \
+        Array<bool, NT> res(get_name()); \
+        for (auto& v : values) {         \
+            res._append(OP v);           \
+        }                                \
+        return res;                      \
+    }
+
+DEFINE_ARRAY_OPERATOR(!)
