@@ -1,12 +1,12 @@
 #pragma once
 
+#include <format>
 #include <functional>
 #include <iostream>
 #include <list>
 #include <map>
 #include <optional>
 #include <vector>
-#include <format>
 
 #include "pandas/array.h"
 #include "pandas/iterator.h"
@@ -218,6 +218,16 @@ public:
     {
         os << idx.to_string();
         return os;
+    }
+
+    template <int level>
+    Array<T> get_level_values()
+    {
+        Array<T> ar(get_name());
+        for (int i = 0; i < size(); i++) {
+            ar._append(std::get<level>(iloc(i)));
+        }
+        return ar;
     }
 };
 
