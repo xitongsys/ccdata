@@ -189,7 +189,7 @@ auto concat(
     const Ts&... srs)
 {
     if constexpr (axis == 0) {
-        Series<IT1, DT1, INT1, DNT1> sr = sr1;
+        Series<IT1, DT1, INT1, DNT1> sr = sr1.copy();
         Series<IT2, DT2, INT2, DNT2> sr_tail = concat<0>(sr2, srs...);
         for (int i = 0; i < sr_tail.size(); i++) {
             const IT2& id = sr_tail.pidx->iloc(i);
@@ -201,7 +201,7 @@ auto concat(
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<1>(sr2, srs...);
         Index<IT1, INT1> idx = concat<0>(*sr1.pidx, *df_tail.pidx);
         idx._rename(sr1.get_name());
-        DataFrame<IT1, DT1, INT1, DNT1> df = DataFrame<IT1, DT1, INT1, DNT1>({ sr1.reindex(idx) });
+        DataFrame<IT1, DT1, INT1, DNT1> df({ sr1.reindex(idx) });
 
         for (int j = 0; j < df_tail.size<1>(); j++) {
             df._append_col(df_tail.iloc<1>(j));

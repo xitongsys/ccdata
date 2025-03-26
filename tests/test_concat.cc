@@ -40,6 +40,9 @@ void test_concat_index()
     auto id_1 = concat<1>(id1, id2);
     assert((id_1.size() == 3) && (id_1.iloc(0) == std::tuple<int, int>(1, 2)));
 
+    auto ar1 = id_1.get_level_values<0>();
+    assert((ar1.iloc(0) == 1) && (ar1.iloc(2) == 3));
+
     cout << "[PASS] test_concat_index" << endl;
 }
 
@@ -47,10 +50,9 @@ void test_concat_series()
 {
     Series<int, double> sr1({ 1, 2 }, { 1, 1 }, "sr1");
     Series<int, double> sr2({ 3, 4 }, { 2, 2 }, "sr2");
-
     auto sr_0 = concat<0>(sr1, sr2);
     assert((sr_0.size() == 4) && (sr_0.iloc(3) == 2));
-
+    
     auto df = concat<1>(sr1, sr2);
     assert((df.size<0>() == 4) && (df.size<1>() == 2) && pandas::isnan(df.iloc(0, 1)) && (df.iloc(3, 1) == 2));
 

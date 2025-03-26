@@ -176,10 +176,11 @@ public:
     Series<IT2, DT, INT, DNT> reindex(const std::vector<IT2>& index) const
     {
         Series<IT2, DT, INT, DNT> res;
-
         for (int i = 0; i < index.size(); i++) {
+
             IT2 id = index[i];
             DT val = DT {};
+
             if (pidx->has((IT)(id))) {
                 val = loc((IT)(id));
             } else {

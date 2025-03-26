@@ -58,7 +58,7 @@ void test_series_groupby()
 
     using SV = Series<int, int>::SeriesVisitor<RangeVec<int>>;
 
-    auto dg2 = sr1.groupby(key1).apply<int, int, std::string, std::string>([](SV& sv) -> Series<int, int> {
+    auto dg2 = sr1.groupby(key1).apply<int,int,std::string,std::string>([](SV& sv) -> Series<int, int> {
         auto ds = sv.to_series().sort_values().iloc(std::vector<int>({ 0, 1 })).to_series();
         return ds;
     });
