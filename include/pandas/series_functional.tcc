@@ -163,6 +163,14 @@ Series replace(const DT2& v_old, const DT3& v_new) const
     return ds;
 }
 
+template <int level>
+auto droplevel() const
+{
+    using IT2 = decltype(pidx->droplevel<level>().iloc(0));
+    auto idx = Index<IT2, INT>(pidx->droplevel<level>());
+    return Series<IT2, DT, INT, DNT>(idx, values);
+}
+
 DT sum() const
 {
     return values.sum();

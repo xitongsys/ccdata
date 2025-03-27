@@ -47,7 +47,7 @@ auto concat(
         if (idx1.size() != idx_tail.size()) {
             throw std::format("size not match: {}!={}", idx1.size(), idx_tail.size());
         }
-        using NEW_IT = decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)));
+        using NEW_IT = std::remove_reference<decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)))>::type;
         Array<NEW_IT, NT1> idx(idx1.get_name());
 
         for (int i = 0; i < idx1.size(); i++) {
@@ -127,7 +127,7 @@ auto concat(
         if (idx1.size() != idx_tail.size()) {
             throw std::format("size not match: {}!={}", idx1.size(), idx_tail.size());
         }
-        using NEW_IT = decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)));
+        using NEW_IT = std::remove_reference<decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)))>::type;
         Index<NEW_IT, NT1> idx(idx1.get_name());
 
         for (int i = 0; i < idx1.size(); i++) {

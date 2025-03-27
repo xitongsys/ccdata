@@ -178,6 +178,18 @@ DataFrame<DNT, DT, std::string, IT> T() const
     return DataFrame<DNT, DT, std::string, IT>(cols, rows);
 }
 
+template <int level>
+auto droplevel()
+{
+    using ST = std::remove_reference<decltype(iloc<1>(0).droplevel<level>())>::type;
+    using IT2 = decltype(pidx->droplevel<level>().iloc(0));
+    std::vector<ST> srs;
+    for (int i = 0; i < size<1>(); i++) {
+        srs.push_back(iloc_ref<1>(i).droplevel<level>());
+    }
+    return DataFrame<IT2, DT, INT, DNT>(srs);
+}
+
 #define DEFINE_DATAFRAME_FUNCS(DT2, FUN)              \
     template <int axis>                               \
     auto FUN()                                        \

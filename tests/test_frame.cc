@@ -12,6 +12,7 @@
 #include <format>
 #include <iostream>
 #include <map>
+#include <vector>
 
 using namespace std;
 using namespace pandas;
@@ -60,12 +61,21 @@ void test_frame_operator()
 
 void test_frame_loc()
 {
-
     cout << "[PASS] test_frame_loc" << endl;
 }
 
 void test_frame_functional()
 {
+
+    Index<int> id1(std::vector<int>({ 1, 2, 3 }), "id1");
+    Index<int> id2(std::vector<int>({ 1, 4, 5 }), "id2");
+
+    auto id = concat<1>(id1, id2);
+    DataFrame<std::tuple<int, int>, double> df(id.values.values, std::vector<std::string>({ "a", "b" }));
+    df._fillna(1);
+
+    auto df1 = df.droplevel<0>();
+    assert((df1.pidx->iloc(1) == 4) && (df1.iloc(0, 0) == 1));
 
     cout << "[PASS] test_frame_functional" << endl;
 }

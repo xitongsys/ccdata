@@ -221,11 +221,21 @@ public:
     }
 
     template <int level>
-    auto get_level_values()
+    auto get_level_values() const
     {
         Array<std::remove_reference<decltype(std::get<level>(iloc(0)))>::type, NT> ar(get_name());
         for (int i = 0; i < size(); i++) {
             ar._append(std::get<level>(iloc(i)));
+        }
+        return ar;
+    }
+
+    template <int level>
+    auto droplevel() const
+    {
+        Array<std::remove_reference<decltype(remove_element<level>(iloc(0)))>::type, NT> ar(get_name());
+        for (int i = 0; i < size(); i++) {
+            ar._append(remove_element<level>(iloc(i)));
         }
         return ar;
     }

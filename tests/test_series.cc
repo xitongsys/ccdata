@@ -1,4 +1,5 @@
 #include "pandas/array.h"
+#include "pandas/concat.h"
 #include "pandas/csv/csv.h"
 #include "pandas/dataframe.h"
 #include "pandas/datetime.h"
@@ -58,7 +59,7 @@ void test_series_groupby()
 
     using SV = Series<int, int>::SeriesVisitor<RangeVec<int>>;
 
-    auto dg2 = sr1.groupby(key1).apply<int,int,std::string,std::string>([](SV& sv) -> Series<int, int> {
+    auto dg2 = sr1.groupby(key1).apply<int, int, std::string, std::string>([](SV& sv) -> Series<int, int> {
         auto ds = sv.to_series().sort_values().iloc(std::vector<int>({ 0, 1 })).to_series();
         return ds;
     });
@@ -150,6 +151,14 @@ void test_series_functional()
 
     auto sr4 = sr.diff(-1);
     assert((pandas::isnan<double>(sr4.iloc(1))) && (sr4.iloc(0) == -7));
+
+    Index<int> id1(std::vector<int>({ 1, 2, 3 }), "id1");
+    Index<int> id2(std::vector<int>({ 1, 4, 5 }), "id2");
+
+    auto id = concat<1>(id1, id2);
+    auto sr5 = Series<decltype(id.iloc(0)), int>(id, std::vector<int>({ 10, 11, 12 }));
+    auto sr6 = sr5.droplevel<0>();
+    assert((sr6.pidx->iloc(0)==1) && (sr6.iloc(0)==10));
 
     cout << "[PASS] test_series_functional" << endl;
 }
