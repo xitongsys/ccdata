@@ -442,6 +442,31 @@ public:
         return res;
     }
 
+    template <class INT2, class DT2>
+    Series where(const Array<bool, INT2>& mask, DT2 v)
+    {
+        Series ds = copy();
+        ds.loc(!mask) = v;
+        return ds;
+    }
+
+    template <class DT2>
+    Series where(const std::vector<bool>& mask, DT2 v)
+    {
+        if (mask.size() != size()) {
+            throw std::format("size not match: {}!={}", mask.size(), size());
+        }
+        Array<bool> mask_ar(mask);
+        return where(mask_ar, v);
+    }
+
+    template <class IT2, class INT2, class DNT2, class DT2>
+    Series where(const Series<IT2, bool, INT2, DNT2>& mask, DT2 v)
+    {
+        auto mask2 = mask.reindex(*pidx);
+        return where(mask2.values, v);
+    }
+
 #include "pandas/series_functional.tcc"
 #include "pandas/series_group.tcc"
 #include "pandas/series_rolling.tcc"

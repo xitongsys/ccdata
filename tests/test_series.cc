@@ -158,8 +158,12 @@ void test_series_functional()
     auto id = concat<1>(id1, id2);
     auto sr5 = Series<decltype(id.iloc(0)), int>(id, std::vector<int>({ 10, 11, 12 }));
     auto sr6 = sr5.droplevel<0>();
-    assert((sr6.pidx->iloc(0)==1) && (sr6.iloc(0)==10));
+    assert((sr6.pidx->iloc(0) == 1) && (sr6.iloc(0) == 10));
 
+    Series<int, double> sr7({ 1, 2, 3, 4 }, { 2, 3, 4, pandas::nan<double>() }, "sr");
+    auto sr8 = sr7.where(sr7 > 3, 1);
+    assert((sr8.iloc(3) == 1) && (sr8.iloc(2) == 4) && (sr8.iloc(0) == 1));
+    
     cout << "[PASS] test_series_functional" << endl;
 }
 

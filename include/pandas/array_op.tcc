@@ -115,7 +115,7 @@ DEFINE_ARRAY_OPERATOR(||)
     Array<bool, NT> operator OP() const  \
     {                                    \
         Array<bool, NT> res(get_name()); \
-        for (auto& v : values) {         \
+        for (auto v : values) {         \
             res._append(OP v);           \
         }                                \
         return res;                      \
