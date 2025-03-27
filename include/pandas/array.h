@@ -255,6 +255,27 @@ public:
         }
     }
 
+    Array loc(const std::vector<bool>& mask)
+    {
+        if (mask.size() != size()) {
+            throw std::format("size not match: {}!={}", mask.size(), size());
+        }
+
+        Array ar(get_name());
+        for (int i = 0; i < size(); i++) {
+            if (mask[i]) {
+                ar._append(iloc(i));
+            }
+        }
+        return ar;
+    }
+
+    template <class NT2>
+    Array loc(const Array<bool, NT2>& mask)
+    {
+        return loc(mask.values);
+    }
+
     std::string to_string(int mx_cnt = 10) const
     {
         std::stringstream ss;

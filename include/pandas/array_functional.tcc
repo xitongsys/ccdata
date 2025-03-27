@@ -171,6 +171,11 @@ Array cumsum() const
     return ar;
 }
 
+Array drop_duplicates(const std::string& keep)
+{
+    return loc(duplicated(keep));
+}
+
 /// @pow
 /// @param n
 void _pow(double n)

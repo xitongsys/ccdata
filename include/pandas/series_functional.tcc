@@ -195,6 +195,19 @@ auto droplevel() const
     return Series<IT2, DT, INT, DNT>(idx, values);
 }
 
+/// @brief duplicated
+/// @param keep  first/last/false
+/// @return
+Series<IT, bool, INT, DNT> duplicated(const std::string& keep)
+{
+    return Series<IT, bool, INT, DNT>(*pidx, values.duplicated(keep));
+}
+
+Series drop_duplicates(const std::string& keep)
+{
+    return loc(!duplicated(keep)).to_series();
+}
+
 DT sum() const
 {
     return values.sum();
