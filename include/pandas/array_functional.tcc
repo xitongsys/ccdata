@@ -98,7 +98,7 @@ void _fillna(const T2& v)
     }
 }
 template <class T2>
-Array fillna(const T2& v)
+Array fillna(const T2& v) const
 {
     Array ar = *this;
     ar._fillna(v);
@@ -164,7 +164,7 @@ void _cumsum()
         }
     }
 }
-Array cumsum()
+Array cumsum() const
 {
     Array ar = *this;
     ar._cumsum();
@@ -180,10 +180,38 @@ void _pow(double n)
         iloc_ref(i) = std::pow(v, n);
     }
 }
-Array pow(double n)
+Array pow(double n) const
 {
     Array ar = *this;
     ar._pow(n);
+    return ar;
+}
+
+/// @brief reciprocal
+void _reciprocal()
+{
+    for (int i = 0; i < size(); i++) {
+        iloc_ref(i) = 1 / iloc_ref(i);
+    }
+}
+Array reciprocal() const
+{
+    Array ar = *this;
+    ar._reciprocal();
+    return ar;
+}
+
+/// @brief abs
+void _abs()
+{
+    for (int i = 0; i < size(); i++) {
+        iloc_ref(i) = abs(iloc_ref(i));
+    }
+}
+Array abs() const
+{
+    Array ar = *this;
+    ar._abs();
     return ar;
 }
 

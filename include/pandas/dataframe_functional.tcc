@@ -139,6 +139,34 @@ DataFrame pow(double n) const
     return df;
 }
 
+/// @brief reciprocal
+void _reciprocal()
+{
+    for (auto& sr : values) {
+        sr._reciprocal();
+    }
+}
+DataFrame reciprocal() const
+{
+    DataFrame df = this->copy();
+    df._reciprocal();
+    return df;
+}
+
+/// @brief abs
+void _abs()
+{
+    for (auto& sr : values) {
+        sr._abs();
+    }
+}
+DataFrame abs() const
+{
+    DataFrame df = this->copy();
+    df._abs();
+    return df;
+}
+
 /// @replace
 template <class DT2, class DT3>
 void _replace(const DT2& v_old, const DT3& v_new)

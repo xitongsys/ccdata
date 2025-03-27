@@ -27,7 +27,7 @@ void _map(std::function<DT2(const DT&)> const& func)
 }
 
 /// @dropna
-Series dropna()
+Series dropna() const
 {
     Series sr(get_name());
     for (int i = 0; i < size(); i++) {
@@ -79,7 +79,7 @@ void _fillna(const DT2& v)
     values._fillna(v);
 }
 template <class DT2>
-Series fillna(const DT2& v)
+Series fillna(const DT2& v) const
 {
     Series sr = this->copy();
     sr._fillna(v);
@@ -125,7 +125,7 @@ void _cumsum()
 {
     values._cumsum();
 }
-Series cumsum()
+Series cumsum() const
 {
     Series sr = this->copy();
     sr._cumsum();
@@ -138,10 +138,34 @@ void _pow(double n)
 {
     values._pow(n);
 }
-Series pow(double n)
+Series pow(double n) const
 {
     Series sr = this->copy();
     sr._pow(n);
+    return sr;
+}
+
+/// @brief reciprocal
+void _reciprocal()
+{
+    values._reciprocal();
+}
+Series reciprocal() const
+{
+    Series sr = this->copy();
+    sr._reciprocal();
+    return sr;
+}
+
+/// @brief abs
+void _abs()
+{
+    values._abs();
+}
+Series abs() const
+{
+    Series sr = this->copy();
+    sr._abs();
     return sr;
 }
 
