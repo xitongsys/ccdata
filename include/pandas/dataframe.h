@@ -326,6 +326,18 @@ public:
         }
     }
 
+    template <int axis>
+    auto& loc_ref(const DNT& col_name)
+    {
+        if constexpr (axis == 0) {
+            throw std::format("DataFrame not support loc_ref for rows");
+
+        } else {
+            int j = get_column_index(col_name);
+            return iloc_ref<1>(j);
+        }
+    }
+
     template <int axis, class T2>
     auto loc(T2 key)
     {
