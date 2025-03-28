@@ -64,9 +64,9 @@ DEFINE_DATAFRAMEVISITOR_OPERATOR(^=)
 
 #define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP)                        \
     template <class T2>                                             \
-    DataFrame<IT, bool, INT, DNT> operator OP(const T2 & val) const \
+    DataFrame<IT, char, INT, DNT> operator OP(const T2 & val) const \
     {                                                               \
-        DataFrame<IT, bool, INT, DNT> tmp = this->to_frame();       \
+        DataFrame<IT, char, INT, DNT> tmp = this->to_frame();       \
         return tmp OP val;                                          \
     }
 DEFINE_DATAFRAMEVISITOR_OPERATOR(>)
@@ -79,9 +79,9 @@ DEFINE_DATAFRAMEVISITOR_OPERATOR(&&)
 DEFINE_DATAFRAMEVISITOR_OPERATOR(||)
 
 #define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP)                  \
-    DataFrame<IT, bool, INT, DNT> operator OP() const         \
+    DataFrame<IT, char, INT, DNT> operator OP() const         \
     {                                                         \
-        DataFrame<IT, bool, INT, DNT> res = this->to_frame(); \
+        DataFrame<IT, char, INT, DNT> res = this->to_frame(); \
         res = OP res;                                         \
         return res;                                           \
     }

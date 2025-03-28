@@ -358,8 +358,8 @@ public:
     /// @loc by mask
     /// @param mask
     /// @return
-    template <>
-    SeriesVisitor<RangeVec<int>> loc(const std::vector<bool>& mask)
+    template <class DT2>
+    SeriesVisitor<RangeVec<int>> loc_mask(const std::vector<DT2>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
@@ -372,13 +372,13 @@ public:
         }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
     }
-    template <class NT2>
-    SeriesVisitor<RangeVec<int>> loc(const Array<bool, NT2>& mask)
+    template <class DT2, class NT2>
+    SeriesVisitor<RangeVec<int>> loc_mask(const Array<DT2, NT2>& mask)
     {
-        return loc(mask.values);
+        return loc_mask(mask.values);
     }
-    template <class IT2, class INT2, class DNT2>
-    SeriesVisitor<RangeVec<int>> loc(const Series<IT2, bool, INT2, DNT2>& mask)
+    template <class IT2, class DT2, class INT2, class DNT2>
+    SeriesVisitor<RangeVec<int>> loc_mask(const Series<IT2, DT2, INT2, DNT2>& mask)
     {
         std::vector<int> iids;
         for (int i = 0; i < size(); i++) {
@@ -446,26 +446,26 @@ public:
         return res;
     }
 
-    template <class INT2, class DT2>
-    Series where(const Array<bool, INT2>& mask, DT2 v)
+    template <class DT2, class NT2, class DT3>
+    Series where(const Array<DT2, NT2>& mask, DT3 v)
     {
         Series ds = copy();
-        ds.loc(!mask) = v;
+        ds.loc_mask(!mask) = v;
         return ds;
     }
 
-    template <class DT2>
-    Series where(const std::vector<bool>& mask, DT2 v)
+    template <class DT2, class DT3>
+    Series where(const std::vector<DT2>& mask, DT3 v)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
         }
-        Array<bool> mask_ar(mask);
+        Array<DT2> mask_ar(mask);
         return where(mask_ar, v);
     }
 
-    template <class IT2, class INT2, class DNT2, class DT2>
-    Series where(const Series<IT2, bool, INT2, DNT2>& mask, DT2 v)
+    template <class IT2, class DT2, class INT2, class DNT2, class DT3>
+    Series where(const Series<IT2, DT2, INT2, DNT2>& mask, DT3 v)
     {
         auto mask2 = mask.reindex(*pidx);
         return where(mask2.values, v);

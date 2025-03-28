@@ -210,7 +210,7 @@ Array reciprocal() const
 void _abs()
 {
     for (int i = 0; i < size(); i++) {
-        iloc_ref(i) = abs(iloc_ref(i));
+        iloc_ref(i) = std::abs(iloc_ref(i));
     }
 }
 Array abs() const

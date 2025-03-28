@@ -171,13 +171,13 @@ public:
         return values.size();
     }
 
-    Array<bool, NT> duplicated(const std::string& keep)
+    Array<char, NT> duplicated(const std::string& keep)
     {
-        Array<bool, NT> dup;
+        Array<char, NT> dup;
         std::map<T, int> mp;
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
-                T& v = iloc(i);
+                T v = iloc(i);
                 if (mp.count(v)) {
                     dup._append(true);
                 } else {
@@ -190,7 +190,7 @@ public:
                 dup._append(false);
             }
             for (int i = size() - 1; i >= 0; i--) {
-                T& v = iloc(i);
+                T v = iloc(i);
                 if (mp.count(v)) {
                     dup.iloc_ref(i) = true;
                 } else {
@@ -201,7 +201,7 @@ public:
 
         } else if (keep == "false") {
             for (int i = 0; i < size(); i++) {
-                T& v = iloc(i);
+                T v = iloc(i);
                 dup._append(false);
                 if (mp.count(v) == 0) {
                     mp[v] = 0;
@@ -209,7 +209,7 @@ public:
                 mp[v]++;
             }
             for (int i = 0; i < size(); i++) {
-                T& v = iloc(i);
+                T v = iloc(i);
                 if (mp.count(v) > 1) {
                     dup.iloc_ref(i) = true;
                 }
@@ -255,7 +255,8 @@ public:
         }
     }
 
-    Array loc(const std::vector<bool>& mask)
+    template <class T2>
+    Array loc(const std::vector<T2>& mask)
     {
         if (mask.size() != size()) {
             throw std::format("size not match: {}!={}", mask.size(), size());
@@ -270,8 +271,8 @@ public:
         return ar;
     }
 
-    template <class NT2>
-    Array loc(const Array<bool, NT2>& mask)
+    template <class T2, class NT2>
+    Array loc(const Array<T2, NT2>& mask)
     {
         return loc(mask.values);
     }

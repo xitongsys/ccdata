@@ -436,8 +436,8 @@ public:
     /// @tparam axis
     /// @param mask
     /// @return
-    template <int axis>
-    auto loc(const std::vector<bool>& mask)
+    template <int axis, class DT2>
+    auto loc_mask(const std::vector<DT2>& mask)
     {
         if constexpr (axis == 0) {
             if (mask.size() != size<0>()) {
@@ -465,18 +465,18 @@ public:
         }
     }
 
-    template <int axis, class INT2>
-    auto loc(const Array<bool, INT2>& mask)
+    template <int axis, class DT2, class INT2>
+    auto loc_mask(const Array<DT2, INT2>& mask)
     {
-        return loc<axis>(mask.values);
+        return loc_mask<axis>(mask.values);
     }
-    template <int axis, class INT2>
-    auto loc(const Index<bool, INT2>& mask)
+    template <int axis, class DT2, class INT2>
+    auto loc_mask(const Index<DT2, INT2>& mask)
     {
-        return loc<axis>(mask.values);
+        return loc_mask<axis>(mask.values);
     }
-    template <int axis, class IT2, class INT2, class DNT2>
-    auto loc(const Series<IT2, bool, INT2, DNT2>& mask)
+    template <int axis, class IT2, class DT2, class INT2, class DNT2>
+    auto loc_mask(const Series<IT2, DT2, INT2, DNT2>& mask)
     {
         if constexpr (axis == 0) {
             std::vector<int> iids_row;

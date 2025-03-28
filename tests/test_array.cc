@@ -5,10 +5,10 @@
 #include "pandas/index.h"
 #include "pandas/series.h"
 
+#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <map>
-#include <cassert>
 
 using namespace std;
 using namespace pandas;
@@ -30,13 +30,20 @@ void test_array01()
     ar2 = ar1;
     assert(ar2.iloc(0) == 1);
 
-
     ar1.iloc_ref(0) = 3;
-    assert(ar1.iloc(0)==3);
+    assert(ar1.iloc(0) == 3);
 
     ar1._clear();
     assert(ar1.size() == 0);
 
+    Array<char> ar3("ar3");
+    for (int i = 0; i < 10; i++) {
+        ar3._append(i % 2 == 0);
+    }
+    ar3.iloc_ref(0) = false;
+    assert(ar3.iloc(0) == false);
+
+    cout << "[PASS] test_array01" << endl;
 }
 
 int main()

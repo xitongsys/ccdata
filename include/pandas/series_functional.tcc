@@ -198,9 +198,9 @@ auto droplevel() const
 /// @brief duplicated
 /// @param keep  first/last/false
 /// @return
-Series<IT, bool, INT, DNT> duplicated(const std::string& keep)
+Series<IT, char, INT, DNT> duplicated(const std::string& keep)
 {
-    return Series<IT, bool, INT, DNT>(*pidx, values.duplicated(keep));
+    return Series<IT, char, INT, DNT>(*pidx, values.duplicated(keep));
 }
 
 Series drop_duplicates(const std::string& keep)

@@ -20,11 +20,11 @@ DataFrame dropna(const std::string& how = "any")
     Series<IT, int, INT, DNT> ds_cnt = count<1>();
 
     if (how == "all") {
-        Series<IT, bool, INT, DNT> mask = (ds_cnt > 0);
+        Series<IT, char, INT, DNT> mask = (ds_cnt > 0);
         return loc<0>(mask).to_frame();
 
     } else if (how == "any") {
-        Series<IT, bool, INT, DNT> mask = (ds_cnt == size<1>());
+        Series<IT, char, INT, DNT> mask = (ds_cnt == size<1>());
         return loc<0>(mask).to_frame();
     }
 }

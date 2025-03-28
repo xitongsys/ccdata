@@ -124,7 +124,7 @@ void test_series_loc()
     sr.iloc({ 1, 2 }) = 8;
     assert((sr.iloc(1) == 8) && (sr.iloc(2) == 8));
 
-    sr.loc(sr > 7) = 9;
+    sr.loc_mask(sr > 7) = 9;
     assert((sr.iloc(1) == 9) && sr.iloc(2) == 9);
 
     sr.loc({ 1, 1 }) = 1;

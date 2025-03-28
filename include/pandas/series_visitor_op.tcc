@@ -87,7 +87,7 @@ DEFINE_SERIESVISITOR_OPERATOR(^=)
 ///////////////////////////////// cmp operator ///////////////////////////////////////////////
 #define DEFINE_SERIESVISITOR_OPERATOR(OP)                        \
     template <class T2>                                          \
-    Series<IT, bool, INT, DNT> operator OP(const T2 & val) const \
+    Series<IT, char, INT, DNT> operator OP(const T2 & val) const \
     {                                                            \
         Series tmp = this->to_series();                          \
         return tmp OP val;                                       \
@@ -103,9 +103,9 @@ DEFINE_SERIESVISITOR_OPERATOR(&&)
 DEFINE_SERIESVISITOR_OPERATOR(||)
 
 #define DEFINE_SERIESVISITOR_OPERATOR(OP)                   \
-    Series<IT, bool, INT, DNT> operator OP() const          \
+    Series<IT, char, INT, DNT> operator OP() const          \
     {                                                       \
-        Series<IT, bool, INT, DNT> res = this->to_series(); \
+        Series<IT, char, INT, DNT> res = this->to_series(); \
         res = OP res;                                       \
         return res;                                         \
     }

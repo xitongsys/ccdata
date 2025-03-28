@@ -121,34 +121,34 @@ DEFINE_SERIES_OPERATOR(^=)
 ///////////////////////////////// cmp operator ////////////////////////////////////////////
 #define DEFINE_SERIES_OPERATOR(OP)                                                       \
     template <class T2>                                                                  \
-    Series<IT, bool, INT, DNT> operator OP(const T2 & val) const                         \
+    Series<IT, char, INT, DNT> operator OP(const T2 & val) const                         \
     {                                                                                    \
-        Array<bool, DNT> values = this->values OP val;                                   \
-        auto res = Series<IT, bool, INT, DNT>(*pidx, values);                            \
+        Array<char, DNT> values = this->values OP val;                                   \
+        auto res = Series<IT, char, INT, DNT>(*pidx, values);                            \
         return res;                                                                      \
     }                                                                                    \
                                                                                          \
     template <class DT2>                                                                 \
-    Series<IT, bool, INT, DNT> operator OP(const std::vector<DT2>& vals) const           \
+    Series<IT, char, INT, DNT> operator OP(const std::vector<DT2>& vals) const           \
     {                                                                                    \
         if (vals.size() != size()) {                                                     \
             throw std::format("size not match: {}!={}", vals.size(), size());            \
         }                                                                                \
-        Array<bool, DNT> ar = values OP vals;                                            \
-        auto res = Series<IT, bool, INT, DNT>(*pidx, ar);                                \
+        Array<char, DNT> ar = values OP vals;                                            \
+        auto res = Series<IT, char, INT, DNT>(*pidx, ar);                                \
         return res;                                                                      \
     }                                                                                    \
                                                                                          \
     template <class DT2, class DNT2>                                                     \
-    Series<IT, bool, INT, DNT> operator OP(const Array<DT2, DNT2>& ar) const             \
+    Series<IT, char, INT, DNT> operator OP(const Array<DT2, DNT2>& ar) const             \
     {                                                                                    \
         return (*this)OP ar.values;                                                      \
     }                                                                                    \
                                                                                          \
     template <class IT2, class DT2, class INT2, class DNT2>                              \
-    Series<IT, bool, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
+    Series<IT, char, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
     {                                                                                    \
-        Series<IT, bool, INT, DNT> res(get_name());                                      \
+        Series<IT, char, INT, DNT> res(get_name());                                      \
         for (int i = 0; i < size(); i++) {                                               \
             IT id = pidx->iloc(i);                                                       \
             DT val = iloc(i);                                                            \
@@ -172,10 +172,10 @@ DEFINE_SERIES_OPERATOR(&&)
 DEFINE_SERIES_OPERATOR(||)
 
 #define DEFINE_SERIES_OPERATOR(OP)                            \
-    Series<IT, bool, INT, DNT> operator OP() const            \
+    Series<IT, char, INT, DNT> operator OP() const            \
     {                                                         \
-        Array<bool, DNT> values = OP values;                  \
-        auto res = Series<IT, bool, INT, DNT>(*pidx, values); \
+        Array<char, DNT> values = OP values;                  \
+        auto res = Series<IT, char, INT, DNT>(*pidx, values); \
         return res;                                           \
     }
 

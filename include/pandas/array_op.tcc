@@ -80,9 +80,9 @@ DEFINE_ARRAY_OPERATOR(~)
 
 #define DEFINE_ARRAY_OPERATOR(OP)                                           \
     template <class T2>                                                     \
-    Array<bool, NT> operator OP(const T2 & val) const                       \
+    Array<char, NT> operator OP(const T2 & val) const                       \
     {                                                                       \
-        Array<bool, NT> res(get_name());                                    \
+        Array<char, NT> res(get_name());                                    \
         for (auto& v : values) {                                            \
             res._append(v OP val);                                          \
         }                                                                   \
@@ -90,12 +90,12 @@ DEFINE_ARRAY_OPERATOR(~)
     }                                                                       \
                                                                             \
     template <class T2, class NT2>                                          \
-    Array<bool, NT> operator OP(const Array<T2, NT2>& ar) const             \
+    Array<char, NT> operator OP(const Array<T2, NT2>& ar) const             \
     {                                                                       \
         if (size() != ar.size()) {                                          \
             throw std::format("size not match: {}!={}", size(), ar.size()); \
         }                                                                   \
-        Array<bool, NT> res(get_name());                                    \
+        Array<char, NT> res(get_name());                                    \
         for (int i = 0; i < size(); i++) {                                  \
             res._append(values[i] OP ar.values[i]);                         \
         }                                                                   \
@@ -112,10 +112,10 @@ DEFINE_ARRAY_OPERATOR(&&)
 DEFINE_ARRAY_OPERATOR(||)
 
 #define DEFINE_ARRAY_OPERATOR(OP)        \
-    Array<bool, NT> operator OP() const  \
+    Array<char, NT> operator OP() const  \
     {                                    \
-        Array<bool, NT> res(get_name()); \
-        for (auto v : values) {         \
+        Array<char, NT> res(get_name()); \
+        for (auto v : values) {          \
             res._append(OP v);           \
         }                                \
         return res;                      \
