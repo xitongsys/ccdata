@@ -165,10 +165,15 @@ public:
         values._rename(name);
     }
 
-    Series rename(const std::string& name)
+    template <class DNT2>
+    Series<IT, DT, INT, DNT2> rename(const DNT2& name)
     {
-        Series res = this->copy();
-        res._rename(name);
+        Series<IT, DT, INT, DNT2> res(name);
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            DT val = iloc(i);
+            res._append(id, val);
+        }
         return res;
     }
 
