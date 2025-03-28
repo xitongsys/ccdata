@@ -109,7 +109,7 @@ public:
         for (int i = 0; i < this->size(); i++) {
             T v = this->iloc(i);
             if (value2iid.count(v)) {
-                throw std::format("index '{}' has duplicated value {}", this->get_name(), v);
+                throw std::format("index '{}' has duplicated value {}", pandas::to_string(get_name()), pandas::to_string(v));
             }
             value2iid[v] = i;
         }
