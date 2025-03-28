@@ -117,7 +117,7 @@ public:
     template <class IT2, class DT2, class INT2, class DNT2>
     Series& operator=(const Series<IT2, DT2, INT2, DNT2>& sr)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*sr, pidx);
+        pidx = std::make_shared<Index<IT, INT>>(*pidx);
         values = sr.values;
         return *this;
     }

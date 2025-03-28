@@ -63,6 +63,14 @@ public:
         }
     }
 
+    DataFrame(const Index<IT, INT>& ids, const std::vector<DNT>& columns, DT fillna_value)
+    {
+        pidx = std::make_shared<Index<IT, INT>>(ids);
+        for (int j = 0; j < columns.size(); j++) {
+            _append_col(Series<IT, DT, INT, DNT>(columns[j], pidx, fillna_value));
+        }
+    }
+
     DataFrame(const std::vector<DNT>& columns, const std::vector<Array<DT, IT>>& rows)
     {
         pidx = std::make_shared<Index<IT, INT>>();
@@ -404,7 +412,7 @@ public:
                 iids_row.push_back(j);
             }
 
-            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range(0, size<1>()));
+            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range<int>(0, size<1>()));
 
         } else {
             std::vector<int> iids_col;
