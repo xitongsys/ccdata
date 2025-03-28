@@ -50,6 +50,13 @@ public:
 class Datetime {
 
 public:
+    static Datetime now()
+    {
+        Datetime dt(std::chrono::system_clock::now());
+        return dt;
+    }
+
+public:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t;
     bool isnan = false;
 

@@ -23,7 +23,7 @@ void test_series_constructors()
 
     Index<int> idx1;
     idx1._append(0);
-    Series<int, double> sr2(idx1);
+    Series<int, double> sr2("sr2", idx1, pandas::nan<double>());
     sr2.pidx->iloc_ref(0) = 1;
     assert(idx1.iloc(0) == 0);
     assert(sr2.pidx->iloc(0) == 1);
@@ -31,14 +31,14 @@ void test_series_constructors()
     std::shared_ptr<Index<int>> pidx = std::make_shared<Index<int>>();
     pidx->_append(0);
     pidx->_append(1);
-    Series<int, double> sr3(pidx);
+    Series<int, double> sr3("sr3", pidx, pandas::nan<double>());
     sr3.pidx->_append(2);
     assert(pidx->size() == 3);
     assert(sr3.pidx->size() == 3);
 
     std::vector<int> ids({ 1, 2 });
     std::vector<int> vals({ 2, 3 });
-    Series<int, int> sr4(ids, vals, "sr4");
+    Series<int, int> sr4("sr4", ids, vals);
     assert(sr4.size() == 2);
 
     Index<int> ids2(Array<int>({ 1, 2, 3 }));
@@ -51,7 +51,7 @@ void test_series_constructors()
 
 void test_series_groupby()
 {
-    Series<int, int> sr1(Range<int>(10, 0, -1).to_vec(), Range<int>(0, 10).to_vec(), "sr1");
+    Series<int, int> sr1("sr1", Range<int>(10, 0, -1).to_vec(), Range<int>(0, 10).to_vec());
     Array<int> key1(Range<int>(0, 10).to_vec());
     key1 %= 2;
     auto dg1 = sr1.groupby(key1).sum();
@@ -70,7 +70,7 @@ void test_series_groupby()
 
 void test_series_operator()
 {
-    Series<int, double> sr({ 0, 1, 2 }, { 1, 2, 3 }, "sr1");
+    Series<int, double> sr("sr", { 0, 1, 2 }, { 1, 2, 3 });
     sr += 1;
     assert(sr.sum() == 9);
 
@@ -96,7 +96,7 @@ void test_series_operator()
     auto sr5 = sr < sr2;
     assert(sr5.sum() == 0);
 
-    Series<int, double> sr6({ 1, 2 }, { 3, 4 }, "sr6");
+    Series<int, double> sr6("sr6", { 1, 2 }, { 3, 4 });
     sr6 += 1;
     assert((sr6.iloc(0) == 4) && (sr6.iloc(1) == 5));
 
@@ -108,7 +108,7 @@ void test_series_operator()
 
 void test_series_loc()
 {
-    Series<int, double> sr({ 1, 2, 3 }, { 2, 3, 4 }, "sr");
+    Series<int, double> sr("sr", { 1, 2, 3 }, { 2, 3, 4 });
     sr.loc_ref(1) = 4;
     assert((sr.iloc(0) == 4) && (sr.loc(1) == 4) && (sr.loc(2) == 3));
 
@@ -135,7 +135,7 @@ void test_series_loc()
 
 void test_series_functional()
 {
-    Series<int, double> sr({ 1, 2, 3 }, { 2, 3, 4 }, "sr");
+    Series<int, double> sr("sr", { 1, 2, 3 }, { 2, 3, 4 });
     sr._map<double>([](const double& a) -> double { return a * a; });
     assert((sr.iloc(0) == 4) && (sr.iloc(1) == 9) & (sr.iloc(2) == 16));
 
@@ -160,10 +160,10 @@ void test_series_functional()
     auto sr6 = sr5.droplevel<0>();
     assert((sr6.pidx->iloc(0) == 1) && (sr6.iloc(0) == 10));
 
-    Series<int, double> sr7({ 1, 2, 3, 4 }, { 2, 3, 4, pandas::nan<double>() }, "sr");
+    Series<int, double> sr7("sr7", { 1, 2, 3, 4 }, { 2, 3, 4, pandas::nan<double>() });
     auto sr8 = sr7.where(sr7 > 3, 1);
     assert((sr8.iloc(3) == 1) && (sr8.iloc(2) == 4) && (sr8.iloc(0) == 1));
-    
+
     cout << "[PASS] test_series_functional" << endl;
 }
 

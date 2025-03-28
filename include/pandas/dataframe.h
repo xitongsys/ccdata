@@ -55,11 +55,11 @@ public:
         pidx = std::make_shared<Index<IT, INT>>(idx);
     }
 
-    DataFrame(const std::vector<IT>& ids, const std::vector<DNT>& columns)
+    DataFrame(const std::vector<IT>& ids, const std::vector<DNT>& columns, DT fillna_value)
     {
         pidx = std::make_shared<Index<IT, INT>>(ids);
         for (int j = 0; j < columns.size(); j++) {
-            _append_col(Series<IT, DT, INT, DNT>(pidx, columns[j]));
+            _append_col(Series<IT, DT, INT, DNT>(columns[j], pidx, fillna_value));
         }
     }
 
@@ -269,7 +269,7 @@ public:
         if (has<1>(col_name)) {
             throw std::format("duplicated column: {}", pandas::to_string(col_name));
         }
-        values.push_back(Series<IT, DT, INT, DNT>(pidx, col, col_name));
+        values.push_back(Series<IT, DT, INT, DNT>(col_name, pidx, col));
         return size<1>();
     }
 

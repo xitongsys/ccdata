@@ -57,8 +57,8 @@ void test_concat_index()
 
 void test_concat_series()
 {
-    Series<int, double> sr1({ 1, 2 }, { 1, 1 }, "sr1");
-    Series<int, double> sr2({ 3, 4 }, { 2, 2 }, "sr2");
+    Series<int, double> sr1("sr1", { 1, 2 }, { 1, 1 });
+    Series<int, double> sr2("sr2", { 3, 4 }, { 2, 2 });
     auto sr_0 = concat<0>(sr1, sr2);
     assert((sr_0.size() == 4) && (sr_0.iloc(3) == 2));
 
@@ -70,17 +70,17 @@ void test_concat_series()
 
 void test_concat_dataframe()
 {
-    DataFrame<int, double> df1(std::vector<int>({ 0, 1 }), std::vector<std::string>({ "a", "b" }));
+    DataFrame<int, double> df1(std::vector<int>({ 0, 1 }), std::vector<std::string>({ "a", "b" }), pandas::nan<double>());
     df1._fillna(1);
-    DataFrame<int, double> df2(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "a", "b", "c" }));
+    DataFrame<int, double> df2(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "a", "b", "c" }), pandas::nan<double>());
     df2._fillna(2);
 
     auto df_0 = concat<0>(df1, df2);
     assert((df_0.size<0>() == 4) && (pandas::isnan(df_0.iloc(0, 2))) && (df_0.iloc(3, 2) == 2));
 
-    DataFrame<int, double> df3(std::vector<int>({ 0, 1, 2 }), std::vector<std::string>({ "a", "b" }));
+    DataFrame<int, double> df3(std::vector<int>({ 0, 1, 2 }), std::vector<std::string>({ "a", "b" }), pandas::nan<double>());
     df3._fillna(1);
-    DataFrame<int, double> df4(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "c", "d" }));
+    DataFrame<int, double> df4(std::vector<int>({ 2, 3 }), std::vector<std::string>({ "c", "d" }), pandas::nan<double>());
     df4._fillna(2);
 
     auto df_1 = concat<1>(df3, df4);

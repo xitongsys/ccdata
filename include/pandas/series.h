@@ -33,25 +33,25 @@ public:
         _rename(name);
     }
 
-    Series(const Index<IT, INT>& idx, const DNT& name = DNT {})
+    Series(const DNT& name, const Index<IT, INT>& idx, DT fillna_value)
     {
         this->pidx = std::make_shared<Index<IT, INT>>(idx);
         for (int i = 0; i < idx.size(); i++) {
-            values._append(pandas::nan<DT>());
+            values._append(fillna_value);
         }
         _rename(name);
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx, const DNT& name = DNT {})
+    Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, DT fillna_value)
     {
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
-            values._append(pandas::nan<DT>());
+            values._append(fillna_value);
         }
         _rename(name);
     }
 
-    Series(std::shared_ptr<Index<IT, INT>> pidx, const std::vector<DT>& vals, const DNT& name = DNT {})
+    Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, const std::vector<DT>& vals)
     {
         if (pidx->size() != vals.size()) {
             throw std::format("index size and value size not match: {}!={}", pidx->size(), vals.size());
@@ -63,7 +63,7 @@ public:
         _rename(name);
     }
 
-    Series(const std::vector<IT>& ids, const std::vector<DT>& vals, const DNT& name = DNT {})
+    Series(const DNT& name, const std::vector<IT>& ids, const std::vector<DT>& vals)
         : Series()
     {
         if (ids.size() != vals.size()) {
