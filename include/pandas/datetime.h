@@ -50,11 +50,7 @@ public:
 class Datetime {
 
 public:
-    static Datetime now()
-    {
-        Datetime dt(std::chrono::system_clock::now());
-        return dt;
-    }
+    static Datetime now();
 
 public:
     std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t;
@@ -71,11 +67,9 @@ public:
         int hour = 0, int minute = 0, int second = 0,
         long long nanosec = 0);
 
-    Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_)
-    {
-        t = t_;
-        isnan = false;
-    }
+    Datetime(long long nanosecs);
+
+    Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_);
 
     Datetime(const Datetime& dt);
 

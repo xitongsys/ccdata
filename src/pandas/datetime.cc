@@ -182,10 +182,28 @@ long long Datetime::nansec() const
     return number().nanosec;
 }
 
+Datetime Datetime::now()
+{
+    Datetime dt(std::chrono::system_clock::now());
+    return dt;
+}
+
 Datetime::Datetime(const Datetime& dt)
 {
     t = dt.t;
     isnan = dt.isnan;
+}
+
+Datetime::Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_)
+{
+    t = t_;
+    isnan = false;
+}
+
+Datetime::Datetime(long long nanosecs)
+{
+    t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(nanosecs));
+    isnan = false;
 }
 
 Datetime& Datetime::operator=(const Datetime& dt)
