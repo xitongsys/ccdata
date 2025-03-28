@@ -277,7 +277,6 @@ public:
 
     SeriesVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
     {
-        auto a = SeriesVisitor<typename Index<IT, INT>::IndexRange>(*this, Index<IT, INT>::IndexRange(*pidx, bgn, end));
         return SeriesVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
     }
 
