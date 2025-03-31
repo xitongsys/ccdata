@@ -360,7 +360,7 @@ public:
     }
 
     template <int axis, class T2>
-    auto loc(T2 key)
+    auto loc(T2 key) const
     {
         if constexpr (axis == 0) {
             int i = pidx->loc(key);
@@ -625,7 +625,7 @@ public:
     }
     DataFrame sort_values(const DNT& col, bool ascending = true) const
     {
-        return sort_values(loc<1>(col));
+        return sort_values<IT, DT, INT, DNT>(loc<1>(col), ascending);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const DataFrame& df)

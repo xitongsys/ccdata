@@ -399,7 +399,7 @@ public:
         for (int i = 0; i < size(); i++) {
             IT id = pidx->iloc(i);
             DT val = values.iloc(i);
-            ps.push_back(std::make_tuple<IT, DT>(std::move(id), std::move(val)));
+            ps.push_back(std::tuple<IT, DT>(std::move(id), std::move(val)));
         }
 
         std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
@@ -431,7 +431,7 @@ public:
         for (int i = 0; i < size(); i++) {
             IT id = pidx->iloc(i);
             DT val = values.iloc(i);
-            ps.push_back(std::make_tuple<IT, DT, DT2>(std::move(id), std::move(val), keys[i]));
+            ps.push_back(std::tuple<IT, DT, DT2>(std::move(id), std::move(val), keys[i]));
         }
 
         std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {

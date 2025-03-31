@@ -167,6 +167,21 @@ void test_series_functional()
     cout << "[PASS] test_series_functional" << endl;
 }
 
+void test_series_sort()
+{
+    Series<int, double> sr1("sr1", { 1, 2, 3, 4, 5 }, { 4, 3, 2, 1, pandas::nan<double>() });
+    auto sr2 = sr1.sort_values();
+    assert(sr2.iloc(0) == 1);
+
+    auto sr3 = sr1.sort_values(std::vector<int>({ 4, 3, 1, 2, 0 }));
+    assert(pandas::isnan(sr3.iloc(0)));
+
+    auto sr4 = sr1.sort_values(sr1.fillna(100));
+    assert(sr4.iloc(0) == 1);
+
+    cout << "[PASS] test_series_sort" << endl;
+}
+
 int main()
 {
 
@@ -176,6 +191,7 @@ int main()
         test_series_loc();
         test_series_functional();
         test_series_groupby();
+        test_series_sort();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;
