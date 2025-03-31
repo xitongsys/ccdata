@@ -521,6 +521,14 @@ public:
         }
     }
 
+    template <class IT2, class INT2>
+    DataFrame<IT2, DT, INT2, DNT> set_index(const Index<IT2, INT2>& idx)
+    {
+        if (idx.size() != size<0>()) {
+            PANDAS_THROW(std::format("size not match: {}!={}", idx.size(), size<0>()));
+        }
+    }
+
     std::string to_string(int mx_row = 10, int mx_col = 10) const
     {
         std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_row), "\n");
