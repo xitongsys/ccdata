@@ -239,6 +239,7 @@ public:
                 return i;
             }
         }
+        PANDAS_THROW(std::format("column not found: {}", name));
         return -1;
     }
 
