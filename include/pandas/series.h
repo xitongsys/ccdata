@@ -239,7 +239,7 @@ public:
             lines.push_back(idx_lines[i] + " " + val_lines[i]);
         }
 
-        return pandas::line_width_adjust(pandas::join(lines, "\n"));
+        return pandas::line_width_adjust(pandas::join(lines, "\n")) + std::format("\n[{} rows]", size());
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Series& sr)

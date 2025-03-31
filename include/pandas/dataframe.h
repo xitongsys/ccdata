@@ -597,7 +597,7 @@ public:
             }
         }
 
-        return ss.str();
+        return ss.str() + std::format("\n[{} rows x {} columns]", size<0>(), size<1>());
     }
 
     template <class DT2>
