@@ -54,7 +54,7 @@ DEFINE_SERIESVISITOR_OPERATOR(~)
             sr.iloc_ref(it.next()) OP vs[i];                  \
         }                                                     \
         if (it.has_left() || (i + 1) < vs.size()) {           \
-            throw std::format("size not match");              \
+            PANDAS_THROW(std::format("size not match"));      \
         }                                                     \
     }                                                         \
                                                               \

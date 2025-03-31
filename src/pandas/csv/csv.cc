@@ -74,7 +74,7 @@ namespace csv {
         std::ifstream in(filename);
 
         if (!in.is_open()) {
-            throw std::format("failed open file {}", filename);
+            PANDAS_THROW(std::format("failed open file {}", filename));
         }
 
         std::vector<std::string> headers = read_row(in, delimiter);
@@ -101,7 +101,7 @@ namespace csv {
                 continue;
             }
             if (row.size() != col_cnt) {
-                throw std::format("csv format error, row.size()!=col_cnt: {}!={}", row.size(), col_cnt);
+                PANDAS_THROW(std::format("csv format error, row.size()!=col_cnt: {}!={}", row.size(), col_cnt));
             }
             for (int j = 0; j < col_cnt; j++) {
                 res[j]._append(row[j]);
@@ -133,7 +133,7 @@ namespace csv {
         std::ofstream out(filename);
 
         if (!out.is_open()) {
-            throw std::format("failed open file {}", filename);
+            PANDAS_THROW(std::format("failed open file {}", filename));
         }
 
         if (cols.size() == 0) {

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "pandas/array.h"
+#include "pandas/error.h"
 #include "pandas/index.h"
 #include "pandas/ops.h"
 #include "pandas/range.h"
@@ -54,7 +55,7 @@ public:
     Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, const std::vector<DT>& vals)
     {
         if (pidx->size() != vals.size()) {
-            throw std::format("index size and value size not match: {}!={}", pidx->size(), vals.size());
+            PANDAS_THROW(std::format("index size and value size not match: {}!={}", pidx->size(), vals.size()));
         }
         this->pidx = pidx;
         for (int i = 0; i < pidx->size(); i++) {
@@ -67,7 +68,7 @@ public:
         : Series()
     {
         if (ids.size() != vals.size()) {
-            throw std::format("index size and value size not match: {}!={}", ids.size(), vals.size());
+            PANDAS_THROW(std::format("index size and value size not match: {}!={}", ids.size(), vals.size()));
         }
         for (int i = 0; i < ids.size(); i++) {
             _append(ids[i], vals[i]);
@@ -79,7 +80,7 @@ public:
     Series(const Index<IT, INT>& idx, const Array<DT, DNT>& vals)
     {
         if (idx.size() != vals.size()) {
-            throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
+            PANDAS_THROW(std::format("index values size not match: {}!={}", pidx->size(), vals.size()));
         }
 
         this->pidx = std::make_shared<Index<IT, INT>>(idx);
@@ -89,7 +90,7 @@ public:
     Series(std::shared_ptr<Index<IT, INT>> pidx, const Array<DT, DNT>& vals)
     {
         if (pidx->size() != vals.size()) {
-            throw std::format("index values size not match: {}!={}", pidx->size(), vals.size());
+            PANDAS_THROW(std::format("index values size not match: {}!={}", pidx->size(), vals.size()));
         }
         this->pidx = pidx;
         values = vals;
@@ -231,7 +232,7 @@ public:
         std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_cnt), "\n");
         std::vector<std::string> val_lines = pandas::split(values.to_string(mx_cnt), "\n");
         if (idx_lines.size() != val_lines.size()) {
-            throw std::format("size not match: {}!={}", idx_lines.size(), val_lines.size());
+            PANDAS_THROW(std::format("size not match: {}!={}", idx_lines.size(), val_lines.size()));
         }
         std::vector<std::string> lines;
         for (int i = 0; i < idx_lines.size(); i++) {
@@ -362,7 +363,7 @@ public:
     SeriesVisitor<RangeVec<int>> loc_mask(const std::vector<DT2>& mask)
     {
         if (mask.size() != size()) {
-            throw std::format("size not match: {}!={}", mask.size(), size());
+            PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size()));
         }
         std::vector<int> iids;
         for (int i = 0; i < size(); i++) {
@@ -458,7 +459,7 @@ public:
     Series where(const std::vector<DT2>& mask, DT3 v)
     {
         if (mask.size() != size()) {
-            throw std::format("size not match: {}!={}", mask.size(), size());
+            PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size()));
         }
         Array<DT2> mask_ar(mask);
         return where(mask_ar, v);

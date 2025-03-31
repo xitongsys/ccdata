@@ -116,7 +116,7 @@ public:
         for (int i = 0; i < cols.size(); i++) {
             DNT col_name = cols[i].get_name();
             if (has<1>(col_name)) {
-                throw std::format("duplicated column: {}", pandas::to_string(col_name));
+                PANDAS_THROW(std::format("duplicated column: {}", pandas::to_string(col_name)));
             }
             values.push_back(cols[i].reindex(*pidx));
             values[i].pidx = pidx;
@@ -162,7 +162,7 @@ public:
             return DataFrame<IT, DT, INT, T2>(srs);
 
         } else {
-            throw std::format("axis not supported: {}", axis);
+            PANDAS_THROW(std::format("axis not supported: {}", axis));
         }
     }
 
@@ -178,7 +178,7 @@ public:
             return reindex<1>(ids.values);
 
         } else {
-            throw std::format("axis not supported: {}", axis);
+            PANDAS_THROW(std::format("axis not supported: {}", axis));
         }
     }
 
@@ -194,7 +194,7 @@ public:
             return reindex<1>(ids.values);
 
         } else {
-            throw std::format("axis not supported: {}", axis);
+            PANDAS_THROW(std::format("axis not supported: {}", axis));
         }
     }
 
@@ -227,7 +227,7 @@ public:
             return get_column_index(v) >= 0;
 
         } else {
-            throw std::format("axis not supported: {}", axis);
+            PANDAS_THROW(std::format("axis not supported: {}", axis));
             return false;
         }
     }
@@ -246,7 +246,7 @@ public:
     int _append_row(const IT2& id, const std::vector<DT2>& row)
     {
         if (row.size() != size<1>()) {
-            throw std::format("size not match: {}!={}", row.size(), size<1>());
+            PANDAS_THROW(std::format("size not match: {}!={}", row.size(), size<1>()));
         }
         pidx->_append(id);
         for (int i = 0; i < row.size(); i++) {
@@ -272,10 +272,10 @@ public:
     int _append_col(const DNT2& col_name, const std::vector<DT2>& col)
     {
         if (col.size() != size<0>()) {
-            throw std::format("size not match: {}!={}", col.size(), size<0>());
+            PANDAS_THROW(std::format("size not match: {}!={}", col.size(), size<0>()));
         }
         if (has<1>(col_name)) {
-            throw std::format("duplicated column: {}", pandas::to_string(col_name));
+            PANDAS_THROW(std::format("duplicated column: {}", pandas::to_string(col_name)));
         }
         values.push_back(Series<IT, DT, INT, DNT>(col_name, pidx, col));
         return size<1>();
@@ -326,7 +326,7 @@ public:
     auto& iloc_ref(int i)
     {
         if constexpr (axis == 0) {
-            throw std::format("DataFrame not support iloc_ref for rows");
+            PANDAS_THROW(std::format("DataFrame not support iloc_ref for rows"));
 
         } else {
             Series<IT, DT, INT, DNT>& col = values[i];
@@ -338,7 +338,7 @@ public:
     auto& loc_ref(const DNT& col_name)
     {
         if constexpr (axis == 0) {
-            throw std::format("DataFrame not support loc_ref for rows");
+            PANDAS_THROW(std::format("DataFrame not support loc_ref for rows"));
 
         } else {
             int j = get_column_index(col_name);
@@ -449,7 +449,7 @@ public:
     {
         if constexpr (axis == 0) {
             if (mask.size() != size<0>()) {
-                throw std::format("size not match: {}!={}", mask.size(), size<0>());
+                PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size<0>()));
             }
             std::vector<int> iids_row;
 
@@ -462,7 +462,7 @@ public:
 
         } else {
             if (mask.size() != size<1>()) {
-                throw std::format("size not match: {}!={}", mask.size(), size<1>());
+                PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size<1>()));
             }
             std::vector<int> iids_col;
 

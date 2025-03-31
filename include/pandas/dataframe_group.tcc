@@ -72,7 +72,7 @@ template <class KT>
 DataFrameGroup<KT> groupby(const std::vector<KT>& vs)
 {
     if (size<0>() != vs.size()) {
-        throw std::format("size not match: {}!={}", vs.size(), size<0>());
+        PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size<0>()));
     }
 
     return DataFrameGroup<KT>(*this, Array<KT>(vs));
@@ -88,13 +88,13 @@ template <class IT2, class KT, class INT2, class DNT2>
 DataFrameGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
 {
     if (sr.size() != size<0>()) {
-        throw std::format("size not match: {}!={}", sr.size(), size<0>());
+        PANDAS_THROW(std::format("size not match: {}!={}", sr.size(), size<0>()));
     }
 
     for (int i = 0; i < size<0>; i++) {
         IT id = pidx->iloc(i);
         if (!sr.pidx->has(id)) {
-            throw std::format("id not found: {}", pandas::to_string(id));
+            PANDAS_THROW(std::format("id not found: {}", pandas::to_string(id)));
         }
     }
 

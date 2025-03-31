@@ -109,7 +109,7 @@ public:
         for (int i = 0; i < this->size(); i++) {
             T v = this->iloc(i);
             if (value2iid.count(v)) {
-                throw std::format("index '{}' has duplicated value {}", pandas::to_string(get_name()), pandas::to_string(v));
+                PANDAS_THROW(std::format("index '{}' has duplicated value {}", pandas::to_string(get_name()), pandas::to_string(v)));
             }
             value2iid[v] = i;
         }
@@ -123,7 +123,7 @@ public:
     int _append(const T& v)
     {
         if (has(v)) {
-            throw std::format("duplicated key: {}", pandas::to_string(v));
+            PANDAS_THROW(std::format("duplicated key: {}", pandas::to_string(v)));
         }
         int n = value2iid.size();
         value2iid[v] = n;
@@ -137,14 +137,14 @@ public:
             int i = value2iid.at(v);
             return i;
         } else {
-            throw std::format("key not found: {}", pandas::to_string(v));
+            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(v)));
         }
     }
 
     inline T loc(const T& key) const
     {
         if (!has(key)) {
-            throw std::format("key not found: {}", pandas::to_string(key));
+            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(key)));
         }
         return key;
     }
@@ -152,7 +152,7 @@ public:
     inline T& loc_ref(const T& key)
     {
         if (!has(key)) {
-            throw std::format("key not found: {}", pandas::to_string(key));
+            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(key)));
         }
         return iloc_ref(value2iid[key]);
     }

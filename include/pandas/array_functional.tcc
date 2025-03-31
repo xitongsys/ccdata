@@ -173,7 +173,7 @@ Array cumsum() const
 
 Array drop_duplicates(const std::string& keep)
 {
-    return loc(duplicated(keep));
+    return loc(!duplicated(keep));
 }
 
 /// @pow
@@ -351,7 +351,7 @@ template <class T2>
 double corr(const std::vector<T2>& y) const
 {
     if (y.size() != size()) {
-        throw std::format("size not match: {}!={}", y.size(), size());
+        PANDAS_THROW(std::format("size not match: {}!={}", y.size(), size()));
     }
     double sum_y = 0;
     for (int i = 0; i < y.size(); i++) {
@@ -377,7 +377,7 @@ template <class T2, class NT2>
 double corr(const Array<T2, NT2>& ar) const
 {
     if (ar.size() != size()) {
-        throw std::format("size not match: {}!={}", ar.size(), size());
+        PANDAS_THROW(std::format("size not match: {}!={}", ar.size(), size()));
     }
     return corr(ar.values);
 }

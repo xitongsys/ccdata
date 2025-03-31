@@ -53,7 +53,7 @@ template <int remove_level, typename... Args>
 auto remove_element(const std::tuple<Args...>& t)
 {
     if constexpr (remove_level + 1 > sizeof...(Args) || remove_level < 0) {
-        throw std::format("illegal remove_level: {}", remove_level);
+        PANDAS_THROW(std::format("illegal remove_level: {}", remove_level));
     } else if constexpr (sizeof...(Args) == 2) {
         return std::get<(1 ^ remove_level)>(t);
     } else {

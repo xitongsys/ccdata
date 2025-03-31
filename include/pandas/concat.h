@@ -45,7 +45,7 @@ auto concat(
     } else if constexpr (axis == 1) {
         auto idx_tail = concat<1>(idx2, idxs...);
         if (idx1.size() != idx_tail.size()) {
-            throw std::format("size not match: {}!={}", idx1.size(), idx_tail.size());
+            PANDAS_THROW(std::format("size not match: {}!={}", idx1.size(), idx_tail.size()));
         }
         using NEW_IT = std::remove_reference<decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)))>::type;
         Array<NEW_IT, NT1> idx(idx1.get_name());
@@ -59,7 +59,7 @@ auto concat(
         return idx;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -79,7 +79,7 @@ auto concat(const std::vector<Array<IT, NT>>& idss)
         return idx;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -125,7 +125,7 @@ auto concat(
     } else if constexpr (axis == 1) {
         auto idx_tail = concat<1>(idx2, idxs...);
         if (idx1.size() != idx_tail.size()) {
-            throw std::format("size not match: {}!={}", idx1.size(), idx_tail.size());
+            PANDAS_THROW(std::format("size not match: {}!={}", idx1.size(), idx_tail.size()));
         }
         using NEW_IT = std::remove_reference<decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)))>::type;
         Index<NEW_IT, NT1> idx(idx1.get_name());
@@ -139,7 +139,7 @@ auto concat(
         return idx;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -159,7 +159,7 @@ auto concat(const std::vector<Index<IT, NT>>& idss)
         return idx;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -176,7 +176,7 @@ auto concat(const Series<IT1, DT1, INT1, DNT1>& sr1)
         return DataFrame<IT1, DT1, INT1, DNT1>({ sr1 });
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
     }
 }
 template <int axis,
@@ -210,7 +210,7 @@ auto concat(
         return df;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -233,7 +233,7 @@ auto concat(const std::vector<Series<IT, DT, INT, DNT>>& srs)
         return DataFrame<IT, DT, INT, DNT>(srs);
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -250,7 +250,7 @@ auto concat(const DataFrame<IT1, DT1, INT1, DNT1>& df1)
         return df1;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
     }
 }
 template <int axis,
@@ -284,7 +284,7 @@ auto concat(
         return df;
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }
@@ -321,7 +321,7 @@ auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
         return DataFrame<IT, DT, INT, DNT>(srs);
 
     } else {
-        throw std::format("axis not supported: {}", axis);
+        PANDAS_THROW(std::format("axis not supported: {}", axis));
         return -1;
     }
 }

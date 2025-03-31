@@ -215,7 +215,7 @@ public:
                 }
             }
         } else {
-            throw std::format("unknow dedup method: {}", keep);
+            PANDAS_THROW(std::format("unknow dedup method: {}", keep));
         }
 
         return dup;
@@ -259,7 +259,7 @@ public:
     Array loc(const std::vector<T2>& mask)
     {
         if (mask.size() != size()) {
-            throw std::format("size not match: {}!={}", mask.size(), size());
+            PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size()));
         }
 
         Array ar(get_name());

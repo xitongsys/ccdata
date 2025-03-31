@@ -9,6 +9,7 @@
 #include <type_traits>
 
 #include "pandas/util.h"
+#include "pandas/error.h"
 
 namespace pandas {
 
@@ -28,7 +29,7 @@ T nan()
         return std::nanf();
     }
 
-    throw std::format("type has no nan");
+    PANDAS_THROW(std::format("type has no nan"));
     return T {};
 }
 

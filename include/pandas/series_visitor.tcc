@@ -142,7 +142,7 @@ public:
     {
         extract_iids();
         if (i > iids.size()) {
-            throw std::format("i = {} overflow size = {}", i, size());
+            PANDAS_THROW(std::format("i = {} overflow size = {}", i, size()));
         }
         i = iids[i];
         return sr.iloc(i);
@@ -152,7 +152,7 @@ public:
     {
         extract_iids();
         if (i > iids.size()) {
-            throw std::format("i = {} overflow size = {}", i, size());
+            PANDAS_THROW(std::format("i = {} overflow size = {}", i, size()));
         }
         i = iids[i];
         return sr.iloc_ref(i);

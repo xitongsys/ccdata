@@ -9,12 +9,12 @@ class Iterator {
 public:
     T next()
     {
-        throw std::format("next not supported");
+        PANDAS_THROW(std::format("next not supported"));
     };
 
     T& next_ref()
     {
-        throw std::format("next_ref not supported");
+        PANDAS_THROW(std::format("next_ref not supported"));
     };
 
     bool has_left() const
@@ -24,7 +24,7 @@ public:
 
     void reset()
     {
-        throw std::format("reset not supported");
+        PANDAS_THROW(std::format("reset not supported"));
     }
 };
 }

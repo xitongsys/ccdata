@@ -27,7 +27,7 @@ public:
     inline int next()
     {
         if (!has_left()) {
-            throw std::format("no left data");
+            PANDAS_THROW(std::format("no left data"));
         }
 
         int i = it->second;

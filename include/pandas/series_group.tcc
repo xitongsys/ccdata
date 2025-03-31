@@ -76,7 +76,7 @@ template <class KT>
 SeriesGroup<KT> groupby(const std::vector<KT>& vs)
 {
     if (size() != vs.size()) {
-        throw std::format("size not match: {}!={}", vs.size(), size());
+        PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size()));
     }
 
     std::map<KT, std::vector<int>> iids_group;
@@ -104,7 +104,7 @@ template <class IT2, class KT, class INT2, class DNT2>
 SeriesGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
 {
     if (size() != sr.size()) {
-        throw std::format("size not match: {}!={}", sr.size(), size());
+        PANDAS_THROW(std::format("size not match: {}!={}", sr.size(), size()));
     }
 
     std::map<KT, std::vector<int>> iids_group;

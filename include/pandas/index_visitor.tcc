@@ -27,7 +27,7 @@ public:
     inline T next()
     {
         if (!has_left()) {
-            throw std::format("no left data");
+            PANDAS_THROW(std::format("no left data"));
         }
 
         int i = it.next();
@@ -38,7 +38,7 @@ public:
     inline T& next_ref()
     {
         if (!has_left()) {
-            throw std::format("no left data");
+            PANDAS_THROW(std::format("no left data"));
         }
 
         int i = it.next();
@@ -127,7 +127,7 @@ public:
     {
         extract_iids();
         if (i > iids.size()) {
-            throw std::format("i = {} overflow size = {}", i, size());
+            PANDAS_THROW(std::format("i = {} overflow size = {}", i, size()));
         }
         i = iids[i];
         return si.iloc(i);
@@ -137,7 +137,7 @@ public:
     {
         extract_iids();
         if (i > iids.size()) {
-            throw std::format("i = {} overflow size = {}", i, size());
+            PANDAS_THROW(std::format("i = {} overflow size = {}", i, size()));
         }
         i = iids[i];
         return si.iloc_ref(i);

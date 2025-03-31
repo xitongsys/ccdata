@@ -42,7 +42,7 @@ public:
     inline int next()
     {
         if (!has_left()) {
-            throw std::format("no value left");
+            PANDAS_THROW(std::format("no value left"));
         }
         int res = cur;
         cur += step;
@@ -112,7 +112,7 @@ public:
     inline T next()
     {
         if (!has_left()) {
-            throw std::format("no value left");
+            PANDAS_THROW(std::format("no value left"));
         }
 
         T val = vs[cur];
