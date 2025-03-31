@@ -297,7 +297,9 @@ public:
             }
         }
 
-        return pandas::line_width_adjust(ss.str()) + std::format("\n[{} rows]", size());
+        ss << std::format("\n[{} rows]", size());
+
+        return pandas::line_width_adjust(ss.str());
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Array& ar)

@@ -238,8 +238,9 @@ public:
         for (int i = 0; i < idx_lines.size(); i++) {
             lines.push_back(idx_lines[i] + " " + val_lines[i]);
         }
+        lines.push_back(std::format("\n[{} rows]", size()));
 
-        return pandas::line_width_adjust(pandas::join(lines, "\n")) + std::format("\n[{} rows]", size());
+        return pandas::line_width_adjust(pandas::join(lines, "\n"));
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Series& sr)
