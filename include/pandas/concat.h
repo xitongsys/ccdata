@@ -200,7 +200,7 @@ auto concat(
     } else if constexpr (axis == 1) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<1>(sr2, srs...);
         Index<IT1, INT1> idx = concat<0>(*sr1.pidx, *df_tail.pidx);
-        idx._rename(sr1.get_name());
+        idx._rename(sr1.get_name());        
         DataFrame<IT1, DT1, INT1, DNT1> df({ sr1.reindex(idx) });
 
         for (int j = 0; j < df_tail.size<1>(); j++) {
