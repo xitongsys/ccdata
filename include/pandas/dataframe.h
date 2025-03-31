@@ -269,6 +269,20 @@ public:
     }
 
     template <class DT2, class DNT2>
+    int _append_col(const DNT2& col_name, const DT2& val)
+    {
+        if (has<1>(col_name)) {
+            PANDAS_THROW(std::format("duplicated column: {}", pandas::to_string(col_name)));
+        }
+        std::vector<DT2> vs;
+        for (int i = 0; i < size<0>(); i++) {
+            vs.push_back(val);
+        }
+        _append_col(col_name, val);
+        return size<1>();
+    }
+
+    template <class DT2, class DNT2>
     int _append_col(const DNT2& col_name, const std::vector<DT2>& col)
     {
         if (col.size() != size<0>()) {
