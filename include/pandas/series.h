@@ -419,6 +419,49 @@ public:
         return res;
     }
 
+    template <class DT2>
+    Series sort_values(const std::vector<DT2>& keys, bool ascending = true) const
+    {
+        if (keys.size() != size()) {
+            PANDAS_THROW(std::format("size not match: {}!={}", keys.size(), size()));
+        }
+        using Pair = std::tuple<IT, DT, DT2>;
+
+        std::vector<Pair> ps;
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            DT val = values.iloc(i);
+            ps.push_back(std::make_tuple<IT, DT, DT2>(std::move(id), std::move(val), keys[i]));
+        }
+
+        std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
+            if (ascending) {
+                return std::get<2>(pa) < std::get<2>(pb);
+            } else {
+                return std::get<2>(pb) < std::get<2>(pa);
+            }
+        });
+
+        Series res;
+        for (int i = 0; i < ps.size(); i++) {
+            const IT& id = std::get<0>(ps[i]);
+            const DT& val = std::get<1>(ps[i]);
+            res._append(id, val);
+        }
+        return res;
+    }
+    template <class DT2, class DNT2>
+    Series sort_values(const Array<DT2, DNT2>& ar, bool ascending = true) const
+    {
+        return sort_values(ar.values);
+    }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series sort_values(const Series<IT2, DT2, INT2, DNT2>& sr, bool ascending = true) const
+    {
+        auto sr2 = sr.reindex(*pidx).dropna();
+        return sort_values(sr2.values);
+    }
+
     Series sort_values(bool ascending = true) const
     {
         using Pair = std::tuple<IT, DT>;
