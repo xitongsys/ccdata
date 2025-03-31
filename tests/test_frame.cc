@@ -23,8 +23,11 @@ void test_frame_constructors()
     Series<int, double> sr1("sr1", { 0, 1 }, { 1, 2 });
     Series<int, double> sr2("sr2", { 0, 2 }, { 4, 3 });
     DataFrame<int, double> df1(std::vector<Series<int, double>>({ sr1, sr2 }));
-
     assert(pandas::isnan(df1.iloc(1, 1)) && (df1.iloc(2, 1) == 3));
+
+    auto df2 = df1.set_index<double, std::string>("index", std::vector<double>({ 10, 11, 12 }));
+    assert(df2.pidx->iloc(0) == 10);
+    
 
     cout << "[PASS] test_frame_constructors" << endl;
 }

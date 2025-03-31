@@ -521,12 +521,44 @@ public:
         }
     }
 
+    /// @brief set index
+    /// @tparam IT2
+    /// @tparam INT2
+    /// @param name
+    /// @param vs
+    /// @return
+    template <class IT2, class INT2>
+    DataFrame<IT2, DT, INT2, DNT> set_index(const INT2& name, const std::vector<IT2>& vs)
+    {
+        if (vs.size() != size<0>()) {
+            PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size<0>()));
+        }
+        Index<IT2, INT2> idx(vs, name);
+        DataFrame<IT2, DT, INT2, DNT> df(idx);
+        for (int j = 0; j < size<1>(); j++) {
+            auto ds = iloc<1>(j).reindex(idx);
+            df._append_col(ds);
+        }
+        return df;
+    }
+    template <class IT2, class INT2>
+    DataFrame<IT2, DT, INT2, DNT> set_index(const Array<IT2, INT2>& ar)
+    {
+        set_index(ar.get_name(), ar.values());
+    }
     template <class IT2, class INT2>
     DataFrame<IT2, DT, INT2, DNT> set_index(const Index<IT2, INT2>& idx)
     {
-        if (idx.size() != size<0>()) {
-            PANDAS_THROW(std::format("size not match: {}!={}", idx.size(), size<0>()));
+        set_index(idx.get_name(), idx.values);
+    }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    DataFrame<IT2, DT, INT2, DNT> set_index(const Series<IT2, DT2, INT2, DNT2>& sr)
+    {
+        if (sr.size() != size<0>()) {
+            PANDAS_THROW(std::format("size not match: {}!={}", sr.size(), size<0>()));
         }
+        auto sr2 = sr.reindex(*pidx);
+        set_index(sr.get_name(), sr.values);
     }
 
     std::string to_string(int mx_row = 10, int mx_col = 10) const
