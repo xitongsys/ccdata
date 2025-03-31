@@ -27,7 +27,12 @@ void test_frame_constructors()
 
     auto df2 = df1.set_index<double, std::string>("index", std::vector<double>({ 10, 11, 12 }));
     assert(df2.pidx->iloc(0) == 10);
-    
+
+
+    Array<std::string> ar = std::vector<std::string>({ "10", "11", "12" });
+    auto df3 = df1.set_index<std::string, std::string>(ar);
+    assert(df3.pidx->iloc(0) == "10");
+
 
     cout << "[PASS] test_frame_constructors" << endl;
 }
