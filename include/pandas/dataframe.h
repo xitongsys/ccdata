@@ -601,29 +601,29 @@ public:
     }
 
     template <class DT2>
-    DataFrame sort_values(const std::vector<DT2>& vs, bool ascending = true)
+    DataFrame sort_values(const std::vector<DT2>& vs, bool ascending = true) const
     {
         std::vector<Series<IT, DT, INT, DNT>> srs;
-        for (auto& sr : values) {
+        for (const Series<IT, DT, INT, DNT>& sr : values) {
             srs.push_back(sr.sort_values(vs, ascending));
         }
         return concat<1>(srs);
     }
     template <class DT2, class DNT2>
-    DataFrame sort_values(const Array<DT2, DNT2>& ar, bool ascending = true)
+    DataFrame sort_values(const Array<DT2, DNT2>& ar, bool ascending = true) const
     {
         return sort_values(ar.values, ascending);
     }
     template <class IT2, class DT2, class INT2, class DNT2>
-    DataFrame sort_values(const Series<IT2, DNT2, INT2, DNT2>& sr_key, bool ascending = true)
+    DataFrame sort_values(const Series<IT2, DNT2, INT2, DNT2>& sr_key, bool ascending = true) const
     {
         std::vector<Series<IT, DT, INT, DNT>> srs;
-        for (auto& sr : values) {
+        for (const Series<IT, DT, INT, DNT>& sr : values) {
             srs.push_back(sr.sort_values(sr_key, ascending));
         }
         return concat<1>(srs);
     }
-    DataFrame sort_values(const DNT& col, bool ascending = true)
+    DataFrame sort_values(const DNT& col, bool ascending = true) const
     {
         return sort_values(loc<1>(col));
     }
