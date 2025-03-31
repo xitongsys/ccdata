@@ -28,11 +28,9 @@ void test_frame_constructors()
     auto df2 = df1.set_index<double, std::string>("index", std::vector<double>({ 10, 11, 12 }));
     assert(df2.pidx->iloc(0) == 10);
 
-
     Array<std::string> ar = std::vector<std::string>({ "10", "11", "12" });
     auto df3 = df1.set_index<std::string, std::string>(ar);
     assert(df3.pidx->iloc(0) == "10");
-
 
     cout << "[PASS] test_frame_constructors" << endl;
 }
@@ -111,6 +109,19 @@ void test_frame_groupby()
     cout << "[PASS] test_frame_groupby" << endl;
 }
 
+void test_frame_sort()
+{
+    DataFrame<int, double> df1(std::vector<int>(), { "a", "b" }, pandas::nan<double>());
+    df1._append_row(1, std::vector<double>({ 3, 1 }));
+    df1._append_row(2, std::vector<double>({ 2, 2 }));
+    df1._append_row(3, std::vector<double>({ 1, 3 }));
+
+    auto df2 = df1.sort_values("b", false);
+    assert((df2.iloc(0,0)==1) && (df2.iloc(0,1)==3));
+
+    cout << "[PASS] test_frame_sort done" << endl;
+}
+
 int main()
 {
 
@@ -120,6 +131,7 @@ int main()
         test_frame_loc();
         test_frame_functional();
         test_frame_groupby();
+        test_frame_sort();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

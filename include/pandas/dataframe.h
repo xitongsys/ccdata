@@ -615,7 +615,7 @@ public:
         return sort_values(ar.values, ascending);
     }
     template <class IT2, class DT2, class INT2, class DNT2>
-    DataFrame sort_values(const Series<IT2, DNT2, INT2, DNT2>& sr_key, bool ascending = true) const
+    DataFrame sort_values(const Series<IT2, DT2, INT2, DNT2>& sr_key, bool ascending = true) const
     {
         std::vector<Series<IT, DT, INT, DNT>> srs;
         for (const Series<IT, DT, INT, DNT>& sr : values) {

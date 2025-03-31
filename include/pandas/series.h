@@ -442,7 +442,7 @@ public:
             }
         });
 
-        Series res;
+        Series res(get_name());
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
@@ -453,13 +453,13 @@ public:
     template <class DT2, class DNT2>
     Series sort_values(const Array<DT2, DNT2>& ar, bool ascending = true) const
     {
-        return sort_values(ar.values);
+        return sort_values(ar.values, ascending);
     }
     template <class IT2, class DT2, class INT2, class DNT2>
     Series sort_values(const Series<IT2, DT2, INT2, DNT2>& sr, bool ascending = true) const
     {
         auto sr2 = sr.reindex(*pidx).dropna();
-        return sort_values(sr2.values);
+        return sort_values(sr2.values, ascending);
     }
 
     Series sort_values(bool ascending = true) const
@@ -481,7 +481,7 @@ public:
             }
         });
 
-        Series res;
+        Series res(get_name());
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
