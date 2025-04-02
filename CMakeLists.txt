@@ -3,6 +3,12 @@ project ("ccdata")
 
 add_compile_options(/W0)
 
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ob2 /arch:AVX2")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi")
+
+# 链接时优化
+set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
+
 include_directories(include)
 file(GLOB_RECURSE SOURCES "src/*.cc")
 
