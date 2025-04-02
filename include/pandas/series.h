@@ -396,29 +396,25 @@ public:
 
     Series sort_index(bool ascending = true) const
     {
-        using Pair = std::tuple<IT, DT>;
-
-        std::vector<Pair> ps;
-        for (int i = 0; i < size(); i++) {
-            IT id = pidx->iloc(i);
-            DT val = values.iloc(i);
-            ps.push_back(std::tuple<IT, DT>(std::move(id), std::move(val)));
-        }
-
-        std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
-            if (ascending) {
-                return std::get<0>(pa) < std::get<0>(pb);
-            } else {
-                return std::get<0>(pb) < std::get<0>(pa);
+        Series res(get_name());
+        std::map<IT, int>& mp = pidx->value2iid;
+        if (ascending) {
+            for (auto it = mp.begin(); it != mp.end(); it++) {
+                IT id = it->first;
+                int i = it->second;
+                DT val = iloc(i);
+                res._append(id, val);
             }
-        });
 
-        Series res;
-        for (int i = 0; i < ps.size(); i++) {
-            const IT& id = std::get<0>(ps[i]);
-            const DT& val = std::get<1>(ps[i]);
-            res._append(id, val);
+        } else {
+            for (auto it = mp.rbegin(); it != mp.rend(); it++) {
+                IT id = it->first;
+                int i = it->second;
+                DT val = iloc(i);
+                res._append(id, val);
+            }
         }
+
         return res;
     }
 

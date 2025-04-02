@@ -24,19 +24,21 @@ public:
     {
         Index<IT, INT> idx;
         it_row.reset();
+        std::vector<int> iids;
         while (it_row.has_left()) {
             int i = it_row.next();
             idx._append(df.pidx->iloc(i));
+            iids.push_back(i);
         }
 
-        std::vector<Series<IT, DT, INT, DNT>> srs;
+        std::vector<Array<DT, DNT>> srs;
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();
-            srs.push_back(df.iloc<1>(j).loc(idx).to_series());
+            srs.emplace_back(df.iloc_ref<1>(j).iloc(iids).to_array());
         }
 
-        return DataFrame(srs);
+        return DataFrame(idx, srs);
     }
 
     std::vector<SV> to_series_visitors()

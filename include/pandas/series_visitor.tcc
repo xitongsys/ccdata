@@ -76,6 +76,18 @@ public:
         return res;
     }
 
+    Array<DT, DNT> to_array()
+    {
+        Array<DT, DNT> res(sr.get_name());
+        it.reset();
+        while (it.has_left()) {
+            int i = it.next();
+            DT val = sr.iloc(i);
+            res._append(val);
+        }
+        return res;
+    }
+
     template <class T2>
     void operator=(const T2& v)
     {
