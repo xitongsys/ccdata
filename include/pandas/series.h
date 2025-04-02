@@ -227,10 +227,10 @@ public:
         return Series<IT2, DT2, INT2, DNT2>(idx, vals);
     }
 
-    std::string to_string(int mx_cnt = 10) const
+    std::string to_string(int mx_cnt = 10, bool tail = true) const
     {
-        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_cnt), "\n");
-        std::vector<std::string> val_lines = pandas::split(values.to_string(mx_cnt), "\n");
+        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_cnt, false), "\n");
+        std::vector<std::string> val_lines = pandas::split(values.to_string(mx_cnt, false), "\n");
         if (idx_lines.size() != val_lines.size()) {
             PANDAS_THROW(std::format("size not match: {}!={}", idx_lines.size(), val_lines.size()));
         }
@@ -238,7 +238,9 @@ public:
         for (int i = 0; i < idx_lines.size(); i++) {
             lines.push_back(idx_lines[i] + " " + val_lines[i]);
         }
-        lines.push_back(std::format("\n[{} rows]", size()));
+        if (tail) {
+            lines.push_back(std::format("[{} rows]", size()));
+        }
 
         return pandas::line_width_adjust(pandas::join(lines, "\n"));
     }

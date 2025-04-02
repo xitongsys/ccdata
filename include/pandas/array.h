@@ -277,7 +277,7 @@ public:
         return loc(mask.values);
     }
 
-    std::string to_string(int mx_cnt = 10) const
+    std::string to_string(int mx_cnt = 10, bool tail = true) const
     {
         std::stringstream ss;
 
@@ -289,15 +289,23 @@ public:
             }
             ss << "...\n";
             for (int i = size() - mx_cnt / 2; i < size(); i++) {
-                ss << pandas::to_string(values[i]) << "\n";
+                ss << pandas::to_string(values[i]);
+                if (i + 1 < size()) {
+                    ss << "\n";
+                }
             }
         } else {
             for (int i = 0; i < size(); i++) {
-                ss << pandas::to_string(values[i]) << "\n";
+                ss << pandas::to_string(values[i]);
+                if (i + 1 < size()) {
+                    ss << "\n";
+                }
             }
         }
 
-        ss << std::format("\n[{} rows]", size());
+        if (tail) {
+            ss << std::format("\n[{} rows]", size());
+        }
 
         return pandas::line_width_adjust(ss.str());
     }

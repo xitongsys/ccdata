@@ -209,9 +209,9 @@ public:
         return si;
     }
 
-    std::string to_string(int mx_cnt = 10) const
+    std::string to_string(int mx_cnt = 10, bool tail = true) const
     {
-        return values.to_string(mx_cnt);
+        return values.to_string(mx_cnt, tail);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Index<T>& idx)

@@ -560,14 +560,14 @@ public:
         return set_index(sr.get_name(), sr.values);
     }
 
-    std::string to_string(int mx_row = 10, int mx_col = 10) const
+    std::string to_string(int mx_row = 10, int mx_col = 10, bool tail = true) const
     {
-        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_row), "\n");
+        std::vector<std::string> idx_lines = pandas::split(pidx->to_string(mx_row, false), "\n");
         std::vector<std::vector<std::string>> col_lines;
 
         if (values.size() > mx_col) {
             for (int j = 0; j < mx_col / 2; j++) {
-                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+                col_lines.push_back(pandas::split(values[j].values.to_string(mx_row, false), "\n"));
             }
 
             std::vector<std::string> empty_lines;
@@ -577,12 +577,12 @@ public:
             col_lines.push_back(empty_lines);
 
             for (int j = values.size() - mx_col / 2; j < values.size(); j++) {
-                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+                col_lines.push_back(pandas::split(values[j].values.to_string(mx_row, false), "\n"));
             }
 
         } else {
             for (int j = 0; j < values.size(); j++) {
-                col_lines.push_back(pandas::split(values[j].values.to_string(), "\n"));
+                col_lines.push_back(pandas::split(values[j].values.to_string(mx_row, false), "\n"));
             }
         }
 
@@ -597,7 +597,12 @@ public:
             }
         }
 
-        return ss.str() + std::format("\n[{} rows x {} columns]", size<0>(), size<1>());
+        std::string s = ss.str();
+        if (tail) {
+            s += std::format("\n[{} rows x {} columns]", size<0>(), size<1>());
+        }
+
+        return s;
     }
 
     template <class DT2>
