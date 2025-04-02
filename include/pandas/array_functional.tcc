@@ -353,11 +353,13 @@ double corr(const std::vector<T2>& y) const
     if (y.size() != size()) {
         PANDAS_THROW(std::format("size not match: {}!={}", y.size(), size()));
     }
-    double sum_y = 0;
+    double sum_y = 0, sum_x = 0;
     for (int i = 0; i < y.size(); i++) {
         sum_y += y[i];
+        sum_x += values[i];
     }
-    double mn_x = mean(), mn_y = sum_y / size();
+
+    double mn_x = sum_x / size(), mn_y = sum_y / size();
     double s_up = 0, s_down_x = 0, s_down_y = 0;
     for (int i = 0; i < size(); i++) {
         double xi = iloc(i);
@@ -369,7 +371,7 @@ double corr(const std::vector<T2>& y) const
         s_down_x += (xi - mn_x) * (xi - mn_x);
         s_down_y += (yi - mn_y) * (yi - mn_y);
     }
-    double c = s_up / std::pow(s_down_x * s_down_y, 0.5);
+    double c = s_up / std::sqrt(s_down_x * s_down_y);
     return c;
 }
 

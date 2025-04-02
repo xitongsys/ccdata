@@ -165,7 +165,7 @@ void test_frame_pref()
 
     end = pd::Datetime::now();
 
-    cout << "init data cost: " << (end - bgn).to_string() << endl;
+    cout << "init data cost: " << (end - bgn).total_seconds() << endl;
 
     bgn = pd::Datetime::now();
     auto mask = ds_y != 0;
@@ -176,7 +176,7 @@ void test_frame_pref()
 
     cout << df1 << endl;
 
-    std::cout << "loc mask cost: " << (end - bgn).to_string() << endl;
+    std::cout << "loc mask cost: " << (end - bgn).total_seconds() << endl;
 
     //
 }

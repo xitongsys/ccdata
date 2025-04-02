@@ -182,6 +182,29 @@ void test_series_sort()
     cout << "[PASS] test_series_sort" << endl;
 }
 
+void test_series_perf()
+{
+    Series<int, double> sr;
+    Index<int> idx;
+    std::vector<int> idx2;
+    Array<int> ar;
+    for (int i = 0; i < 300000; i++) {
+        sr._append(i, i * 2);
+        idx._append(i + 1);
+        idx2.push_back(i + 1);
+        ar._append(i);
+    }
+
+    Datetime bgn, end;
+    bgn = Datetime::now();
+    //auto sr2 = sr.reindex(idx2).fillna(0).cumsum();
+    ar.cumsum();
+    end = Datetime::now();
+
+    cout << sr << endl;
+    cout << (end - bgn).total_seconds() << endl;
+}
+
 int main()
 {
 
@@ -192,6 +215,7 @@ int main()
         test_series_functional();
         test_series_groupby();
         test_series_sort();
+        test_series_perf();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

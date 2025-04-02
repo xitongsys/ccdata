@@ -67,9 +67,12 @@ public:
     {
         Series<IT, DT, INT, DNT> res(sr.get_name());
         it.reset();
+
+        auto& ids = sr.pidx->values.values;
         while (it.has_left()) {
             int i = it.next();
-            IT id = sr.pidx->iloc(i);
+            //IT id = sr.pidx->iloc(i);
+            IT id = ids[i];
             DT val = sr.iloc(i);
             res._append(id, val);
         }

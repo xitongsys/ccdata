@@ -181,14 +181,14 @@ public:
     template <class IT2>
     Series<IT2, DT, INT, DNT> reindex(const std::vector<IT2>& index) const
     {
-        Series<IT2, DT, INT, DNT> res;
+        Series<IT2, DT, INT, DNT> res(get_name());
         for (int i = 0; i < index.size(); i++) {
 
             IT2 id = index[i];
             DT val = DT {};
 
-            if (pidx->has((IT)(id))) {
-                val = loc((IT)(id));
+            if (pidx->has(id)) {
+                val = loc(id);
             } else {
                 val = pandas::nan<DT>();
             }
@@ -196,15 +196,21 @@ public:
         }
 
         res.pidx->_rename(pidx->get_name());
-        res._rename(get_name());
         return res;
     }
 
     template <class IT2, class INT2>
     Series<IT2, DT, INT2, DNT> reindex(const Array<IT2, INT2>& index) const
     {
-        auto res = reindex(index.values).astype<IT2, DT, INT2, DNT>();
-        res._rename(get_name());
+        Series<IT2, DT, INT2, DNT> res(get_name());
+        for (int i = 0; i < index.size(); i++) {
+            IT2 id = index.iloc(i);
+            if (pidx->has(id)) {
+                res._append(id, loc(id));
+            } else {
+                res._append(id, pandas::nan<DT>());
+            }
+        }
         res.pidx->_rename(index.get_name());
         return res;
     }
@@ -212,19 +218,21 @@ public:
     template <class IT2, class INT2>
     Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
     {
-        auto res = reindex(index.values).astype<IT2, DT, INT2, DNT>();
-        res._rename(get_name());
-        res.pidx->_rename(index.get_name());
+        auto res = reindex(index.values);
         return res;
     }
 
     template <class IT2, class DT2, class INT2 = INT, class DNT2 = DNT>
     Series<IT2, DT2, INT2, DNT2> astype()
     {
-        auto idx = pidx->astype<IT2, INT2>();
-        auto vals = values.astype<DT2, DNT2>();
-
-        return Series<IT2, DT2, INT2, DNT2>(idx, vals);
+        Series<IT2, DT2, INT2, DNT2> res(get_name());
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            DT val = iloc(i);
+            res._append(id, val);
+        }
+        res.pidx->_rename(pidx->get_name());
+        return res;
     }
 
     std::string to_string(int mx_cnt = 10, bool tail = true) const

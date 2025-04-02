@@ -46,11 +46,28 @@ void test_array01()
     cout << "[PASS] test_array01" << endl;
 }
 
+void test_array_perf()
+{
+    Array<double> x, y;
+    for (int i = 0; i < 300000; i++) {
+        x._append(i);
+        y._append(i * i);
+    }
+    auto start = std::chrono::high_resolution_clock::now();
+    double c = x.corr(y);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    cout << c <<endl;
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Time taken: " << elapsed.count() << " seconds" << std::endl;
+}
+
 int main()
 {
 
     try {
         test_array01();
+        test_array_perf();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

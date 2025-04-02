@@ -115,27 +115,26 @@ public:
         }
     }
 
-    bool has(const T& v) const
+    inline bool has(const T& v) const
     {
         return value2iid.count(v) > 0;
     }
 
     int _append(const T& v)
     {
-        if (has(v)) {
-            PANDAS_THROW(std::format("duplicated key: {}", pandas::to_string(v)));
-        }
         int n = value2iid.size();
         value2iid[v] = n;
         values._append(v);
+        if (values.size() != value2iid.size()) {
+            PANDAS_THROW(std::format("duplicated key: {}", pandas::to_string(v)));
+        }
         return 0;
     }
 
     inline int loc_i(const T& v) const
     {
         if (value2iid.count(v)) {
-            int i = value2iid.at(v);
-            return i;
+            return value2iid.at(v);
         } else {
             PANDAS_THROW(std::format("key not found: {}", pandas::to_string(v)));
         }
