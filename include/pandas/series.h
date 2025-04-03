@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "pandas/array.h"
+#include "pandas/dataframe.h"
+#include "pandas/datetime.h"
 #include "pandas/error.h"
 #include "pandas/index.h"
 #include "pandas/ops.h"
@@ -147,9 +149,9 @@ public:
         return values.get_name();
     }
 
-    void _append(const IT& id, const DT& val, bool reindex = true)
+    void _append(const IT& id, const DT& val, bool flush_index = true)
     {
-        pidx->_append(id, reindex);
+        pidx->_append(id, flush_index);
         values._append(val);
     }
 
@@ -169,8 +171,7 @@ public:
     template <class IT2>
     Series<IT2, DT, INT, DNT> reindex(const std::vector<IT2>& index) const
     {
-        Array<DT, DNT> ar(get_name());
-
+        Array<DT, DNT> ar(index.size(), DT {}, get_name());
         for (int i = 0; i < index.size(); i++) {
             IT2 id = index[i];
             DT val = DT {};
@@ -180,9 +181,10 @@ public:
             } else {
                 val = pandas::nan<DT>();
             }
-            ar._append(val);
+            ar.iloc_ref(i) = val;
         }
-        return Series<IT2, DT, INT, DNT>(Index<IT2, INT>(index), ar);
+
+        return Series<IT2, DT, INT, DNT>(Index<IT2, INT>(index), std::move(ar));
     }
 
     template <class IT2, class INT2>
