@@ -87,7 +87,7 @@ public:
                 values[j].values._append(row.iloc(j));
             }
         }
-        pidx->_reindex();
+        pidx->_flush_index();
 
         reassign_index();
     }
