@@ -33,7 +33,8 @@ public:
 
     Series<IT, int, INT, DNT> count()
     {
-        Series<IT, int, INT, DNT> res(sr.get_name());
+        Array<IT, INT> ar_idx(sr.pidx->get_name());
+        Array<int, DNT> ar_val(sr.get_name());
         int n = sr.size();
         int cnt = 0;
         for (int i = 0; i < n; i++) {
@@ -47,9 +48,13 @@ public:
             if (j >= 0 && !pandas::isnan(sr.iloc(j))) {
                 cnt--;
             }
-            res._append(id, cnt);
+
+            ar_idx._append(id);
+            ar_val._append(cnt);
         }
-        return res;
+        return Series<IT, int, INT, DNT>(
+            std::move(Index<IT, INT>(std::move(ar_idx))),
+            std::move(ar_val));
     }
 
     Series sum()
@@ -149,29 +154,39 @@ public:
         Series<IT, int, INT, DNT> cs = count();
         Series ss = sum();
 
-        Series<IT, double, INT, DNT> res(sr.get_name());
+        Array<IT, INT> ar_idx(sr.pidx->get_name());
+        Array<DT, DNT> ar_val(sr.get_name());
+
         for (int i = 0; i < sr.size(); i++) {
             IT id = sr.pidx->iloc(i);
             double c = cs.iloc(i), s = ss.iloc(i);
-            res._append(id, s / c);
+            ar_idx._append(id);
+            ar_val._append(s / c);
         }
-        return res;
+
+        return Series<IT, double, INT, DNT>(
+            std::move(Index<IT, INT>(std::move(ar_idx))),
+            std::move(ar_val));
     }
 
     Series<IT, double, INT, DNT> var()
     {
         Series mns = mean();
-        Series<IT, double, INT, DNT> res(sr.get_name());
+        Array<IT, INT> ar_idx(sr.pidx->get_name());
+        Array<DT, DNT> ar_val(sr.get_name());
 
         for (int i = 0; i < sr.size(); i++) {
             IT id = sr.pidx->iloc(i);
             DT v = sr.iloc(i);
             double mn = mns.iloc(i);
             double va = (v - mn) * (v - mn);
-            res._append(id, va);
+            ar_idx._append(id);
+            ar_val._append(va);
         }
 
-        return res.rolling(window, min_periods).mean();
+        return Series<IT, double, INT, DNT>(
+            std::move(Index<IT, INT>(std::move(ar_idx))),
+            std::move(ar_val));
     }
 
     Series<IT, double, INT, DNT> std()
@@ -184,7 +199,7 @@ public:
     template <class DT2>
     Series<IT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<Range<int>>&)> const& func)
     {
-        Series<IT, DT2, INT, DNT> res(sr);
+        Series<IT, DT2, INT, DNT> res(sr.get_name(), *(sr.pidx), DT2 {});
 
         for (int i = 0; i < sr.size(); i++) {
             int b = std::max(0, i - window + 1), e = i;

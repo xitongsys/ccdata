@@ -27,9 +27,10 @@ public:
         std::vector<int> iids;
         while (it_row.has_left()) {
             int i = it_row.next();
-            idx._append(df.pidx->iloc(i));
+            idx._append(df.pidx->iloc(i), false);
             iids.push_back(i);
         }
+        idx._reindex();
 
         std::vector<Array<DT, DNT>> srs;
         it_col.reset();

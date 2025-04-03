@@ -65,18 +65,21 @@ public:
 
     Series<IT, DT, INT, DNT> to_series()
     {
-        Series<IT, DT, INT, DNT> res(sr.get_name());
+        Array<DT, DNT> vals(sr.get_name());
+        Array<IT, INT> idx;
         it.reset();
-
         auto& ids = sr.pidx->values.values;
         while (it.has_left()) {
             int i = it.next();
-            //IT id = sr.pidx->iloc(i);
             IT id = ids[i];
             DT val = sr.iloc(i);
-            res._append(id, val);
+            idx._append(id);
+            vals._append(val);
         }
-        return res;
+
+        return Series<IT, DT, INT, DNT>(
+            Index<IT, INT>(std::move(idx), sr.pidx->get_name()),
+            std::move(vals));
     }
 
     Array<DT, DNT> to_array()

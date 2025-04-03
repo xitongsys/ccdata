@@ -93,12 +93,11 @@ auto concat(const Index<IT1, NT1>& idx1)
         return idx1;
 
     } else if constexpr (axis == 1) {
-        Index<std::tuple<IT1>, NT1> idx;
-        idx._rename(idx1.get_name());
+        Array<std::tuple<IT1>> ar_idx(idx1.get_name());
         for (int i = 0; i < idx1.size(); i++) {
-            idx._append(std::tuple<IT1>(idx1.iloc(i)));
+            ar_idx._append(std::tuple<IT1>(idx1.iloc(i)));
         }
-        return idx;
+        return Index<std::tuple<IT1>, NT1>(std::move(ar_idx));
     }
 }
 template <int axis,
@@ -111,16 +110,14 @@ auto concat(
     const Ts&... idxs)
 {
     if constexpr (axis == 0) {
-        Index<IT1, NT1> idx = idx1;
         Index<IT2, NT2> idx_tail = concat<0>(idx2, idxs...);
+        Array<IT1, NT1> ar_idx = idx1.values;
 
         for (int i = 0; i < idx_tail.size(); i++) {
             const IT2& id = idx_tail.iloc(i);
-            if (!idx.has(id)) {
-                idx._append(id);
-            }
+            ar_idx._append(id);
         }
-        return idx;
+        return Index<IT1, NT1>(std::move(ar_idx));
 
     } else if constexpr (axis == 1) {
         auto idx_tail = concat<1>(idx2, idxs...);
@@ -128,15 +125,15 @@ auto concat(
             PANDAS_THROW(std::format("size not match: {}!={}", idx1.size(), idx_tail.size()));
         }
         using NEW_IT = std::remove_reference<decltype(add_first_element(idx1.iloc(0), idx_tail.iloc(0)))>::type;
-        Index<NEW_IT, NT1> idx(idx1.get_name());
+        Array<NEW_IT, NT1> ar_idx(idx1.get_name());
 
         for (int i = 0; i < idx1.size(); i++) {
             IT1 id1 = idx1.iloc(i);
             auto id_tail = idx_tail.iloc(i);
             auto new_id = add_first_element(id1, id_tail);
-            idx._append(new_id);
+            ar_idx._append(new_id);
         }
-        return idx;
+        return Index<NEW_IT, NT1>(std::move(ar_idx));
 
     } else {
         PANDAS_THROW(std::format("axis not supported: {}", axis));
@@ -147,16 +144,14 @@ template <int axis, class IT, class NT>
 auto concat(const std::vector<Index<IT, NT>>& idss)
 {
     if constexpr (axis == 0) {
-        Index<IT, NT> idx;
+        Array<IT, NT> ar_idx;
         for (auto& ids : idss) {
             for (int i = 0; i < ids.size(); i++) {
                 const IT& id = ids.iloc(i);
-                if (!idx.has(id)) {
-                    idx._append(id);
-                }
+                ar_idx._append(id);
             }
         }
-        return idx;
+        return Index<IT, NT>(std::move(ar_idx));
 
     } else {
         PANDAS_THROW(std::format("axis not supported: {}", axis));
@@ -191,16 +186,24 @@ auto concat(
     if constexpr (axis == 0) {
         Series<IT1, DT1, INT1, DNT1> sr = sr1.copy();
         Series<IT2, DT2, INT2, DNT2> sr_tail = concat<0>(sr2, srs...);
+
+        Array<IT1, INT1> ar_idx = sr.pidx->values;
+        Array<DT1, DNT1> ar_val = sr.values;
+
         for (int i = 0; i < sr_tail.size(); i++) {
             const IT2& id = sr_tail.pidx->iloc(i);
-            sr._append(id, sr_tail.iloc(i));
+            ar_idx._append(id);
+            ar_val._append(sr_tail.iloc(i));
         }
-        return sr;
+
+        return Series<IT1, DT1, INT1, DNT1>(
+            std::move(Index<IT1, INT1>(std::move(ar_idx))),
+            std::move(ar_val));
 
     } else if constexpr (axis == 1) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<1>(sr2, srs...);
-        Index<IT1, INT1> idx = concat<0>(*sr1.pidx, *df_tail.pidx);
-        idx._rename(sr1.get_name());        
+        Index<IT1, INT1> idx = concat<0>(*sr1.pidx, *df_tail.pidx).drop_duplicates("first");
+        idx._rename(sr1.get_name());
         DataFrame<IT1, DT1, INT1, DNT1> df({ sr1.reindex(idx) });
 
         for (int j = 0; j < df_tail.size<1>(); j++) {
@@ -218,16 +221,21 @@ template <int axis, class IT, class DT, class INT, class DNT>
 auto concat(const std::vector<Series<IT, DT, INT, DNT>>& srs)
 {
     if constexpr (axis == 0) {
-        Series<IT, DT, INT, DNT> sr;
+        Array<IT, INT> ar_idx;
+        Array<DT, DNT> ar_val;
+
         for (auto& sr : srs) {
             int n = sr.size();
             for (int i = 0; i < n; i++) {
                 IT id = sr.pidx->iloc(i);
                 DT val = sr.iloc(i);
-                sr._append(id, val);
+                ar_idx._append(id);
+                ar_val._append(val);
             }
         }
-        return sr;
+        return Series<IT, DT, INT, DNT>(
+            std::move(Index<IT, INT>(std::move(ar_idx))),
+            std::move(ar_val));
 
     } else if constexpr (axis == 1) {
         return DataFrame<IT, DT, INT, DNT>(srs);
@@ -264,17 +272,20 @@ auto concat(
 {
     if constexpr (axis == 0) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<0>(df2, dfs...);
-        auto cols = concat<0>(Index<DNT1>(df1.columns()), Index<DNT2>(df_tail.columns()));
+        auto cols = concat<0>(Index<DNT1>(df1.columns()), Index<DNT2>(df_tail.columns())).drop_duplicates("first");
         DataFrame<IT1, DT1, INT1, DNT1> df = df1.reindex<1>(cols);
+        df_tail = df_tail.reindex<1>(cols);
 
-        for (int i = 0; i < df_tail.size<0>(); i++) {
-            df._append_row(df_tail.iloc<0>(i));
+        std::vector<Series<IT1, DT1, INT1, DNT1>> srs;
+        for (int j = 0; j < cols.size(); j++) {
+            srs.push_back(concat<0>(df.iloc_ref<1>(j), df_tail.iloc_ref<1>(j)));
         }
-        return df;
+
+        return DataFrame(srs);
 
     } else if constexpr (axis == 1) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<1>(df2, dfs...);
-        Index<IT1, INT1> idx = concat<0>(*df1.pidx, *df_tail.pidx);
+        Index<IT1, INT1> idx = concat<0>(*df1.pidx, *df_tail.pidx).drop_duplicates("first");
 
         DataFrame<IT1, DT1, INT1, DNT1> df = df1.reindex<0>(idx);
         for (int j = 0; j < df_tail.size<1>(); j++) {
@@ -292,23 +303,36 @@ template <int axis, class IT, class DT, class INT, class DNT>
 auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
 {
     if constexpr (axis == 0) {
-        std::set<DNT> cols_set;
+        std::vector<Array<IT, INT>> ar_idxs;
+        std::vector<Array<DT, DNT>> ar_vals;
+        std::map<DNT, int> col2id;
+
         for (const auto& df : dfs) {
             for (int j = 0; j < df.size<1>(); j++) {
-                cols_set.insert(df.iloc<1>(j).get_name());
+                auto& sr = df.iloc_ref<1>(j);
+                DNT col = sr.get_name();
+                if (col2id.count(col) == 0) {
+                    col2id[col] = ar_idxs.size();
+                    ar_idxs.emplace_back(Array<IT, INT>());
+                    ar_vals.emplace_back(Array<DT, DNT>(col));
+                }
+                int j2 = col2id[col];
+
+                for (int i = 0; i < sr.size(); i++) {
+                    ar_idxs[j2]._append(sr.pidx->iloc(i));
+                    ar_vals[j2]._append(sr.iloc(i));
+                }
             }
         }
 
-        std::vector<DNT> cols(cols_set.begin(), cols_set.end());
-        DataFrame<IT, DT, INT, DNT> df(cols);
-
-        for (const auto& df : dfs) {
-            for (int i = 0; i < df.size<0>(); i++) {
-                df._append_row(df.iloc<0>(i));
-            }
+        std::vector<Series<IT, DT, INT, DNT>> srs;
+        for (int j = 0; j < ar_idxs.size(); j++) {
+            srs.emplace_back(Series<IT, DT, INT, DNT>(
+                std::move(Index<IT, INT>(std::move(ar_idxs[j]))),
+                std::move(ar_vals[j])));
         }
 
-        return df;
+        return DataFrame<IT, DT, INT, DNT>(srs);
 
     } else if constexpr (axis == 1) {
         std::vector<Series<IT, DT, INT, DNT>> srs;

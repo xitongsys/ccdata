@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <format>
 #include <functional>
 #include <initializer_list>
@@ -237,10 +238,10 @@ public:
         }
     }
 
-    Array<T, NT> sort(bool ascending = true)
+    Array<T, NT> sort(bool ascending = true) const
     {
         Array<T, NT> ar = *this;
-        sort(ar.values.begin(), ar.values.end());
+        std::sort(ar.values.begin(), ar.values.end());
         if (!ascending) {
             return ar.reverse();
         }
@@ -249,7 +250,7 @@ public:
 
     void _sort(bool ascending = true)
     {
-        sort(values.begin(), values.end());
+        std::sort(values.begin(), values.end());
         if (!ascending) {
             _reverse();
         }

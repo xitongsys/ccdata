@@ -31,14 +31,16 @@ public:
     template <class DT2>
     Series<KT, DT2, INT, DNT> agg(std::function<DT2(SeriesVisitor<RangeVec<int>>&)> const& func)
     {
-        Series<KT, DT2, INT, DNT> res(sr.get_name());
+        Array<KT, INT> ar_idx;
+        Array<DT2, DNT> ar_val(sr.get_name());
         for (auto it = items.begin(); it != items.end(); it++) {
             KT key = it->first;
             SeriesVisitor<RangeVec<int>>& sv = it->second;
             DT2 val = func(sv);
-            res._append(key, val);
+            ar_idx._append(key);
+            ar_val._append(val);
         }
-        return res;
+        return Series<KT, DT2, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
 
 #define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                           \
@@ -58,17 +60,22 @@ public:
     template <class IT2, class DT2, class INT2, class DNT2>
     Series<std::tuple<KT, IT2>, DT2, INT2, DNT2> apply(std::function<Series<IT2, DT2, INT2, DNT2>(SeriesVisitor<RangeVec<int>>&)> const& func)
     {
-        Series<std::tuple<KT, IT2>, DT2, INT, DNT> res(sr.get_name());
+        Array<std::tuple<KT, IT2>, INT2> ar_idx;
+        Array<DT2, DNT2> ar_val(sr.get_name());
+
         for (auto it = items.begin(); it != items.end(); it++) {
             KT key = it->first;
             auto ds = func(it->second);
             for (int i = 0; i < ds.size(); i++) {
                 IT2 it = ds.pidx->iloc(i);
                 DT2 val = ds.iloc(i);
-                res._append(std::tuple(key, it), val);
+                ar_idx._append(std::tuple(key, it));
+                ar_val._append(val);
             }
         }
-        return res;
+        return Series<std::tuple<KT, IT2>, DT2, INT2, DNT2>(
+            std::move(Index<std::tuple<KT, IT2>, INT2>(std::move(ar_idx))),
+            std::move(ar_val));
     }
 };
 

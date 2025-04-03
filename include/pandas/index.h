@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <format>
 #include <functional>
 #include <iostream>
@@ -20,10 +21,9 @@ template <class T, class NT = std::string>
 class Index {
 public:
     Array<T, NT> values;
-    std::map<T, int> value2iid;
+    std::vector<std::pair<T, int>> value2iid;
 
 #include "pandas/index_range.tcc"
-#include "pandas/index_visitor.tcc"
 
     Index()
     {
@@ -32,19 +32,6 @@ public:
     Index(const NT& name)
         : values(name)
     {
-    }
-
-    Index(Range<T> rg)
-    {
-        while (rg.has_left()) {
-            _append(rg.next());
-        }
-    }
-
-    Index(size_t n, const T& init_val)
-        : values(n, init_val)
-    {
-        _update_index();
     }
 
     Index(const Index& si)
@@ -59,27 +46,31 @@ public:
         value2iid = std::move(ir.value2iid);
     }
 
+    Index(const Array<T, NT>& ar, const NT& name = NT {})
+        : Index(ar.values, name)
+    {
+    }
+
+    Index(Array<T, NT>&& ar, const NT& name = NT {})
+        : values(ar)
+    {
+        _rename(name);
+        for (int i = 0; i < ar.size(); i++) {
+            value2iid.push_back({ ar.iloc(i), i });
+        }
+        std::sort(value2iid.begin(), value2iid.end());
+    }
+
+    Index(Range<T> rg, const NT& name = {})
+        : Index(rg.to_vec(), name)
+    {
+    }
+
     Index& operator=(Index&& ir)
     {
         values = std::move(ir.values);
         value2iid = std::move(ir.value2iid);
-        _update_index();
         return *this;
-    }
-
-    template <class T2, class NT2>
-    Index(const Array<T2, NT2>& ar)
-    {
-        values = ar;
-        _update_index();
-    }
-
-    Index(const std::vector<T>& vs, const NT& name = NT {})
-    {
-        for (const T& v : vs) {
-            _append(v);
-        }
-        _rename(name);
     }
 
     NT get_name() const
@@ -87,9 +78,16 @@ public:
         return values.name;
     }
 
-    void _rename(const NT& nm)
+    Index& _rename(const NT& nm)
     {
         values._rename(nm);
+        return *this;
+    }
+    Index rename(const NT& nm)
+    {
+        Index idx = *this;
+        idx._rename(nm);
+        return idx;
     }
 
     size_t size() const
@@ -97,46 +95,111 @@ public:
         return values.size();
     }
 
-    void _clear()
+    int lower_bound(const T& v) const
     {
-        values._clear();
-        value2iid.clear();
+        int l = 0, r = size() - 1;
+        if (size() == 0 || value2iid[r].first < v || value2iid[0].first > v) {
+            return -1;
+        }
+
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            if (value2iid[m].first >= v) {
+                r = m - 1;
+            } else {
+                l = m + 1;
+            }
+        }
+        return l;
     }
 
-    void _update_index()
+    int upper_bound(const T& v) const
     {
-        value2iid.clear();
-        for (int i = 0; i < this->size(); i++) {
-            T v = this->iloc(i);
-            if (value2iid.count(v)) {
-                PANDAS_THROW(std::format("index '{}' has duplicated value {}", pandas::to_string(get_name()), pandas::to_string(v)));
-            }
-            value2iid[v] = i;
+        int l = 0, r = size() - 1;
+        if (size() == 0 || value2iid[r].first < v || value2iid[0].first > v) {
+            return -1;
         }
+
+        while (l <= r) {
+            int m = l + (r - l) / 2;
+            if (value2iid[m].first <= v) {
+                l = m + 1;
+            } else {
+                r = m - 1;
+            }
+        }
+        return l;
     }
 
     inline bool has(const T& v) const
     {
-        return value2iid.count(v) > 0;
-    }
-
-    int _append(const T& v)
-    {
-        int n = value2iid.size();
-        value2iid[v] = n;
-        values._append(v);
-        if (values.size() != value2iid.size()) {
-            PANDAS_THROW(std::format("duplicated key: {}", pandas::to_string(v)));
+        int i = lower_bound(v);
+        if (i < 0 || values.iloc(value2iid[i].second) != v) {
+            return false;
         }
-        return 0;
+        return true;
     }
 
-    inline int loc_i(const T& v) const
+    int count(const T& v) const
     {
-        if (value2iid.count(v)) {
-            return value2iid.at(v);
+        int lower = lower_bound(v);
+        int upper = upper_bound(v);
+        if (lower < 0) {
+            return 0;
+        }
+        if (values[value2iid[lower].second] != v) {
+            return 0;
+        }
+        return upper - lower;
+    }
+
+    Array<char, NT> duplicated(const std::string& keep)
+    {
+        return values.duplicated(keep);
+    }
+
+    Index drop_duplicates(const std::string& keep)
+    {
+        Array<T, NT> ar_idx(get_name());
+        Array<char, NT> dup = duplicated(keep);
+        for (int i = 0; i < size(); i++) {
+            if (!dup.iloc(i)) {
+                ar_idx._append(iloc(i));
+            }
+        }
+        return Index<T, NT>(std::move(ar_idx));
+    }
+
+    int _append(const T& v, bool reindex = true)
+    {
+        int i = size();
+        values._append(v);
+        value2iid.push_back({ v, i });
+        if (reindex) {
+            std::sort(value2iid.begin(), value2iid.end());
+        }
+        return size();
+    }
+
+    void _reindex()
+    {
+        value2iid.clear();
+        for (int i = 0; i < size(); i++) {
+            value2iid.push_back({ values.iloc(i), i });
+        }
+        std::sort(value2iid.begin(), value2iid.end());
+    }
+
+    inline int loc_i(const T& key) const
+    {
+        int i = lower_bound(key);
+        if (i >= 0 && values.iloc(value2iid[i].second) == key) {
+            if (i + 1 < size() && values.iloc(value2iid[i + 1].second) == key) {
+                PANDAS_THROW(std::format("duplicated key: {}", pandas::to_string(key)));
+            }
+            return value2iid[i].second;
         } else {
-            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(v)));
+            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(key)));
         }
     }
 
@@ -150,10 +213,7 @@ public:
 
     inline T& loc_ref(const T& key)
     {
-        if (!has(key)) {
-            PANDAS_THROW(std::format("key not found: {}", pandas::to_string(key)));
-        }
-        return iloc_ref(value2iid[key]);
+        return iloc_ref(loc_i(key));
     }
 
     inline T iloc(int i) const
@@ -166,16 +226,6 @@ public:
         return values.iloc_ref(i);
     }
 
-    IndexVisitor<Range<int>> iloc(int bgn, int end, int step = 1)
-    {
-        return IndexVisitor<Range<int>>(*this, Range<int>(bgn, end, step));
-    }
-
-    IndexVisitor<IndexRange> loc(const T& bgn, const T& end)
-    {
-        return IndexVisitor(*this, IndexRange(*this, bgn, end));
-    }
-
     IndexRange range(const T& bgn, const T& end)
     {
         return IndexRange(*this, bgn, end);
@@ -184,28 +234,28 @@ public:
     template <class T2, class NT2>
     Index<T2, NT2> astype()
     {
-        Index<T2, NT2> si2;
+        Array<T2, NT2> ar;
         for (int i = 0; i < size(); i++) {
-            si2._append(iloc(i));
+            ar._append(values.iloc(i));
         }
-        si2._rename(get_name());
-        return si2;
+        return Index<T2, NT2>(std::move(ar), get_name());
     }
 
-    Index<T, NT> sort(bool ascending = true) const
+    Index<T, NT>& _sort(bool ascending = true)
     {
-        Index<T> si;
-        if (ascending) {
-            for (auto it = value2iid.begin(); it != value2iid.end(); it++) {
-                si._append(it->first);
-            }
-
-        } else {
-            for (auto it = value2iid.rbegin(); it != value2iid.rend(); it++) {
-                si._append(it->first);
-            }
+        values._sort(ascending);
+        value2iid.clear();
+        for (int i = 0; i < values.size(); i++) {
+            value2iid.push_back({ values.iloc(i), i });
         }
-        return si;
+        std::sort(value2iid.begin(), value2iid.end());
+        return *this;
+    }
+    Index<T, NT>& sort(bool ascending = true) const
+    {
+        Index<T, NT> idx = *this;
+        idx._sort();
+        return idx;
     }
 
     std::string to_string(int mx_cnt = 10, bool tail = true) const
@@ -222,7 +272,7 @@ public:
     template <int level>
     auto get_level_values() const
     {
-        Array<std::remove_reference<decltype(std::get<level>(iloc(0)))>::type, NT> ar(get_name());
+        Array<typename std::remove_reference<decltype(std::get<level>(iloc(0)))>::type, NT> ar(get_name());
         for (int i = 0; i < size(); i++) {
             ar._append(std::get<level>(iloc(i)));
         }
@@ -232,7 +282,7 @@ public:
     template <int level>
     auto droplevel() const
     {
-        Array<std::remove_reference<decltype(remove_element<level>(iloc(0)))>::type, NT> ar(get_name());
+        Array<typename std::remove_reference<decltype(remove_element<level>(iloc(0)))>::type, NT> ar(get_name());
         for (int i = 0; i < size(); i++) {
             ar._append(remove_element<level>(iloc(i)));
         }

@@ -52,31 +52,6 @@ public:
         _rename(name);
     }
 
-    Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, const std::vector<DT>& vals)
-    {
-        if (pidx->size() != vals.size()) {
-            PANDAS_THROW(std::format("index size and value size not match: {}!={}", pidx->size(), vals.size()));
-        }
-        this->pidx = pidx;
-        for (int i = 0; i < pidx->size(); i++) {
-            values._append(vals[i]);
-        }
-        _rename(name);
-    }
-
-    Series(const DNT& name, const std::vector<IT>& ids, const std::vector<DT>& vals)
-        : Series()
-    {
-        if (ids.size() != vals.size()) {
-            PANDAS_THROW(std::format("index size and value size not match: {}!={}", ids.size(), vals.size()));
-        }
-        for (int i = 0; i < ids.size(); i++) {
-            _append(ids[i], vals[i]);
-        }
-
-        _rename(name);
-    }
-
     Series(const Index<IT, INT>& idx, const Array<DT, DNT>& vals)
     {
         if (idx.size() != vals.size()) {
@@ -93,6 +68,24 @@ public:
             PANDAS_THROW(std::format("index values size not match: {}!={}", pidx->size(), vals.size()));
         }
         this->pidx = pidx;
+        values = vals;
+    }
+
+    Series(std::shared_ptr<Index<IT, INT>> pidx, Array<DT, DNT>&& vals)
+    {
+        if (pidx->size() != vals.size()) {
+            PANDAS_THROW(std::format("index values size not match: {}!={}", pidx->size(), vals.size()));
+        }
+        this->pidx = pidx;
+        values = vals;
+    }
+
+    Series(Index<IT, INT>&& idx, Array<DT, DNT>&& vals)
+    {
+        if (idx.size() != vals.size()) {
+            PANDAS_THROW(std::format("index values size not match: {}!={}", idx.size(), vals.size()));
+        }
+        this->pidx = std::make_shared<Index<IT, INT>>(idx);
         values = vals;
     }
 
@@ -154,9 +147,9 @@ public:
         return values.get_name();
     }
 
-    void _append(const IT& id, const DT& val)
+    void _append(const IT& id, const DT& val, bool reindex = true)
     {
-        pidx->_append(id);
+        pidx->_append(id, reindex);
         values._append(val);
     }
 
@@ -169,21 +162,16 @@ public:
     template <class DNT2>
     Series<IT, DT, INT, DNT2> rename(const DNT2& name)
     {
-        Series<IT, DT, INT, DNT2> res(name);
-        for (int i = 0; i < size(); i++) {
-            IT id = pidx->iloc(i);
-            DT val = iloc(i);
-            res._append(id, val);
-        }
-        return res;
+        Array<DT, DNT2> ar_val(values.values, name);
+        return Series<IT, DT, INT, DNT2>(*pidx, std::move(ar_val));
     }
 
     template <class IT2>
     Series<IT2, DT, INT, DNT> reindex(const std::vector<IT2>& index) const
     {
-        Series<IT2, DT, INT, DNT> res(get_name());
-        for (int i = 0; i < index.size(); i++) {
+        Array<DT, DNT> ar(get_name());
 
+        for (int i = 0; i < index.size(); i++) {
             IT2 id = index[i];
             DT val = DT {};
 
@@ -192,47 +180,27 @@ public:
             } else {
                 val = pandas::nan<DT>();
             }
-            res._append(id, val);
+            ar._append(val);
         }
-
-        res.pidx->_rename(pidx->get_name());
-        return res;
+        return Series<IT2, DT, INT, DNT>(Index<IT2, INT>(index), ar);
     }
 
     template <class IT2, class INT2>
     Series<IT2, DT, INT2, DNT> reindex(const Array<IT2, INT2>& index) const
     {
-        Series<IT2, DT, INT2, DNT> res(get_name());
-        for (int i = 0; i < index.size(); i++) {
-            IT2 id = index.iloc(i);
-            if (pidx->has(id)) {
-                res._append(id, loc(id));
-            } else {
-                res._append(id, pandas::nan<DT>());
-            }
-        }
-        res.pidx->_rename(index.get_name());
-        return res;
+        return reindex(index.values);
     }
 
     template <class IT2, class INT2>
     Series<IT2, DT, INT2, DNT> reindex(const Index<IT2, INT2>& index) const
     {
-        auto res = reindex(index.values);
-        return res;
+        return reindex(index.values);
     }
 
     template <class IT2, class DT2, class INT2 = INT, class DNT2 = DNT>
     Series<IT2, DT2, INT2, DNT2> astype()
     {
-        Series<IT2, DT2, INT2, DNT2> res(get_name());
-        for (int i = 0; i < size(); i++) {
-            IT id = pidx->iloc(i);
-            DT val = iloc(i);
-            res._append(id, val);
-        }
-        res.pidx->_rename(pidx->get_name());
-        return res;
+        return Series<IT2, DT2, INT2, DNT2>(pidx->astype<IT2, INT2>(), values.astype<DT2, DNT2>());
     }
 
     std::string to_string(int mx_cnt = 10, bool tail = true) const
@@ -267,10 +235,13 @@ public:
         return values.iloc(pidx->loc_i(id));
     }
 
+    /// @brief if id not exists, low perf
+    /// @param id
+    /// @return
     inline DT& loc_ref(const IT& id)
     {
         if (!pidx->has(id)) {
-            pidx->_append(id);
+            pidx->_append(id, true);
             values._append(pandas::nan<DT>());
         }
 
@@ -404,26 +375,20 @@ public:
 
     Series sort_index(bool ascending = true) const
     {
-        Series res(get_name());
-        std::map<IT, int>& mp = pidx->value2iid;
+        std::vector<DT> vals;
+
         if (ascending) {
-            for (auto it = mp.begin(); it != mp.end(); it++) {
-                IT id = it->first;
-                int i = it->second;
-                DT val = iloc(i);
-                res._append(id, val);
+            for (int i = 0; i < size(); i++) {
+                vals.push_back(iloc(pidx->value2iid[i].second));
             }
+            return Series(pidx->sort(true), Array<DT, DNT>(std::move(vals), get_name()));
 
         } else {
-            for (auto it = mp.rbegin(); it != mp.rend(); it++) {
-                IT id = it->first;
-                int i = it->second;
-                DT val = iloc(i);
-                res._append(id, val);
+            for (int i = size() - 1; i >= 0; i--) {
+                vals.push_back(iloc(pidx->value2iid[i].second));
             }
+            return Series(pidx->sort(false), Array<DT, DNT>(std::move(vals), get_name()));
         }
-
-        return res;
     }
 
     template <class DT2>
@@ -449,13 +414,16 @@ public:
             }
         });
 
-        Series res(get_name());
+        std::vector<IT> ids;
+        Array<IT, INT> ar_idx;
+        Array<DT, DNT> ar_val(get_name());
         for (int i = 0; i < ps.size(); i++) {
             const IT& id = std::get<0>(ps[i]);
             const DT& val = std::get<1>(ps[i]);
-            res._append(id, val);
+            ar_idx._append(id);
+            ar_val._append(val);
         }
-        return res;
+        return Series(std::move(Index<IT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
     template <class DT2, class DNT2>
     Series sort_values(const Array<DT2, DNT2>& ar, bool ascending = true) const
@@ -471,30 +439,7 @@ public:
 
     Series sort_values(bool ascending = true) const
     {
-        using Pair = std::tuple<IT, DT>;
-
-        std::vector<Pair> ps;
-        for (int i = 0; i < size(); i++) {
-            IT id = pidx->iloc(i);
-            DT val = values.iloc(i);
-            ps.push_back(std::make_tuple<IT, DT>(std::move(id), std::move(val)));
-        }
-
-        std::sort(ps.begin(), ps.end(), [&](const Pair& pa, const Pair& pb) -> bool {
-            if (ascending) {
-                return std::get<1>(pa) < std::get<1>(pb);
-            } else {
-                return std::get<1>(pb) < std::get<1>(pa);
-            }
-        });
-
-        Series res(get_name());
-        for (int i = 0; i < ps.size(); i++) {
-            const IT& id = std::get<0>(ps[i]);
-            const DT& val = std::get<1>(ps[i]);
-            res._append(id, val);
-        }
-        return res;
+        return sort_values(values, ascending);
     }
 
     template <class DT2, class NT2, class DT3>

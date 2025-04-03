@@ -22,8 +22,8 @@ namespace pd = pandas;
 
 void test_frame_constructors()
 {
-    Series<int, double> sr1("sr1", { 0, 1 }, { 1, 2 });
-    Series<int, double> sr2("sr2", { 0, 2 }, { 4, 3 });
+    Series<int, double> sr1(Index<int>(Array<int>({ 0, 1 })), Array<double>({ 1, 2 }, "sr1"));
+    Series<int, double> sr2(Index<int>(Array<int>({ 0, 2 })), Array<double>({ 4, 3 }, "sr2"));
     DataFrame<int, double> df1(std::vector<Series<int, double>>({ sr1, sr2 }));
     assert(pandas::isnan(df1.iloc(1, 1)) && (df1.iloc(2, 1) == 3));
 
@@ -57,7 +57,7 @@ void test_frame_operator()
     auto df4 = df3.operator- <1>(Array<int>({ 1, 2 }));
     assert((df4.iloc(2, 1) == 8) && (df4.iloc(0, 0) == 5));
 
-    Series<std::string, int> sr1("sr1", { "b", "a" }, { 1, 2 });
+    Series<std::string, int> sr1(Index<std::string>(Array<std::string>({ "b", "a" })), Array<int>({ 1, 2 }, "sr1"));
     auto df5 = df4.operator+ <1>(sr1);
     assert((df5.iloc(2, 1) == 9) && (df5.iloc(0, 0) == 7));
 
@@ -114,9 +114,10 @@ void test_frame_groupby()
 void test_frame_sort()
 {
     DataFrame<int, double> df1(std::vector<int>(), { "a", "b" }, pandas::nan<double>());
-    df1._append_row(1, std::vector<double>({ 3, 1 }));
-    df1._append_row(2, std::vector<double>({ 2, 2 }));
-    df1._append_row(3, std::vector<double>({ 1, 3 }));
+    df1._append_row(1, std::vector<double>({ 3, 1 }), false);
+    df1._append_row(2, std::vector<double>({ 2, 2 }), false);
+    df1._append_row(3, std::vector<double>({ 1, 3 }), false);
+    df1.pidx->_reindex();
 
     auto df2 = df1.sort_values("b", false);
     assert((df2.iloc(0, 0) == 1) && (df2.iloc(0, 1) == 3));
@@ -136,8 +137,9 @@ void test_frame_pref()
     for (int i = 0; i < N; i++) {
         auto t = pd::Datetime(i);
         std::string sym = "AO";
-        idx._append(std::tuple(t, sym));
+        idx._append(std::tuple(t, sym), false);
     }
+    idx._reindex();
 
     pd::DataFrame<IT, double> df_X(idx);
     pd::Series<IT, double> ds_y("y", idx, 0);

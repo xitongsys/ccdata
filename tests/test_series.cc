@@ -38,7 +38,7 @@ void test_series_constructors()
 
     std::vector<int> ids({ 1, 2 });
     std::vector<int> vals({ 2, 3 });
-    Series<int, int> sr4("sr4", ids, vals);
+    Series<int, int> sr4(Index<int>(Array<int>(ids)), Array<int>(vals, "sr4"));
     assert(sr4.size() == 2);
 
     Index<int> ids2(Array<int>({ 1, 2, 3 }));
@@ -51,7 +51,7 @@ void test_series_constructors()
 
 void test_series_groupby()
 {
-    Series<int, int> sr1("sr1", Range<int>(10, 0, -1).to_vec(), Range<int>(0, 10).to_vec());
+    Series<int, int> sr1(Index<int>(Range<int>(10, 0, -1)), Array<int>(Range<int>(0, 10).to_vec(), "sr1"));
     Array<int> key1(Range<int>(0, 10).to_vec());
     key1 %= 2;
     auto dg1 = sr1.groupby(key1).sum();
@@ -70,7 +70,7 @@ void test_series_groupby()
 
 void test_series_operator()
 {
-    Series<int, double> sr("sr", { 0, 1, 2 }, { 1, 2, 3 });
+    Series<int, double> sr(Index<int>(Array<int>({ 0, 1, 2 })), Array<double>({ 1, 2, 3 }, "sr"));
     sr += 1;
     assert(sr.sum() == 9);
 
@@ -96,7 +96,7 @@ void test_series_operator()
     auto sr5 = sr < sr2;
     assert(sr5.sum() == 0);
 
-    Series<int, double> sr6("sr6", { 1, 2 }, { 3, 4 });
+    Series<int, double> sr6(Index<int>(Array<int>({ 1, 2 })), Array<double>({ 3, 4 }, "sr6"));
     sr6 += 1;
     assert((sr6.iloc(0) == 4) && (sr6.iloc(1) == 5));
 
@@ -108,7 +108,7 @@ void test_series_operator()
 
 void test_series_loc()
 {
-    Series<int, double> sr("sr", { 1, 2, 3 }, { 2, 3, 4 });
+    Series<int, double> sr(Index<int>(Array<int>({ 1, 2, 3 })), Array<double>({ 2, 3, 4 }, "sr"));
     sr.loc_ref(1) = 4;
     assert((sr.iloc(0) == 4) && (sr.loc(1) == 4) && (sr.loc(2) == 3));
 
@@ -135,7 +135,7 @@ void test_series_loc()
 
 void test_series_functional()
 {
-    Series<int, double> sr("sr", { 1, 2, 3 }, { 2, 3, 4 });
+    Series<int, double> sr(Index<int>(Array<int>({ 1, 2, 3 })), Array<double>({ 2, 3, 4 }, "sr"));
     sr._map<double>([](const double& a) -> double { return a * a; });
     assert((sr.iloc(0) == 4) && (sr.iloc(1) == 9) & (sr.iloc(2) == 16));
 
@@ -160,7 +160,7 @@ void test_series_functional()
     auto sr6 = sr5.droplevel<0>();
     assert((sr6.pidx->iloc(0) == 1) && (sr6.iloc(0) == 10));
 
-    Series<int, double> sr7("sr7", { 1, 2, 3, 4 }, { 2, 3, 4, pandas::nan<double>() });
+    Series<int, double> sr7(Index<int>(Array<int>({ 1, 2, 3, 4 })), Array<double>({ 2, 3, 4, pandas::nan<double>() }, "sr7"));
     auto sr8 = sr7.where(sr7 > 3, 1);
     assert((sr8.iloc(3) == 1) && (sr8.iloc(2) == 4) && (sr8.iloc(0) == 1));
 
@@ -169,7 +169,9 @@ void test_series_functional()
 
 void test_series_sort()
 {
-    Series<int, double> sr1("sr1", { 1, 2, 3, 4, 5 }, { 4, 3, 2, 1, pandas::nan<double>() });
+    Series<int, double> sr1(Index<int>(Array<int>({ 1, 2, 3, 4, 5 })),
+        Array<double>({ 4, 3, 2, 1, pandas::nan<double>() }, "sr1"));
+
     auto sr2 = sr1.sort_values();
     assert(sr2.iloc(0) == 1);
 
@@ -189,19 +191,21 @@ void test_series_perf()
     std::vector<int> idx2;
     Array<int> ar;
     for (int i = 0; i < 300000; i++) {
-        sr._append(i, i * 2);
-        idx._append(i + 1);
-        idx2.push_back(i + 1);
+        sr._append(i, i * 2, false);
+        idx._append(i + 1, false);
+        idx2.push_back(i + 10);
         ar._append(i);
     }
+    sr.pidx->_reindex();
+    idx._reindex();
 
     Datetime bgn, end;
     bgn = Datetime::now();
-    //auto sr2 = sr.reindex(idx2).fillna(0).cumsum();
-    ar.cumsum();
+    auto sr2 = sr.reindex(idx2).cumsum();
+    //#ar.cumsum();
     end = Datetime::now();
 
-    cout << sr << endl;
+    cout << sr2 << endl;
     cout << (end - bgn).total_seconds() << endl;
 }
 

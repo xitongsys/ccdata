@@ -321,7 +321,7 @@ double std(double ddof = 1) const
 
 double median() const
 {
-    Array ar = sort_values();
+    Array ar = sort();
     int n = ar.size();
     if (n == 0) {
         return pandas::nan<double>();
@@ -332,19 +332,6 @@ double median() const
     } else {
         return ar.iloc(n / 2);
     }
-}
-
-void _sort_values(bool ascending = true)
-{
-    sort(values.begin(), values.end());
-    if (!ascending) {
-        reverse(values.begin(), values.end());
-    }
-}
-Array sort_values(bool ascending = true)
-{
-    Array ar = *this;
-    ar._sort_values();
 }
 
 template <class T2>

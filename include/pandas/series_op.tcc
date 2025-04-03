@@ -119,47 +119,48 @@ DEFINE_SERIES_OPERATOR(|=)
 DEFINE_SERIES_OPERATOR(^=)
 
 ///////////////////////////////// cmp operator ////////////////////////////////////////////
-#define DEFINE_SERIES_OPERATOR(OP)                                                       \
-    template <class T2>                                                                  \
-    Series<IT, char, INT, DNT> operator OP(const T2 & val) const                         \
-    {                                                                                    \
-        Array<char, DNT> values = this->values OP val;                                   \
-        auto res = Series<IT, char, INT, DNT>(*pidx, values);                            \
-        return res;                                                                      \
-    }                                                                                    \
-                                                                                         \
-    template <class DT2>                                                                 \
-    Series<IT, char, INT, DNT> operator OP(const std::vector<DT2>& vals) const           \
-    {                                                                                    \
-        if (vals.size() != size()) {                                                     \
-            PANDAS_THROW(std::format("size not match: {}!={}", vals.size(), size()));    \
-        }                                                                                \
-        Array<char, DNT> ar = values OP vals;                                            \
-        auto res = Series<IT, char, INT, DNT>(*pidx, ar);                                \
-        return res;                                                                      \
-    }                                                                                    \
-                                                                                         \
-    template <class DT2, class DNT2>                                                     \
-    Series<IT, char, INT, DNT> operator OP(const Array<DT2, DNT2>& ar) const             \
-    {                                                                                    \
-        return (*this)OP ar.values;                                                      \
-    }                                                                                    \
-                                                                                         \
-    template <class IT2, class DT2, class INT2, class DNT2>                              \
-    Series<IT, char, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const \
-    {                                                                                    \
-        Series<IT, char, INT, DNT> res(get_name());                                      \
-        for (int i = 0; i < size(); i++) {                                               \
-            IT id = pidx->iloc(i);                                                       \
-            DT val = iloc(i);                                                            \
-            if (sr.pidx->has(id)) {                                                      \
-                res._append(id, val OP sr.loc(id));                                      \
-            } else {                                                                     \
-                PANDAS_THROW(std::format("key not found: {}", pandas::to_string(id)));   \
-            }                                                                            \
-        }                                                                                \
-        res.pidx->_rename(pidx->get_name());                                             \
-        return res;                                                                      \
+#define DEFINE_SERIES_OPERATOR(OP)                                                                          \
+    template <class T2>                                                                                     \
+    Series<IT, char, INT, DNT> operator OP(const T2 & val) const                                            \
+    {                                                                                                       \
+        Array<char, DNT> values = this->values OP val;                                                      \
+        auto res = Series<IT, char, INT, DNT>(*pidx, values);                                               \
+        return res;                                                                                         \
+    }                                                                                                       \
+                                                                                                            \
+    template <class DT2>                                                                                    \
+    Series<IT, char, INT, DNT> operator OP(const std::vector<DT2>& vals) const                              \
+    {                                                                                                       \
+        if (vals.size() != size()) {                                                                        \
+            PANDAS_THROW(std::format("size not match: {}!={}", vals.size(), size()));                       \
+        }                                                                                                   \
+        Array<char, DNT> ar = values OP vals;                                                               \
+        auto res = Series<IT, char, INT, DNT>(*pidx, ar);                                                   \
+        return res;                                                                                         \
+    }                                                                                                       \
+                                                                                                            \
+    template <class DT2, class DNT2>                                                                        \
+    Series<IT, char, INT, DNT> operator OP(const Array<DT2, DNT2>& ar) const                                \
+    {                                                                                                       \
+        return (*this)OP ar.values;                                                                         \
+    }                                                                                                       \
+                                                                                                            \
+    template <class IT2, class DT2, class INT2, class DNT2>                                                 \
+    Series<IT, char, INT, DNT> operator OP(const Series<IT2, DT2, INT2, DNT2>& sr) const                    \
+    {                                                                                                       \
+        Array<IT, INT> ar_idx(pidx->get_name());                                                            \
+        Array<char, DNT> ar_val(get_name());                                                                \
+        for (int i = 0; i < size(); i++) {                                                                  \
+            IT id = pidx->iloc(i);                                                                          \
+            DT val = iloc(i);                                                                               \
+            ar_idx._append(id);                                                                             \
+            if (sr.pidx->has(id)) {                                                                         \
+                ar_val._append(val OP sr.loc(id));                                                          \
+            } else {                                                                                        \
+                PANDAS_THROW(std::format("key not found: {}", pandas::to_string(id)));                      \
+            }                                                                                               \
+        }                                                                                                   \
+        return Series<IT, char, INT, DNT>(std::move(Index<IT, INT>(std::move(ar_idx))), std::move(ar_val)); \
     }
 
 DEFINE_SERIES_OPERATOR(>)

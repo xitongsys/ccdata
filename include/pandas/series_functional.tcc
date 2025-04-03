@@ -5,15 +5,19 @@
 template <class DT2>
 Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
 {
-    Series<IT, DT2, INT, DNT> sr;
+    Array<IT, INT> ar_idx(pidx->get_name());
+    Array<DT, DNT> ar_val(get_name());
+
     for (int i = 0; i < size(); i++) {
         const IT& id = pidx->iloc(i);
         const DT& val = values.iloc(i);
         DT2 mval = func(val);
-        sr._append(id, mval);
+        ar_idx._append(id);
+        ar_val._append(mval);
     }
-    sr._rename(this->get_name());
-    return sr;
+    return Series<IT, DT2, INT, DNT>(
+        std::move(Index<IT, INT>(std::move(ar_idx))),
+        std::move(ar_val));
 }
 template <class DT2>
 void _map(std::function<DT2(const DT&)> const& func)
@@ -29,15 +33,20 @@ void _map(std::function<DT2(const DT&)> const& func)
 /// @dropna
 Series dropna() const
 {
-    Series sr(get_name());
+    Array<IT, INT> ar_idx(pidx->get_name());
+    Array<DT, DNT> ar_val(get_name());
+
     for (int i = 0; i < size(); i++) {
         DT v = iloc(i);
         if (!pandas::isnan(v)) {
             IT id = pidx->iloc(i);
-            sr._append(id, v);
+            ar_idx._append(id);
+            ar_val._append(v);
         }
     }
-    return sr;
+    return Series(
+        std::move(Index<IT, INT>(std::move(ar_idx))),
+        std::move(ar_val));
 }
 void _dropna()
 {

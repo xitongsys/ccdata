@@ -35,7 +35,10 @@ void test_concat_index()
     Index<int> id2(Array<int>({ 2, 3, 4 }, "id2"));
 
     auto id_0 = concat<0>(id1, id2);
-    assert((id_0.size() == 4) && (id_0.iloc(3) == 4));
+    assert((id_0.size() == 6) && (id_0.iloc(3) == 2));
+
+    auto id_0_1 = id_0.drop_duplicates("first");
+    assert((id_0_1.size() == 4) && (id_0_1.iloc(3) == 4));
 
     auto id_1 = concat<1>(id1, id2);
     assert((id_1.size() == 3) && (id_1.iloc(0) == std::tuple<int, int>(1, 2)));
@@ -57,8 +60,9 @@ void test_concat_index()
 
 void test_concat_series()
 {
-    Series<int, double> sr1("sr1", { 1, 2 }, { 1, 1 });
-    Series<int, double> sr2("sr2", { 3, 4 }, { 2, 2 });
+    Series<int, double> sr1(Index<int>(Array<int>({ 1, 2 })), Array<double>({ 1, 1 }, "sr1"));
+    Series<int, double> sr2(Index<int>(Array<int>({ 3, 4 })), Array<double>({ 2, 2 }, "sr2"));
+
     auto sr_0 = concat<0>(sr1, sr2);
     assert((sr_0.size() == 4) && (sr_0.iloc(3) == 2));
 
