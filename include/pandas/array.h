@@ -81,7 +81,6 @@ public:
     }
 
     Array(Array&& ar)
-        : Array()
     {
         values = std::move(ar.values);
         name = std::move(ar.name);

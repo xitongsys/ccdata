@@ -56,7 +56,7 @@ public:
     {
         _rename(name);
         for (int i = 0; i < ar.size(); i++) {
-            value2iid.push_back({ ar.iloc(i), i });
+            value2iid.emplace_back(std::pair{ ar.iloc(i), i });
         }
         std::sort(value2iid.begin(), value2iid.end());
     }
