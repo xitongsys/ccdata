@@ -43,7 +43,7 @@ public:
         return Series<KT, DT2, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
 
-    Series<KT, DT, INT, DNT> sum2()
+    Series<KT, DT, INT, DNT> sum()
     {
         Array<KT, INT> ar_idx;
         Array<DT, DNT> ar_val(sr.get_name());
@@ -62,20 +62,6 @@ public:
         return Series<KT, DT, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
 
-    Series<KT, DT, INT, DNT> sum()
-    {
-        Array<KT, INT> ar_idx;
-        Array<DT, DNT> ar_val(sr.get_name());
-        for (auto it = items.begin(); it != items.end(); it++) {
-            KT key = it->first;
-            SeriesVisitor<RangeVec<int>>& sv = it->second;
-            DT s = sv.to_series().sum();
-
-            ar_idx._append(key);
-            ar_val._append(s);
-        }
-        return Series<KT, DT, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
-    }
 
 #define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                           \
     Series<KT, TYPE, INT, DNT> FUN()                                                                     \
