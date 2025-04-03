@@ -246,28 +246,28 @@ public:
     }
 
     template <class IT2, class DT2>
-    int _append_row(const IT2& id, const std::vector<DT2>& row, bool reindex = true)
+    int _append_row(const IT2& id, const std::vector<DT2>& row, bool flush_index = true)
     {
         if (row.size() != size<1>()) {
             PANDAS_THROW(std::format("size not match: {}!={}", row.size(), size<1>()));
         }
-        pidx->_append(id, reindex);
+        pidx->_append(id, flush_index);
         for (int i = 0; i < row.size(); i++) {
             values[i].values._append(row[i]);
         }
         return size<0>();
     }
     template <class IT2, class DT2>
-    int _append_row(const Array<DT2, IT2>& ar, bool reindex = true)
+    int _append_row(const Array<DT2, IT2>& ar, bool flush_index = true)
     {
-        return _append_row(ar.get_name(), ar.values, reindex);
+        return _append_row(ar.get_name(), ar.values, flush_index);
     }
 
     template <class INT2>
-    int _append_row(const Series<DNT, DT, INT2, IT>& sr, bool reindex = true)
+    int _append_row(const Series<DNT, DT, INT2, IT>& sr, bool flush_index = true)
     {
         auto sr2 = sr.reindex(columns());
-        return _append_row(sr.values, reindex);
+        return _append_row(sr.values, flush_index);
     }
 
     int _append_col(const DNT& col_name, const DT& val)

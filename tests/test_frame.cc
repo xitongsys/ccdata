@@ -117,7 +117,7 @@ void test_frame_sort()
     df1._append_row(1, std::vector<double>({ 3, 1 }), false);
     df1._append_row(2, std::vector<double>({ 2, 2 }), false);
     df1._append_row(3, std::vector<double>({ 1, 3 }), false);
-    df1.pidx->_reindex();
+    df1.pidx->_flush_index();
 
     auto df2 = df1.sort_values("b", false);
     assert((df2.iloc(0, 0) == 1) && (df2.iloc(0, 1) == 3));
@@ -139,7 +139,7 @@ void test_frame_pref()
         std::string sym = "AO";
         idx._append(std::tuple(t, sym), false);
     }
-    idx._reindex();
+    idx._flush_index();
 
     pd::DataFrame<IT, double> df_X(idx);
     pd::Series<IT, double> ds_y("y", idx, 0);

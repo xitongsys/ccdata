@@ -170,18 +170,18 @@ public:
         return Index<T, NT>(std::move(ar_idx));
     }
 
-    int _append(const T& v, bool reindex = true)
+    int _append(const T& v, bool flush_index = true)
     {
         int i = size();
         values._append(v);
         value2iid.push_back({ v, i });
-        if (reindex) {
+        if (flush_index) {
             std::sort(value2iid.begin(), value2iid.end());
         }
         return size();
     }
 
-    void _reindex()
+    void _flush_index()
     {
         value2iid.clear();
         for (int i = 0; i < size(); i++) {
@@ -251,7 +251,7 @@ public:
         std::sort(value2iid.begin(), value2iid.end());
         return *this;
     }
-    Index<T, NT>& sort(bool ascending = true) const
+    Index<T, NT> sort(bool ascending = true) const
     {
         Index<T, NT> idx = *this;
         idx._sort();

@@ -196,12 +196,12 @@ void test_series_perf()
         idx2.push_back(i + 10);
         ar._append(i);
     }
-    sr.pidx->_reindex();
-    idx._reindex();
+    sr.pidx->_flush_index();
+    idx._flush_index();
 
     Datetime bgn, end;
     bgn = Datetime::now();
-    auto sr2 = sr.reindex(idx2).cumsum();
+    auto sr2 = sr.reindex(idx2);
     //#ar.cumsum();
     end = Datetime::now();
 

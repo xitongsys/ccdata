@@ -30,7 +30,7 @@ public:
             idx._append(df.pidx->iloc(i), false);
             iids.push_back(i);
         }
-        idx._reindex();
+        idx._flush_index();
 
         std::vector<Array<DT, DNT>> srs;
         it_col.reset();
