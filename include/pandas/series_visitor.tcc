@@ -71,10 +71,8 @@ public:
         auto& ids = sr.pidx->values.values;
         while (it.has_left()) {
             int i = it.next();
-            IT id = ids[i];
-            DT val = sr.iloc(i);
-            idx._append(id);
-            vals._append(val);
+            idx._append(ids[i]);
+            vals._append(sr.iloc(i));
         }
 
         return Series<IT, DT, INT, DNT>(

@@ -349,6 +349,8 @@ public:
             PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size()));
         }
         std::vector<int> iids;
+        iids.reserve(size());
+
         for (int i = 0; i < size(); i++) {
             if (mask[i]) {
                 iids.push_back(i);
@@ -365,6 +367,8 @@ public:
     SeriesVisitor<RangeVec<int>> loc_mask(const Series<IT2, DT2, INT2, DNT2>& mask)
     {
         std::vector<int> iids;
+        iids.reserve(size());
+
         for (int i = 0; i < size(); i++) {
             IT id = pidx->iloc(i);
             if (mask.loc(id)) {
@@ -377,6 +381,7 @@ public:
     Series sort_index(bool ascending = true) const
     {
         std::vector<DT> vals;
+        vals.reserve(size());
 
         if (ascending) {
             for (int i = 0; i < size(); i++) {
@@ -401,6 +406,8 @@ public:
         using Pair = std::tuple<IT, DT, DT2>;
 
         std::vector<Pair> ps;
+        ps.reserve(size());
+
         for (int i = 0; i < size(); i++) {
             IT id = pidx->iloc(i);
             DT val = values.iloc(i);
@@ -415,7 +422,6 @@ public:
             }
         });
 
-        std::vector<IT> ids;
         Array<IT, INT> ar_idx;
         Array<DT, DNT> ar_val(get_name());
         for (int i = 0; i < ps.size(); i++) {

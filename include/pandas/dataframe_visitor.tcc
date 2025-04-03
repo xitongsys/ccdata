@@ -25,6 +25,8 @@ public:
         Index<IT, INT> idx;
         it_row.reset();
         std::vector<int> iids;
+        iids.reserve(df.size<0>());
+
         while (it_row.has_left()) {
             int i = it_row.next();
             idx._append(df.pidx->iloc(i), false);
@@ -33,6 +35,7 @@ public:
         idx._flush_index();
 
         std::vector<Array<DT, DNT>> srs;
+        srs.reserve(df.size<1>());
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();

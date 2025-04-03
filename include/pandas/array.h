@@ -25,9 +25,11 @@ public:
 
     Array()
     {
+        values.reserve(128);
     }
 
     Array(const NT& name)
+        : Array()
     {
         this->name = name;
     }

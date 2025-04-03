@@ -467,6 +467,7 @@ public:
                 PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size<0>()));
             }
             std::vector<int> iids_row;
+            iids_row.reserve(mask.size());
 
             for (int i = 0; i < mask.size(); i++) {
                 if (mask[i]) {
@@ -480,6 +481,7 @@ public:
                 PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size<1>()));
             }
             std::vector<int> iids_col;
+            iids_col.reserve(mask.size());
 
             for (int j = 0; j < mask.size(); j++) {
                 iids_col.push_back(j);
@@ -503,6 +505,8 @@ public:
     {
         if constexpr (axis == 0) {
             std::vector<int> iids_row;
+            iids_row.reserve(mask.size());
+
             for (int i = 0; i < size<0>(); i++) {
                 IT id = pidx->iloc(i);
                 if (mask.loc(id)) {
@@ -513,6 +517,8 @@ public:
 
         } else {
             std::vector<int> iids_col;
+            iids_col.reserve(size<1>());
+            
             for (int j = 0; j < size<1>(); j++) {
                 DNT col_name = iloc<1>(j).get_name();
                 if (mask.loc(col_name)) {
