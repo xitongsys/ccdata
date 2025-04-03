@@ -202,11 +202,37 @@ void test_series_perf()
     Datetime bgn, end;
     bgn = Datetime::now();
     auto sr2 = sr.reindex(idx2);
-    //#ar.cumsum();
+    // #ar.cumsum();
     end = Datetime::now();
 
     cout << sr2 << endl;
     cout << (end - bgn).total_seconds() << endl;
+}
+
+void fun1()
+{
+    Datetime bgn, end;
+
+    int N = 300000;
+
+    Array<int> ar;
+    vector<int> vs;
+
+    bgn = Datetime::now();
+    for (int i = 0; i < N; i++) {
+        ar._append(i);
+    }
+    end = Datetime::now();
+    cout << ar << endl
+         << (end - bgn).total_seconds() << endl;
+
+    bgn = Datetime::now();
+    Index<int> idx(std::move(ar));
+    end = Datetime::now();
+    cout << idx << endl
+         << (end - bgn).total_seconds() << endl;
+
+    cout << ar.values[100] << endl;
 }
 
 int main()
@@ -220,6 +246,7 @@ int main()
         test_series_groupby();
         test_series_sort();
         test_series_perf();
+        fun1();
 
     } catch (const std::string& s) {
         cout << "ERROR: " << s << endl;

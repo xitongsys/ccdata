@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "pandas/array.h"
-#include "pandas/dataframe.h"
 #include "pandas/datetime.h"
 #include "pandas/error.h"
 #include "pandas/index.h"
