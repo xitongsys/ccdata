@@ -153,6 +153,13 @@ Datetime::Number Datetime::number() const
     return num;
 }
 
+long long Datetime::total_nanosecs() const
+{
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+        t.time_since_epoch())
+        .count();
+}
+
 int Datetime::year() const
 {
     return number().year;
@@ -350,6 +357,11 @@ template <>
 Datetime nan()
 {
     return Datetime();
+}
+
+std::size_t hash_value(const Datetime& dt)
+{
+    return std::hash<long long>()(dt.total_nanosecs());
 }
 
 }

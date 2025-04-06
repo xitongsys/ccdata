@@ -73,6 +73,8 @@ public:
 
     Datetime(const Datetime& dt);
 
+    long long total_nanosecs() const;
+
     Datetime& operator=(const Datetime& dt);
     bool operator==(const Datetime& dt) const;
     bool operator>(const Datetime& dt) const;
@@ -119,4 +121,16 @@ bool isnan(const Datetime& dt);
 template <>
 Datetime nan();
 
+std::size_t hash_value(const Datetime& dt);
+
+}
+
+namespace std {
+template <>
+struct hash<pandas::Datetime> {
+    size_t operator()(const pandas::Datetime& dt) const
+    {
+        return hash<long long>()(dt.total_nanosecs());
+    }
+};
 }

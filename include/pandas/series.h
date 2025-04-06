@@ -8,6 +8,8 @@
 #include <sstream>
 #include <vector>
 
+#include <boost/unordered_map.hpp>
+
 #include "pandas/array.h"
 #include "pandas/datetime.h"
 #include "pandas/error.h"
