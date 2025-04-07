@@ -11,10 +11,6 @@ namespace pandas {
 
 class TimeDelta {
 public:
-    long long days;
-    long long hours;
-    long long minutes;
-    long long seconds;
     long long nanosecs;
 
     const long long SECOND = 1000000000LL;
@@ -26,21 +22,92 @@ public:
     TimeDelta(const TimeDelta& dt);
     TimeDelta(long long total_nanosecs);
     TimeDelta(long long d, long long h, long long m, long long s, long long ns = 0);
-    long long total_nanosecs() const;
-    double total_seconds() const;
 
-    bool operator==(const TimeDelta& dt) const;
-    bool operator>(const TimeDelta& dt) const;
-    bool operator<(const TimeDelta& dt) const;
-    bool operator>=(const TimeDelta& dt) const;
-    bool operator<=(const TimeDelta& dt) const;
-    bool operator!=(const TimeDelta& dt) const;
+    inline long long days() const
+    {
+        return nanosecs / DAY;
+    }
 
-    TimeDelta operator+(const TimeDelta& dt) const;
-    TimeDelta operator-(const TimeDelta& dt) const;
-    void operator+=(const TimeDelta& dt);
-    void operator-=(const TimeDelta& dt);
-    void operator=(const TimeDelta& dt);
+    inline long long hours() const
+    {
+        return (nanosecs % DAY) / HOUR;
+    }
+
+    inline long long minutes() const
+    {
+        return (nanosecs % HOUR) / MINUTE;
+    }
+
+    inline long long seconds() const
+    {
+        return (nanosecs % MINUTE) / SECOND;
+    }
+
+    inline long long nanoseconds() const
+    {
+        return (nanosecs % SECOND);
+    }
+
+    inline long long total_nanosecs() const
+    {
+        return nanosecs;
+    }
+
+    inline double total_seconds() const
+    {
+        return (double)(nanosecs) / SECOND;
+    }
+
+    inline bool operator==(const TimeDelta& dt) const
+    {
+        return nanosecs == dt.nanosecs;
+    }
+    inline bool operator>(const TimeDelta& dt) const
+    {
+        return nanosecs > dt.nanosecs;
+    }
+    inline bool operator<(const TimeDelta& dt) const
+    {
+        return nanosecs < dt.nanosecs;
+    }
+    inline bool operator>=(const TimeDelta& dt) const
+    {
+        return nanosecs >= dt.nanosecs;
+    }
+    inline bool operator<=(const TimeDelta& dt) const
+    {
+        return nanosecs <= dt.nanosecs;
+    }
+    inline bool operator!=(const TimeDelta& dt) const
+    {
+        return nanosecs != dt.nanosecs;
+    }
+
+    inline TimeDelta operator+(const TimeDelta& dt) const
+    {
+        return TimeDelta(nanosecs + dt.nanosecs);
+    }
+    inline TimeDelta operator-(const TimeDelta& dt) const
+    {
+        return TimeDelta(nanosecs - dt.nanosecs);
+    }
+
+    inline TimeDelta& operator=(const TimeDelta& dt)
+    {
+        nanosecs = dt.nanosecs;
+        return *this;
+    }
+
+    inline TimeDelta& operator+=(const TimeDelta& dt)
+    {
+        *this = ((*this) + dt);
+        return *this;
+    }
+    inline TimeDelta& operator-=(const TimeDelta& dt)
+    {
+        *this = ((*this) - dt);
+        return *this;
+    }
 
     std::string to_string() const;
 
@@ -67,13 +134,7 @@ public:
         long long nanosec = 0);
 
     Datetime(long long nanosecs);
-
-    // Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_);
-
     Datetime(const Datetime& dt);
-
-    long long total_nanosecs() const;
-    long long total_seconds() const;
 
     inline Datetime& operator=(const Datetime& dt)
     {
@@ -144,17 +205,67 @@ public:
         long long nanosec;
     };
 
-    Number number() const;
+    inline Datetime::Number number() const
+    {
+        std::time_t tt = t / 1e9;
+        std::tm tm = *std::localtime(&tt);
 
-    int year() const;
-    int month() const;
-    int day() const;
-    int hour() const;
-    int minute() const;
-    int second() const;
-    long long nansec() const;
+        Datetime::Number num = {
+            tm.tm_year + 1900,
+            tm.tm_mon + 1,
+            tm.tm_mday,
+            tm.tm_hour,
+            tm.tm_min,
+            tm.tm_sec,
+            0,
+        };
+        return num;
+    }
 
-    Datetime date() const;
+    inline long long total_nanosecs() const
+    {
+        return t;
+    }
+
+    inline double total_seconds() const
+    {
+        return t / 1e9;
+    }
+
+    inline int year() const
+    {
+        return number().year;
+    }
+    inline int month() const
+    {
+        return number().month;
+    }
+    inline int day() const
+    {
+        return number().day;
+    }
+    inline int hour() const
+    {
+        return number().hour;
+    }
+    inline int minute() const
+    {
+        return number().minute;
+    }
+    inline int second() const
+    {
+        return number().second;
+    }
+    inline long long nansec() const
+    {
+        return number().nanosec;
+    }
+
+    inline Datetime date() const
+    {
+        Datetime::Number num = number();
+        return Datetime(num.year, num.month, num.day, 0, 0, 0, 0);
+    }
 
     std::string to_string() const;
 
