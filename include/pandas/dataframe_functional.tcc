@@ -240,9 +240,26 @@ DEFINE_DATAFRAME_FUNCS(DT, sum)
 DEFINE_DATAFRAME_FUNCS(DT, max)
 DEFINE_DATAFRAME_FUNCS(DT, min)
 DEFINE_DATAFRAME_FUNCS(double, mean)
+DEFINE_DATAFRAME_FUNCS(double, median)
+
+#define DEFINE_DATAFRAME_FUNCS(DT2, FUN)              \
+    template <int axis>                               \
+    auto FUN(double ddof = 1)                         \
+    {                                                 \
+        if constexpr (axis == 0) {                    \
+            Index<DNT> idx(columns());                \
+            Array<DT2> vals;                          \
+            for (int i = 0; i < values.size(); i++) { \
+                vals._append(values[i].FUN(ddof));    \
+            }                                         \
+            vals._rename(#FUN);                       \
+            return Series<DNT, DT2>(idx, vals);       \
+        } else {                                      \
+            return T().FUN<0>(ddof);                  \
+        }                                             \
+    }
 DEFINE_DATAFRAME_FUNCS(double, var)
 DEFINE_DATAFRAME_FUNCS(double, std)
-DEFINE_DATAFRAME_FUNCS(double, median)
 
 template <int axis>
 auto corr()

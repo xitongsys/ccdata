@@ -43,16 +43,22 @@ public:
         return Series<KT, DT2, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                          \
-    Series<KT, TYPE, INT, DNT> FUN()                                                                    \
-    {                                                                                                   \
-        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.to_array().FUN(); }); \
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                               \
+    Series<KT, TYPE, INT, DNT> FUN()                                                         \
+    {                                                                                        \
+        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.FUN(); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, min)
     DEFINE_SERIESGROUP_AGG_FUNC(int, count)
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
+
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                   \
+    Series<KT, TYPE, INT, DNT> FUN(double ddof = 1)                                              \
+    {                                                                                            \
+        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.FUN(ddof); }); \
+    }
     DEFINE_SERIESGROUP_AGG_FUNC(double, var)
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)
 

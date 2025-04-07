@@ -67,7 +67,7 @@ double mean()
     return mn;
 }
 
-double var()
+double var(double ddof = 1)
 {
     double mn = mean();
     double s = 0;
@@ -76,16 +76,16 @@ double var()
         DT v = sr.iloc(it.next());
         s += (v - mn) * (v - mn);
     }
-    return s / count();
+    return s / (count() - ddof);
 }
 
-double std()
+double std(double ddof = 1)
 {
-    double v = var();
+    double v = var(ddof);
     return std::pow(v, 0.5);
 }
 
 double median()
 {
-    return to_series().median();
+    return to_array().median();
 }
