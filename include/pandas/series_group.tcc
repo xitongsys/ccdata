@@ -70,10 +70,8 @@ public:
             KT key = it->first;
             auto ds = func(it->second);
             for (int i = 0; i < ds.size(); i++) {
-                IT2 it = ds.pidx->iloc(i);
-                DT2 val = ds.iloc(i);
-                ar_idx._append(std::tuple(key, it));
-                ar_val._append(val);
+                ar_idx._append(std::tuple(key, ds.pidx->iloc(i)));
+                ar_val._append(ds.iloc(i));
             }
         }
         return Series<std::tuple<KT, IT2>, DT2, INT2, DNT2>(
