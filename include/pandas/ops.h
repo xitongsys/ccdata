@@ -26,7 +26,7 @@ T nan()
         return std::nan("");
     }
     if constexpr (std::is_same_v<T, float>) {
-        return std::nanf();
+        return std::nanf("");
     }
 
     PANDAS_THROW(std::format("type has no nan"));

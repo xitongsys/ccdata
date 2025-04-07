@@ -53,8 +53,7 @@ public:
     static Datetime now();
 
 public:
-    std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t;
-    bool isnan = false;
+    long long t;
 
     std::string strftime(const std::string& fmt) const;
 
@@ -69,25 +68,75 @@ public:
 
     Datetime(long long nanosecs);
 
-    Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_);
+    // Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_);
 
     Datetime(const Datetime& dt);
 
     long long total_nanosecs() const;
+    long long total_seconds() const;
 
-    Datetime& operator=(const Datetime& dt);
-    bool operator==(const Datetime& dt) const;
-    bool operator>(const Datetime& dt) const;
-    bool operator<(const Datetime& dt) const;
-    bool operator>=(const Datetime& dt) const;
-    bool operator<=(const Datetime& dt) const;
-    bool operator!=(const Datetime& dt) const;
+    inline Datetime& operator=(const Datetime& dt)
+    {
+        t = dt.t;
+        return *this;
+    }
 
-    Datetime operator+(const TimeDelta& dt) const;
-    Datetime operator-(const TimeDelta& dt) const;
-    void operator+=(const TimeDelta& dt);
-    void operator-=(const TimeDelta& dt);
-    TimeDelta operator-(const Datetime& t) const;
+    inline bool operator>(const Datetime& dt) const
+    {
+        return t > dt.t;
+    }
+
+    inline bool operator<(const Datetime& dt) const
+    {
+        return t < dt.t;
+    }
+
+    inline bool operator==(const Datetime& dt) const
+    {
+        return t == dt.t;
+    }
+
+    inline bool operator>=(const Datetime& dt) const
+    {
+        return t >= dt.t;
+    }
+
+    inline bool operator<=(const Datetime& dt) const
+    {
+        return t <= dt.t;
+    }
+
+    inline bool operator!=(const Datetime& dt) const
+    {
+        return t != dt.t;
+    }
+
+    //// Datetime with TimeDelta
+
+    inline Datetime operator+(const TimeDelta& dt) const
+    {
+        return Datetime(t + dt.total_nanosecs());
+    }
+
+    inline Datetime operator-(const TimeDelta& dt) const
+    {
+        return Datetime(t - dt.total_nanosecs());
+    }
+
+    inline void operator+=(const TimeDelta& dt)
+    {
+        t += dt.total_nanosecs();
+    }
+
+    inline void operator-=(const TimeDelta& dt)
+    {
+        t -= dt.total_nanosecs();
+    }
+
+    inline TimeDelta operator-(const Datetime& t_) const
+    {
+        return TimeDelta(t - t_.t);
+    }
 
     struct Number {
         int year, month, day;

@@ -54,10 +54,10 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(int, count)
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
 
-#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                   \
-    Series<KT, TYPE, INT, DNT> FUN(double ddof = 1)                                              \
-    {                                                                                            \
-        return agg<TYPE>([](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.FUN(ddof); }); \
+#define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                       \
+    Series<KT, TYPE, INT, DNT> FUN(double ddof = 1)                                                  \
+    {                                                                                                \
+        return agg<TYPE>([ddof](SeriesVisitor<RangeVec<int>>& sv) -> TYPE { return sv.FUN(ddof); }); \
     }
     DEFINE_SERIESGROUP_AGG_FUNC(double, var)
     DEFINE_SERIESGROUP_AGG_FUNC(double, std)

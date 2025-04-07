@@ -127,7 +127,6 @@ std::ostream& operator<<(std::ostream& os, const TimeDelta& dt)
 
 Datetime::Datetime()
 {
-    isnan = true;
 }
 
 Datetime::Datetime(const std::string& s, const std::string& fmt)
@@ -137,8 +136,7 @@ Datetime::Datetime(const std::string& s, const std::string& fmt)
 
 Datetime::Number Datetime::number() const
 {
-    std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch());
-    std::time_t tt = sec.count();
+    std::time_t tt = t / 1e9;
     std::tm tm = *std::localtime(&tt);
 
     Datetime::Number num = {
@@ -155,9 +153,16 @@ Datetime::Number Datetime::number() const
 
 long long Datetime::total_nanosecs() const
 {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        t.time_since_epoch())
-        .count();
+    // return std::chrono::duration_cast<std::chrono::nanoseconds>(
+    //     t.time_since_epoch())
+    //     .count();
+
+    return t;
+}
+
+long long Datetime::total_seconds() const
+{
+    return t / 1e9;
 }
 
 int Datetime::year() const
@@ -191,63 +196,20 @@ long long Datetime::nansec() const
 
 Datetime Datetime::now()
 {
-    Datetime dt(std::chrono::system_clock::now());
-    return dt;
+    auto tp = std::chrono::system_clock::now();
+    long long t = std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()).count();
+    return Datetime(t);
 }
 
 Datetime::Datetime(const Datetime& dt)
 {
     t = dt.t;
-    isnan = dt.isnan;
-}
-
-Datetime::Datetime(std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> t_)
-{
-    t = t_;
-    isnan = false;
 }
 
 Datetime::Datetime(long long nanosecs)
 {
-    t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(nanosecs));
-    isnan = false;
-}
-
-Datetime& Datetime::operator=(const Datetime& dt)
-{
-    t = dt.t;
-    isnan = dt.isnan;
-    return *this;
-}
-
-bool Datetime::operator>(const Datetime& dt) const
-{
-    return t > dt.t;
-}
-
-bool Datetime::operator<(const Datetime& dt) const
-{
-    return t < dt.t;
-}
-
-bool Datetime::operator==(const Datetime& dt) const
-{
-    return t == dt.t;
-}
-
-bool Datetime::operator>=(const Datetime& dt) const
-{
-    return t >= dt.t;
-}
-
-bool Datetime::operator<=(const Datetime& dt) const
-{
-    return t <= dt.t;
-}
-
-bool Datetime::operator!=(const Datetime& dt) const
-{
-    return t != dt.t;
+    // t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(nanosecs));
+    t = nanosecs;
 }
 
 Datetime Datetime::date() const
@@ -258,7 +220,6 @@ Datetime Datetime::date() const
 
 Datetime::Datetime(int year, int month, int day, int hour, int minute, int second, long long nanosec)
 {
-    isnan = false;
     std::tm tm = {};
     tm.tm_year = year - 1900;
     tm.tm_mon = month - 1;
@@ -268,17 +229,17 @@ Datetime::Datetime(int year, int month, int day, int hour, int minute, int secon
     tm.tm_sec = second;
 
     std::time_t tt = std::mktime(&tm);
-    t = std::chrono::system_clock::from_time_t(tt) + std::chrono::nanoseconds(nanosec);
+    auto tp = std::chrono::system_clock::from_time_t(tt) + std::chrono::nanoseconds(nanosec);
+    t = std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()).count();
 }
 
 std::string Datetime::strftime(const std::string& fmt) const
 {
-    if (isnan) {
-        return "NaT";
-    }
     std::stringstream ss;
 
-    std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(t.time_since_epoch());
+    auto tp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(t));
+
+    std::chrono::seconds sec = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch());
     std::time_t tt = sec.count();
 
     std::tm tm = *std::localtime(&tt);
@@ -291,52 +252,18 @@ void Datetime::strptime(const std::string& s, const std::string& fmt)
     std::stringstream ss(s);
     std::tm tm = {};
     ss >> std::get_time(&tm, fmt.c_str());
-    t = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-    isnan = false;
+    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }
 
 std::string Datetime::to_string() const
 {
-    if (isnan) {
-        return "NaT";
-    } else {
-        return strftime("%Y-%m-%d %H:%M:%S");
-    }
+    return strftime("%Y-%m-%d %H:%M:%S");
 }
 
 std::ostream& operator<<(std::ostream& os, const Datetime& dt)
 {
     os << dt.to_string();
     return os;
-}
-
-//// Datetime with TimeDelta
-
-Datetime Datetime::operator+(const TimeDelta& dt) const
-{
-    return Datetime(t + std::chrono::nanoseconds(dt.total_nanosecs()));
-}
-
-Datetime Datetime::operator-(const TimeDelta& dt) const
-{
-    return Datetime(t - std::chrono::nanoseconds(dt.total_nanosecs()));
-}
-
-void Datetime::operator+=(const TimeDelta& dt)
-{
-    t += std::chrono::nanoseconds(dt.total_nanosecs());
-}
-
-void Datetime::operator-=(const TimeDelta& dt)
-{
-    t -= std::chrono::nanoseconds(dt.total_nanosecs());
-}
-
-TimeDelta Datetime::operator-(const Datetime& t_) const
-{
-    auto dt = t - t_.t;
-    long long nanos = std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count();
-    return TimeDelta(nanos);
 }
 
 /////////////////////////
@@ -350,7 +277,7 @@ std::string to_string(const Datetime& dt)
 template <>
 bool isnan(const Datetime& dt)
 {
-    return dt.isnan;
+    return false;
 }
 
 template <>
