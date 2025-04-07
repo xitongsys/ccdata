@@ -274,6 +274,7 @@ public:
     auto get_level_values() const
     {
         Array<typename std::remove_reference<decltype(std::get<level>(iloc(0)))>::type, NT> ar(get_name());
+        ar._reserve(size());
         for (int i = 0; i < size(); i++) {
             ar._append(std::get<level>(iloc(i)));
         }
@@ -284,6 +285,7 @@ public:
     auto droplevel() const
     {
         Array<typename std::remove_reference<decltype(remove_element<level>(iloc(0)))>::type, NT> ar(get_name());
+        ar._reserve(size());
         for (int i = 0; i < size(); i++) {
             ar._append(remove_element<level>(iloc(i)));
         }
