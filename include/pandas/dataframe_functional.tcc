@@ -28,18 +28,20 @@ DataFrame dropna(const std::string& how = "any")
         return loc_mask<0>(mask).to_frame();
     }
 }
-void _dropna(const std::string& how = "any")
+DataFrame& _dropna(const std::string& how = "any")
 {
     *this = dropna(how);
+    return *this;
 }
 
 /// @diff
 /// @param periods
-void _diff(int periods)
+DataFrame& _diff(int periods)
 {
     for (auto& sr : values) {
         sr._diff(periods);
     }
+    return *this;
 }
 DataFrame diff(int periods) const
 {
@@ -50,11 +52,12 @@ DataFrame diff(int periods) const
 
 /// @shift
 /// @param offset
-void _shift(int offset)
+DataFrame& _shift(int offset)
 {
     for (auto& sr : values) {
         sr._shift(offset);
     }
+    return *this;
 }
 DataFrame shift(int offset) const
 {
@@ -67,11 +70,12 @@ DataFrame shift(int offset) const
 /// @tparam DT2
 /// @param v
 template <class DT2>
-void _fillna(const DT2& v)
+DataFrame& _fillna(const DT2& v)
 {
     for (auto& sr : values) {
         sr._fillna(v);
     }
+    return *this;
 }
 template <class DT2>
 DataFrame fillna(const DT2& v) const
@@ -83,11 +87,12 @@ DataFrame fillna(const DT2& v) const
 
 /// @ffill
 /// @param limit
-void _ffill(int limit)
+DataFrame& _ffill(int limit)
 {
     for (auto& sr : values) {
         sr._ffill(limit);
     }
+    return *this;
 }
 DataFrame ffill(int limit) const
 {
@@ -98,11 +103,12 @@ DataFrame ffill(int limit) const
 
 /// @bfill
 /// @param limit
-void _bfill(int limit)
+DataFrame& _bfill(int limit)
 {
     for (auto& sr : values) {
         sr._bfill(limit);
     }
+    return *this;
 }
 DataFrame bfill(int limit) const
 {
@@ -112,11 +118,12 @@ DataFrame bfill(int limit) const
 }
 
 /// @cumsum
-void _cumsum()
+DataFrame& _cumsum()
 {
     for (auto& sr : values) {
         sr._cumsum();
     }
+    return *this;
 }
 DataFrame cumsum() const
 {
@@ -126,11 +133,12 @@ DataFrame cumsum() const
 }
 
 /// @pow
-void _pow(double n)
+DataFrame& _pow(double n)
 {
     for (auto& sr : values) {
         sr._pow(n);
     }
+    return *this;
 }
 DataFrame pow(double n) const
 {
@@ -140,11 +148,12 @@ DataFrame pow(double n) const
 }
 
 /// @brief reciprocal
-void _reciprocal()
+DataFrame& _reciprocal()
 {
     for (auto& sr : values) {
         sr._reciprocal();
     }
+    return *this;
 }
 DataFrame reciprocal() const
 {
@@ -154,11 +163,12 @@ DataFrame reciprocal() const
 }
 
 /// @brief abs
-void _abs()
+DataFrame& _abs()
 {
     for (auto& sr : values) {
         sr._abs();
     }
+    return *this;
 }
 DataFrame abs() const
 {
@@ -169,11 +179,12 @@ DataFrame abs() const
 
 /// @replace
 template <class DT2, class DT3>
-void _replace(const DT2& v_old, const DT3& v_new)
+DataFrame& _replace(const DT2& v_old, const DT3& v_new)
 {
     for (auto& sr : values) {
         sr._replace(v_old, v_new);
     }
+    return *this;
 }
 template <class DT2, class DT3>
 DataFrame replace(const DT2& v_old, const DT3& v_new)
