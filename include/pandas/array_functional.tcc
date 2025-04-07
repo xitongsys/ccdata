@@ -291,9 +291,9 @@ T min() const
     return res;
 }
 
-int count() const
+double count() const
 {
-    int cnt = 0;
+    double cnt = 0;
     for (int i = 0; i < size(); i++) {
         const T& v = iloc(i);
         if (!isnan(v)) {
