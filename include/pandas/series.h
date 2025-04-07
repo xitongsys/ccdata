@@ -40,6 +40,7 @@ public:
     Series(const DNT& name, const Index<IT, INT>& idx, DT fillna_value)
     {
         this->pidx = std::make_shared<Index<IT, INT>>(idx);
+        values._reserve(idx.size());
         for (int i = 0; i < idx.size(); i++) {
             values._append(fillna_value);
         }
@@ -49,6 +50,7 @@ public:
     Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, DT fillna_value)
     {
         this->pidx = pidx;
+        values._reserve(pidx->size());
         for (int i = 0; i < pidx->size(); i++) {
             values._append(fillna_value);
         }
@@ -88,6 +90,7 @@ public:
         if (idx.size() != vals.size()) {
             PANDAS_THROW(std::format("index values size not match: {}!={}", idx.size(), vals.size()));
         }
+
         this->pidx = std::make_shared<Index<IT, INT>>(idx);
         values = vals;
     }
@@ -157,9 +160,10 @@ public:
     }
 
     template <class IT2>
-    void _rename(const IT2& name)
+    Series& _rename(const IT2& name)
     {
         values._rename(name);
+        return *this;
     }
 
     template <class DNT2>
@@ -182,10 +186,12 @@ public:
             } else {
                 val = pandas::nan<DT>();
             }
-            ar.iloc_ref(i) = val;
+            ar.values[i] = val;
         }
 
-        return Series<IT2, DT, INT, DNT>(Index<IT2, INT>(index), std::move(ar));
+        auto res = Series<IT2, DT, INT, DNT>(Index<IT2, INT>(Array<IT2, INT>(index)), std::move(ar));
+
+        return res;
     }
 
     template <class IT2, class INT2>

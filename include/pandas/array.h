@@ -44,6 +44,7 @@ public:
     Array(const Array<T2, NT2>& ar)
         : Array(ar.name)
     {
+        values.reserve(ar.size());
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
@@ -53,6 +54,7 @@ public:
     Array(const std::vector<T2>& vals, const NT& name = NT {})
         : Array(name)
     {
+        values.reserve(vals.size());
         for (int i = 0; i < vals.size(); i++) {
             values.push_back((T)(vals[i]));
         }
@@ -76,6 +78,7 @@ public:
     Array(const Array& ar)
         : Array()
     {
+        values.reserve(ar.size());
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
@@ -92,6 +95,7 @@ public:
     Array& operator=(const Array<T2, NT2>& ar)
     {
         values.clear();
+        values.reserve(ar.size());
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
@@ -102,6 +106,7 @@ public:
     Array& operator=(const Array& ar)
     {
         values.clear();
+        values.reserve(ar.size());
         for (int i = 0; i < ar.size(); i++) {
             values.push_back(ar.iloc(i));
         }
@@ -176,6 +181,7 @@ public:
     Array<char, NT> duplicated(const std::string& keep)
     {
         Array<char, NT> dup;
+        dup._reserve(size());
         std::map<T, int> mp;
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
@@ -232,11 +238,18 @@ public:
         return ar;
     }
 
-    void _reverse()
+    Array& _reverse()
     {
         for (int i = 0, j = size() - 1; i < j; i++, j--) {
             std::swap(values[i], values[j]);
         }
+        return *this;
+    }
+
+    Array& _reserve(size_t size)
+    {
+        values.reserve(size);
+        return *this;
     }
 
     Array<T, NT> sort(bool ascending = true) const
@@ -249,12 +262,13 @@ public:
         return ar;
     }
 
-    void _sort(bool ascending = true)
+    Array& _sort(bool ascending = true)
     {
         std::sort(values.begin(), values.end());
         if (!ascending) {
             _reverse();
         }
+        return *this;
     }
 
     template <class T2>
@@ -265,6 +279,7 @@ public:
         }
 
         Array ar(get_name());
+        ar._reserve(size());
         for (int i = 0; i < size(); i++) {
             if (mask[i]) {
                 ar._append(iloc(i));

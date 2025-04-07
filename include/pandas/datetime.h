@@ -209,7 +209,7 @@ public:
     {
         std::time_t tt = t / 1e9;
         std::tm tm = *std::localtime(&tt);
-
+        
         Datetime::Number num = {
             tm.tm_year + 1900,
             tm.tm_mon + 1,
@@ -290,7 +290,7 @@ template <>
 struct hash<pandas::Datetime> {
     size_t operator()(const pandas::Datetime& dt) const
     {
-        return hash<long long>()(dt.total_nanosecs());
+        return hash<long long>()(dt.t);
     }
 };
 }

@@ -54,9 +54,10 @@ public:
     Index(Array<T, NT>&& ar, const NT& name = NT {})
         : values(ar)
     {
+        value2iid.reserve(ar.size());
         _rename(name);
         for (int i = 0; i < ar.size(); i++) {
-            value2iid.emplace_back(std::pair{ ar.iloc(i), i });
+            value2iid.emplace_back(std::pair { ar.iloc(i), i });
         }
         std::sort(value2iid.begin(), value2iid.end());
     }
