@@ -189,9 +189,7 @@ public:
             ar.values[i] = val;
         }
 
-        auto res = Series<IT2, DT, INT, DNT>(Index<IT2, INT>(Array<IT2, INT>(index)), std::move(ar));
-
-        return res;
+        return Series<IT2, DT, INT, DNT>(Index<IT2, INT>(Array<IT2, INT>(index)), std::move(ar));
     }
 
     template <class IT2, class INT2>
