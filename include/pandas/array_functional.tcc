@@ -14,18 +14,19 @@ Array<T2, NT> map(std::function<T2(const T&)> const& func) const
     return ar;
 }
 template <class T2>
-void _map(std::function<T2(const T&)> const& func)
+Array& _map(std::function<T2(const T&)> const& func)
 {
     for (int i = 0; i < size(); i++) {
         T val = iloc(i);
         T2 mval = func(val);
         iloc_ref(i) = mval;
     }
+    return *this;
 }
 
 /// @diff
 /// @param periods
-void _diff(int periods = 1)
+Array& _diff(int periods = 1)
 {
     if (periods < 0) {
         for (int i = 0; i < size(); i++) {
@@ -46,6 +47,7 @@ void _diff(int periods = 1)
             }
         }
     }
+    return *this;
 }
 Array diff(int periods = 1) const
 {
@@ -56,7 +58,7 @@ Array diff(int periods = 1) const
 
 /// @shift
 /// @param offset
-void _shift(int offset)
+Array& _shift(int offset)
 {
     if (abs(offset) >= size()) {
         for (int i = 0; i < size(); i++) {
@@ -79,6 +81,7 @@ void _shift(int offset)
             iloc_ref(i) = pandas::nan<T>();
         }
     }
+    return *this;
 }
 Array shift(int offset) const
 {
@@ -88,7 +91,7 @@ Array shift(int offset) const
 }
 
 template <class T2>
-void _fillna(const T2& v)
+Array& _fillna(const T2& v)
 {
     for (int i = 0; i < size(); i++) {
         const T& val = iloc(i);
@@ -96,6 +99,7 @@ void _fillna(const T2& v)
             iloc_ref(i) = v;
         }
     }
+    return *this;
 }
 template <class T2>
 Array fillna(const T2& v) const
@@ -106,7 +110,7 @@ Array fillna(const T2& v) const
 }
 
 template <class T2>
-void _ffill(const T2& v, int limit = 1)
+Array& _ffill(const T2& v, int limit = 1)
 {
     for (int i = size() - 1; i >= 0; i--) {
         if (!pandas::isnan(iloc(i))) {
@@ -120,6 +124,7 @@ void _ffill(const T2& v, int limit = 1)
             }
         }
     }
+    return *this;
 }
 template <class T2>
 Array ffill(const T2& v, int limit = 1) const
@@ -130,7 +135,7 @@ Array ffill(const T2& v, int limit = 1) const
 }
 
 template <class T2>
-void _bfill(const T2& v, int limit = 1)
+Array& _bfill(const T2& v, int limit = 1)
 {
     for (int i = 0; i < size(); i++) {
         if (!pandas::isnan(iloc(i))) {
@@ -144,6 +149,7 @@ void _bfill(const T2& v, int limit = 1)
             }
         }
     }
+    return *this;
 }
 template <class T2>
 Array bfill(const T2& v, int limit = 1) const
@@ -154,7 +160,7 @@ Array bfill(const T2& v, int limit = 1) const
 }
 
 /// @cumsum
-void _cumsum()
+Array& _cumsum()
 {
     T s = 0;
     for (int i = 0; i < size(); i++) {
@@ -163,6 +169,7 @@ void _cumsum()
             iloc_ref(i) = s;
         }
     }
+    return *this;
 }
 Array cumsum() const
 {
@@ -178,12 +185,13 @@ Array drop_duplicates(const std::string& keep)
 
 /// @pow
 /// @param n
-void _pow(double n)
+Array& _pow(double n)
 {
     for (int i = 0; i < size(); i++) {
         T v = iloc(i);
         iloc_ref(i) = std::pow(v, n);
     }
+    return *this;
 }
 Array pow(double n) const
 {
@@ -193,11 +201,12 @@ Array pow(double n) const
 }
 
 /// @brief reciprocal
-void _reciprocal()
+Array& _reciprocal()
 {
     for (int i = 0; i < size(); i++) {
         iloc_ref(i) = 1 / iloc_ref(i);
     }
+    return *this;
 }
 Array reciprocal() const
 {
@@ -207,11 +216,12 @@ Array reciprocal() const
 }
 
 /// @brief abs
-void _abs()
+Array& _abs()
 {
     for (int i = 0; i < size(); i++) {
         iloc_ref(i) = std::abs(iloc_ref(i));
     }
+    return *this;
 }
 Array abs() const
 {
@@ -221,13 +231,14 @@ Array abs() const
 }
 
 template <class DT2, class DT3>
-void _replace(const DT2& v_old, const DT3& v_new)
+Array& _replace(const DT2& v_old, const DT3& v_new)
 {
     for (int i = 0; i < size(); i++) {
         if (iloc(i) == v_old) {
             iloc_ref(i) = v_new;
         }
     }
+    return *this;
 }
 template <class DT2, class DT3>
 Array replace(const DT2& v_old, const DT3& v_new) const

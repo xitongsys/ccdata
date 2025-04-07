@@ -48,16 +48,18 @@ Series dropna() const
         std::move(Index<IT, INT>(std::move(ar_idx))),
         std::move(ar_val));
 }
-void _dropna()
+Series& _dropna()
 {
     *this = dropna();
+    return *this;
 }
 
 /// @diff
 /// @param periods
-void _diff(int periods = 1)
+Series& _diff(int periods = 1)
 {
     values._diff(periods);
+    return *this;
 }
 Series diff(int periods = 1) const
 {
@@ -68,9 +70,10 @@ Series diff(int periods = 1) const
 
 /// @shift
 /// @param offset
-void _shift(int offset)
+Series& _shift(int offset)
 {
     values._shift(offset);
+    return *this;
 }
 Series shift(int offset) const
 {
@@ -83,9 +86,10 @@ Series shift(int offset) const
 /// @tparam DT2
 /// @param v
 template <class DT2>
-void _fillna(const DT2& v)
+Series& _fillna(const DT2& v)
 {
     values._fillna(v);
+    return *this;
 }
 template <class DT2>
 Series fillna(const DT2& v) const
@@ -100,9 +104,10 @@ Series fillna(const DT2& v) const
 /// @param v
 /// @param limit
 template <class DT2>
-void _ffill(const DT2& v, int limit = 1)
+Series& _ffill(const DT2& v, int limit = 1)
 {
     values._ffill(v, limit);
+    return *this;
 }
 template <class DT2>
 Series ffill(const DT2& v, int limit = 1) const
@@ -117,9 +122,10 @@ Series ffill(const DT2& v, int limit = 1) const
 /// @param v
 /// @param limit
 template <class DT2>
-void _bfill(const DT2& v, int limit = 1)
+Series& _bfill(const DT2& v, int limit = 1)
 {
     values._bfill(v, limit);
+    return *this;
 }
 template <class DT2>
 Series bfill(const DT2& v, int limit = 1) const
@@ -130,9 +136,10 @@ Series bfill(const DT2& v, int limit = 1) const
 }
 
 /// @cumsum
-void _cumsum()
+Series& _cumsum()
 {
     values._cumsum();
+    return *this;
 }
 Series cumsum() const
 {
@@ -143,9 +150,10 @@ Series cumsum() const
 
 /// @pow
 /// @param n
-void _pow(double n)
+Series& _pow(double n)
 {
     values._pow(n);
+    return *this;
 }
 Series pow(double n) const
 {
@@ -155,9 +163,10 @@ Series pow(double n) const
 }
 
 /// @brief reciprocal
-void _reciprocal()
+Series& _reciprocal()
 {
     values._reciprocal();
+    return *this;
 }
 Series reciprocal() const
 {
@@ -167,9 +176,10 @@ Series reciprocal() const
 }
 
 /// @brief abs
-void _abs()
+Series& _abs()
 {
     values._abs();
+    return *this;
 }
 Series abs() const
 {
@@ -184,9 +194,10 @@ Series abs() const
 /// @param v_old
 /// @param v_new
 template <class DT2, class DT3>
-void _replace(const DT2& v_old, const DT3& v_new)
+Series& _replace(const DT2& v_old, const DT3& v_new)
 {
     values._replace(v_old, v_new);
+    return *this;
 }
 template <class DT2, class DT3>
 Series replace(const DT2& v_old, const DT3& v_new) const
