@@ -78,7 +78,10 @@ public:
     std::vector<T> vs;
     int cur = 0;
 
-    RangeVec() { }
+    RangeVec()
+    {
+        vs.reserve(1024);
+    }
 
     RangeVec(const std::vector<T>& vs_)
         : vs(vs_)
@@ -128,6 +131,11 @@ public:
     void reset()
     {
         cur = 0;
+    }
+
+    void _append(const T& v)
+    {
+        vs.push_back(v);
     }
 };
 

@@ -34,11 +34,8 @@ public:
         Array<KT, INT> ar_idx;
         Array<DT2, DNT> ar_val(sr.get_name());
         for (auto it = items.begin(); it != items.end(); it++) {
-            KT key = it->first;
-            SeriesVisitor<RangeVec<int>>& sv = it->second;
-            DT2 val = func(sv);
-            ar_idx._append(key);
-            ar_val._append(val);
+            ar_idx._append(it->first);
+            ar_val._append(func(it->second));
         }
         return Series<KT, DT2, INT, DNT>(std::move(Index<KT, INT>(std::move(ar_idx))), std::move(ar_val));
     }
@@ -92,16 +89,13 @@ SeriesGroup<KT> groupby(const std::vector<KT>& vs)
         PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size()));
     }
 
-    std::map<KT, std::vector<int>> iids_group;
+    SeriesGroup<KT> sg(*this);
     for (int i = 0; i < size(); i++) {
         const KT& key = vs[i];
-        iids_group[key].push_back(i);
-    }
-
-    SeriesGroup<KT> sg(*this);
-    for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto sv = SeriesVisitor<RangeVec<int>>(*this, std::move(RangeVec<int>(std::move(it->second))));
-        sg.items.emplace(it->first, std::move(sv));
+        if (sg.items.count(key) == 0) {
+            sg.items.emplace(key, SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>()));
+        }
+        (sg.items.find(key)->second).it._append(i);
     }
 
     return sg;
@@ -120,18 +114,6 @@ SeriesGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
         PANDAS_THROW(std::format("size not match: {}!={}", sr.size(), size()));
     }
 
-    std::map<KT, std::vector<int>> iids_group;
-    for (int i = 0; i < size(); i++) {
-        IT id = pidx->iloc(i);
-        const KT& key = sr.loc(id);
-        iids_group[key].push_back(i);
-    }
-
-    SeriesGroup<KT> sg(*this);
-    for (auto it = iids_group.begin(); it != iids_group.end(); it++) {
-        auto sv = SeriesVisitor<RangeVec<int>>(*this, std::move(RangeVec<int>(std::move(it->second))));
-        sg.items.emplace(it->first, std::move(sv));
-    }
-
-    return sg;
+    auto keys = sr.reindex(*pidx);
+    return groupby(keys.values);
 }
