@@ -474,7 +474,7 @@ public:
                     iids_row.push_back(i);
                 }
             }
-            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range(0, size<1>()));
+            return DataFrameVisitor<RangeVec<int>, Range<int>>(*this, RangeVec<int>(iids_row), Range<int>(0, size<1>()));
 
         } else {
             if (mask.size() != size<1>()) {
