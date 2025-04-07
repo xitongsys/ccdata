@@ -13,6 +13,7 @@
 #include "pandas/array.h"
 #include "pandas/datetime.h"
 #include "pandas/error.h"
+#include "pandas/hash.h"
 #include "pandas/index.h"
 #include "pandas/ops.h"
 #include "pandas/range.h"

@@ -25,7 +25,7 @@ public:
 
     Array()
     {
-        values.reserve(128);
+        values.reserve(1024);
     }
 
     Array(const NT& name)

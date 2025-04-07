@@ -67,6 +67,9 @@ public:
     {
         Array<DT, DNT> vals(sr.get_name());
         Array<IT, INT> idx;
+        vals._reserve(1024);
+        idx._reserve(1024);
+
         it.reset();
         auto& ids = sr.pidx->values.values;
         while (it.has_left()) {
@@ -83,6 +86,8 @@ public:
     Array<DT, DNT> to_array()
     {
         Array<DT, DNT> res(sr.get_name());
+        res._reserve(1024);
+
         it.reset();
         while (it.has_left()) {
             int i = it.next();
