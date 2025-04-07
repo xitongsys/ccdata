@@ -313,15 +313,16 @@ double mean() const
 double var(double ddof = 1) const
 {
     double mn = mean();
-    double s = 0;
+    double s = 0, cnt = 0;
     for (int i = 0; i < size(); i++) {
         const double& v = iloc(i);
         if (isnan(v)) {
             continue;
         }
         s += (v - mn) * (v - mn);
+        cnt++;
     }
-    return s / (count() - ddof);
+    return s / (cnt - ddof);
 }
 
 double std(double ddof = 1) const
