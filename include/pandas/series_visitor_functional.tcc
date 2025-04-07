@@ -47,9 +47,9 @@ DT min()
     return res;
 }
 
-int count()
+double count()
 {
-    int cnt = 0;
+    double cnt = 0;
     it.reset();
     while (it.has_left()) {
         DT v = sr.iloc(it.next());

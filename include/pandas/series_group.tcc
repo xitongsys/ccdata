@@ -48,7 +48,7 @@ public:
     DEFINE_SERIESGROUP_AGG_FUNC(DT, sum)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, max)
     DEFINE_SERIESGROUP_AGG_FUNC(DT, min)
-    DEFINE_SERIESGROUP_AGG_FUNC(int, count)
+    DEFINE_SERIESGROUP_AGG_FUNC(double, count)
     DEFINE_SERIESGROUP_AGG_FUNC(double, mean)
 
 #define DEFINE_SERIESGROUP_AGG_FUNC(TYPE, FUN)                                                       \
