@@ -397,9 +397,6 @@ public:
 
     Series sort_index(bool ascending = true) const
     {
-        std::vector<DT> vals;
-        vals.reserve(size());
-
         Array<IT, INT> ar_idx(pidx->get_name());
         Array<DT, DNT> ar_val(get_name());
         ar_idx._reserve(size());
@@ -412,7 +409,7 @@ public:
                 ar_val._append(iloc(p.second));
             }
             return Series(std::move(Index<IT, INT>(std::move(ar_idx), false)), std::move(ar_val));
-            
+
         } else {
             for (int i = size() - 1; i >= 0; i--) {
                 auto& p = pidx->value2iid[i];
