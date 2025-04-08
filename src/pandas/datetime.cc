@@ -99,6 +99,7 @@ void Datetime::strptime(const std::string& s, const std::string& fmt)
     std::tm tm = {};
     ss >> std::get_time(&tm, fmt.c_str());
     auto tp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+    t = std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()).count();
 }
 
 std::string Datetime::to_string() const
