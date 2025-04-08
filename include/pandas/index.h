@@ -46,24 +46,32 @@ public:
         value2iid = std::move(ir.value2iid);
     }
 
-    Index(const Array<T, NT>& ar, const NT& name = NT {})
-        : Index(ar.values, name)
+    Index(const Array<T, NT>& ar, bool flush_index = true)
     {
-    }
-
-    Index(Array<T, NT>&& ar, const NT& name = NT {})
-        : values(ar)
-    {
+        values = ar;
         value2iid.reserve(ar.size());
-        _rename(name);
         for (int i = 0; i < ar.size(); i++) {
             value2iid.emplace_back(std::pair { ar.iloc(i), i });
         }
-        std::sort(value2iid.begin(), value2iid.end());
+        if (flush_index) {
+            std::sort(value2iid.begin(), value2iid.end());
+        }
+    }
+
+    Index(Array<T, NT>&& ar, bool flush_index = true)
+        : values(ar)
+    {
+        value2iid.reserve(ar.size());
+        for (int i = 0; i < ar.size(); i++) {
+            value2iid.emplace_back(std::pair { ar.iloc(i), i });
+        }
+        if (flush_index) {
+            std::sort(value2iid.begin(), value2iid.end());
+        }
     }
 
     Index(Range<T> rg, const NT& name = {})
-        : Index(rg.to_vec(), name)
+        : Index(Array<T, NT>(rg.to_vec(), name))
     {
     }
 
@@ -235,11 +243,11 @@ public:
     template <class T2, class NT2>
     Index<T2, NT2> astype()
     {
-        Array<T2, NT2> ar;
+        Array<T2, NT2> ar(get_name());
         for (int i = 0; i < size(); i++) {
             ar._append(values.iloc(i));
         }
-        return Index<T2, NT2>(std::move(ar), get_name());
+        return Index<T2, NT2>(std::move(ar));
     }
 
     Index<T, NT>& _sort(bool ascending = true)

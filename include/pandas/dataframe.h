@@ -518,7 +518,7 @@ public:
         } else {
             std::vector<int> iids_col;
             iids_col.reserve(size<1>());
-            
+
             for (int j = 0; j < size<1>(); j++) {
                 DNT col_name = iloc<1>(j).get_name();
                 if (mask.loc(col_name)) {
@@ -541,7 +541,7 @@ public:
         if (vs.size() != size<0>()) {
             PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size<0>()));
         }
-        Index<IT2, INT2> idx(vs, name);
+        Index<IT2, INT2> idx(Array<IT2, INT2>(vs, name));
         DataFrame<IT2, DT, INT2, DNT> df(idx);
         for (int j = 0; j < size<1>(); j++) {
             df._append_col(iloc<1>(j).values);

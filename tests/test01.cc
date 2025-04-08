@@ -15,16 +15,57 @@ using namespace std;
 using namespace pandas;
 using namespace std::chrono;
 
+#define CHECK                                                                                  \
+    {                                                                                          \
+        std::cout << __LINE__ << ": " << (Datetime::now() - bgn).total_seconds() << std::endl; \
+        bgn = Datetime::now();                                                                 \
+    }
+
 void test01()
 {
-    Index<int> id1(Array<int>({ 1, 2, 3 }, "id1"));
-    Index<int> id2(Array<int>({ 2, 3, 4 }, "id2"));
+    Datetime bgn = Datetime::now();
 
-    auto id_0 = concat<0>(id1, id2);
-    cout << id_0 << endl;
+    using IT = Datetime;
 
-    auto id_1 = concat<1>(id1, id2);
-    cout << id_1 << endl;
+    int N = 260000;
+    Array<IT> ar_idx;
+    Array<double> ar_val;
+    Array<double> ar_key;
+
+    for (int i = 0; i < N; i++) {
+        ar_idx._append(i);
+        ar_val._append(i);
+        ar_key._append(i % 6);
+    }
+
+    CHECK
+
+    Index idx(std::move(ar_idx));
+
+    CHECK
+
+    std::sort(idx.value2iid.begin(), idx.value2iid.end());
+
+    CHECK
+
+    Series<IT, double> sr(std::move(ar_idx), std::move(ar_val));
+
+    CHECK
+
+    using ST = Series<IT, double>;
+    using SV = ST::SeriesVisitor<RangeVec<int>>;
+    auto a = sr.groupby(ar_key).apply<IT, double, std::string, std::string>([](SV& sv) -> ST {
+        Datetime bgn = Datetime::now();
+        auto sr = sv.to_series();
+        CHECK
+        auto ds = sr.iloc(0, 5, 1).to_series();
+        CHECK
+        return ds;
+    });
+
+    CHECK
+
+    cout << a << endl;
 }
 
 int main()

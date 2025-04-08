@@ -66,7 +66,7 @@ public:
     Series<IT, DT, INT, DNT> to_series()
     {
         Array<DT, DNT> vals(sr.get_name());
-        Array<IT, INT> idx;
+        Array<IT, INT> idx(sr.pidx->get_name());
         vals._reserve(1024);
         idx._reserve(1024);
 
@@ -79,7 +79,7 @@ public:
         }
 
         return Series<IT, DT, INT, DNT>(
-            Index<IT, INT>(std::move(idx), sr.pidx->get_name()),
+            Index<IT, INT>(std::move(idx)),
             std::move(vals));
     }
 

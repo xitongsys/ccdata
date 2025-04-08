@@ -48,6 +48,16 @@ public:
         _rename(name);
     }
 
+    Series(const DNT& name, Index<IT, INT>&& idx, DT fillna_value)
+    {
+        this->pidx = std::make_shared<Index<IT, INT>>(idx);
+        values._reserve(idx.size());
+        for (int i = 0; i < idx.size(); i++) {
+            values._append(fillna_value);
+        }
+        _rename(name);
+    }
+
     Series(const DNT& name, std::shared_ptr<Index<IT, INT>> pidx, DT fillna_value)
     {
         this->pidx = pidx;
@@ -390,17 +400,26 @@ public:
         std::vector<DT> vals;
         vals.reserve(size());
 
+        Array<IT, INT> ar_idx(pidx->get_name());
+        Array<DT, DNT> ar_val(get_name());
+        ar_idx._reserve(size());
+        ar_val._reserve(size());
+
         if (ascending) {
             for (int i = 0; i < size(); i++) {
-                vals.push_back(iloc(pidx->value2iid[i].second));
+                auto& p = pidx->value2iid[i];
+                ar_idx._append(p.first);
+                ar_val._append(iloc(p.second));
             }
-            return Series(pidx->sort(true), Array<DT, DNT>(std::move(vals), get_name()));
-
+            return Series(std::move(Index<IT, INT>(std::move(ar_idx), false)), std::move(ar_val));
+            
         } else {
             for (int i = size() - 1; i >= 0; i--) {
-                vals.push_back(iloc(pidx->value2iid[i].second));
+                auto& p = pidx->value2iid[i];
+                ar_idx._append(p.first);
+                ar_val._append(iloc(p.second));
             }
-            return Series(pidx->sort(false), Array<DT, DNT>(std::move(vals), get_name()));
+            return Series(std::move(Index<IT, INT>(std::move(ar_idx), true)), std::move(ar_val));
         }
     }
 
