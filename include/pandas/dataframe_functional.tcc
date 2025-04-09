@@ -220,11 +220,11 @@ DataFrame<DNT, DT, std::string, IT> T() const
 template <int level>
 auto droplevel()
 {
-    using ST = std::remove_reference<decltype(iloc<1>(0).droplevel<level>())>::type;
-    using IT2 = decltype(pidx->droplevel<level>().iloc(0));
+    using ST = std::remove_reference<decltype(iloc<1>(0).template droplevel<level>())>::type;
+    using IT2 = decltype(pidx->template droplevel<level>().iloc(0));
     std::vector<ST> srs;
     for (int i = 0; i < size<1>(); i++) {
-        srs.push_back(iloc_ref<1>(i).droplevel<level>());
+        srs.push_back(iloc_ref<1>(i).template droplevel<level>());
     }
     return DataFrame<IT2, DT, INT, DNT>(srs);
 }
@@ -242,7 +242,7 @@ auto droplevel()
             vals._rename(#FUN);                       \
             return Series<DNT, DT2>(idx, vals);       \
         } else {                                      \
-            return T().FUN<0>();                      \
+            return T().template FUN<0>();             \
         }                                             \
     }
 
@@ -266,7 +266,7 @@ DEFINE_DATAFRAME_FUNCS(double, median)
             vals._rename(#FUN);                       \
             return Series<DNT, DT2>(idx, vals);       \
         } else {                                      \
-            return T().FUN<0>(ddof);                  \
+            return T().template FUN<0>(ddof);         \
         }                                             \
     }
 DEFINE_DATAFRAME_FUNCS(double, var)
@@ -287,6 +287,6 @@ auto corr()
         return df_corr;
 
     } else {
-        return T().corr<1>();
+        return T().template corr<1>();
     }
 }

@@ -3,6 +3,8 @@
 #include <format>
 #include <vector>
 
+#include "pandas/error.h"
+
 namespace pandas {
 std::vector<int> range(int b, int e, int d);
 

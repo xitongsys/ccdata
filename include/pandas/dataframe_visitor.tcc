@@ -25,7 +25,7 @@ public:
         Index<IT, INT> idx;
         it_row.reset();
         std::vector<int> iids;
-        iids.reserve(df.size<0>());
+        iids.reserve(df.template size<0>());
 
         while (it_row.has_left()) {
             int i = it_row.next();
@@ -35,7 +35,7 @@ public:
         idx._flush_index();
 
         std::vector<Array<DT, DNT>> srs;
-        srs.reserve(df.size<1>());
+        srs.reserve(df.template size<1>());
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();
@@ -62,7 +62,7 @@ public:
         it_col.reset();
         while (it_col.has_left()) {
             int j = it_col.next();
-            DNT col_name = df.iloc<1>(j).get_name();
+            DNT col_name = df.template iloc<1>(j).get_name();
             cols.push_back(col_name);
         }
         return cols;

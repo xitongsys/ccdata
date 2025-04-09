@@ -218,7 +218,7 @@ public:
     template <class IT2, class DT2, class INT2 = INT, class DNT2 = DNT>
     Series<IT2, DT2, INT2, DNT2> astype()
     {
-        return Series<IT2, DT2, INT2, DNT2>(pidx->astype<IT2, INT2>(), values.astype<DT2, DNT2>());
+        return Series<IT2, DT2, INT2, DNT2>(pidx->template astype<IT2, INT2>(), values.template astype<DT2, DNT2>());
     }
 
     std::string to_string(int mx_cnt = 10, bool tail = true) const
@@ -283,7 +283,7 @@ public:
 
     SeriesVisitor<typename Index<IT, INT>::IndexRange> loc(const IT& bgn, const IT& end)
     {
-        return SeriesVisitor<Index<IT, INT>::IndexRange>(*this, Index<IT, INT>::IndexRange(*pidx, bgn, end));
+        return SeriesVisitor<typename Index<IT, INT>::IndexRange>(*this, typename Index<IT, INT>::IndexRange(*pidx, bgn, end));
     }
 
     /// @loc by ids

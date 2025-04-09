@@ -159,7 +159,7 @@ public:
                     Series<IT, DT, INT, T2> sr(col_name, *pidx, pandas::nan<DT>());
                     srs.push_back(sr);
                 } else {
-                    srs.push_back(iloc<1>(j).astype<IT, DT, INT, T2>());
+                    srs.push_back(iloc<1>(j).template astype<IT, DT, INT, T2>());
                 }
             }
             return DataFrame<IT, DT, INT, T2>(srs);
@@ -391,7 +391,7 @@ public:
     template <int axis, class KEY>
     auto loc(const KEY& bgn, const KEY& end)
     {
-        using SIR = typename Index<IT, INT>::template IndexRange;
+        using SIR = typename Index<IT, INT>::IndexRange;
 
         if constexpr (axis == 0) {
             Range<int> it_col(0, size<1>(), 1);

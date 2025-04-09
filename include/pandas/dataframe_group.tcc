@@ -6,7 +6,7 @@
 template <class KT>
 class DataFrameGroup {
 public:
-    using SV = Series<IT, DT, INT, DNT>::SeriesVisitor<RangeVec<int>>;
+    using SV = typename Series<IT, DT, INT, DNT>::template SeriesVisitor<RangeVec<int>>;
     using DV = DataFrameVisitor<RangeVec<int>, Range<int>>;
 
     DataFrame& df;
@@ -35,7 +35,7 @@ public:
     DataFrame<KT, DT2, INT, DNT> agg(std::function<DT2(SV&)> const& func)
     {
         std::vector<Series<KT, DT2, INT, DNT>> srs;
-        for (int j = 0; j < df.size<1>(); j++) {
+        for (int j = 0; j < df.template size<1>(); j++) {
             srs.push_back(df.iloc_ref<1>(j).groupby(keys).agg(func));
         }
 
@@ -60,7 +60,7 @@ public:
     DataFrame<std::tuple<KT, IT2>, DT2, INT, DNT> apply(std::function<Series<IT2, DT2, INT2, DNT2>(SV&)> const& func)
     {
         std::vector<Series<std::tuple<KT, IT2>, DT2, INT, DNT>> srs;
-        for (int j = 0; j < df.size<1>(); j++) {
+        for (int j = 0; j < df.template size<1>(); j++) {
             srs.push_back(df.iloc_ref<1>(j).groupby(keys).apply(func));
         }
 

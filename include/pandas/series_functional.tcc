@@ -210,8 +210,8 @@ Series replace(const DT2& v_old, const DT3& v_new) const
 template <int level>
 auto droplevel() const
 {
-    using IT2 = decltype(pidx->droplevel<level>().iloc(0));
-    auto idx = Index<IT2, INT>(pidx->droplevel<level>());
+    using IT2 = decltype(pidx->template droplevel<level>().iloc(0));
+    auto idx = Index<IT2, INT>(pidx->template droplevel<level>());
     return Series<IT2, DT, INT, DNT>(idx, values);
 }
 

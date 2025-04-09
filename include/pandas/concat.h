@@ -206,8 +206,8 @@ auto concat(
         idx._rename(sr1.get_name());
         DataFrame<IT1, DT1, INT1, DNT1> df({ sr1.reindex(idx) });
 
-        for (int j = 0; j < df_tail.size<1>(); j++) {
-            df._append_col(df_tail.iloc<1>(j));
+        for (int j = 0; j < df_tail.template size<1>(); j++) {
+            df._append_col(df_tail.template iloc<1>(j));
         }
 
         return df;
@@ -273,12 +273,12 @@ auto concat(
     if constexpr (axis == 0) {
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<0>(df2, dfs...);
         auto cols = concat<0>(Index<DNT1>(df1.columns()), Index<DNT2>(df_tail.columns())).drop_duplicates("first");
-        DataFrame<IT1, DT1, INT1, DNT1> df = df1.reindex<1>(cols);
-        df_tail = df_tail.reindex<1>(cols);
+        DataFrame<IT1, DT1, INT1, DNT1> df = df1.template reindex<1>(cols);
+        df_tail = df_tail.template reindex<1>(cols);
 
         std::vector<Series<IT1, DT1, INT1, DNT1>> srs;
         for (int j = 0; j < cols.size(); j++) {
-            srs.push_back(concat<0>(df.iloc_ref<1>(j), df_tail.iloc_ref<1>(j)));
+            srs.push_back(concat<0>(df.template iloc_ref<1>(j), df_tail.template iloc_ref<1>(j)));
         }
 
         return DataFrame(srs);
@@ -287,9 +287,9 @@ auto concat(
         DataFrame<IT2, DT2, INT2, DNT2> df_tail = concat<1>(df2, dfs...);
         Index<IT1, INT1> idx = concat<0>(*df1.pidx, *df_tail.pidx).drop_duplicates("first");
 
-        DataFrame<IT1, DT1, INT1, DNT1> df = df1.reindex<0>(idx);
-        for (int j = 0; j < df_tail.size<1>(); j++) {
-            df._append_col(df_tail.iloc<1>(j));
+        DataFrame<IT1, DT1, INT1, DNT1> df = df1.template reindex<0>(idx);
+        for (int j = 0; j < df_tail.template size<1>(); j++) {
+            df._append_col(df_tail.template iloc<1>(j));
         }
 
         return df;
@@ -308,7 +308,7 @@ auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
         std::map<DNT, int> col2id;
 
         for (const auto& df : dfs) {
-            for (int j = 0; j < df.size<1>(); j++) {
+            for (int j = 0; j < df.template size<1>(); j++) {
                 auto& sr = df.iloc_ref<1>(j);
                 DNT col = sr.get_name();
                 if (col2id.count(col) == 0) {
@@ -337,9 +337,9 @@ auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
     } else if constexpr (axis == 1) {
         std::vector<Series<IT, DT, INT, DNT>> srs;
         for (auto& df : dfs) {
-            int c = df.size<1>();
+            int c = df.template size<1>();
             for (int j = 0; j < c; j++) {
-                srs.push_back(df.iloc<1>(j));
+                srs.push_back(df.template iloc<1>(j));
             }
         }
         return DataFrame<IT, DT, INT, DNT>(srs);

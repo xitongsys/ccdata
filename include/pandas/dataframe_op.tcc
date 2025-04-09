@@ -80,7 +80,7 @@ DEFINE_DATAFRAME_OPERATOR(^)
 DataFrame operator~()
 {
     DataFrame res = this->copy();
-    for (int j = 0; j < res.size<1>(); j++) {
+    for (int j = 0; j < res.template size<1>(); j++) {
         res.values[j] = ~res.values[j];
     }
     return res;
