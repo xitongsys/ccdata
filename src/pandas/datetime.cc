@@ -104,7 +104,8 @@ void Datetime::strptime(const std::string& s, const std::string& fmt)
 
 std::string Datetime::to_string() const
 {
-    return strftime("%Y-%m-%d %H:%M:%S");
+    Number num = this->number();
+    return std::format("{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:09}", num.year, num.month, num.day, num.hour, num.minute, num.second, num.nanosec);
 }
 
 std::ostream& operator<<(std::ostream& os, const Datetime& dt)

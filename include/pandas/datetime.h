@@ -207,7 +207,7 @@ public:
 
     inline Datetime::Number number() const
     {
-        std::time_t tt = t / 1e9;
+        std::time_t tt = t / 1000000000LL;
         std::tm tm = *std::localtime(&tt);
         
         Datetime::Number num = {
@@ -217,7 +217,7 @@ public:
             tm.tm_hour,
             tm.tm_min,
             tm.tm_sec,
-            0,
+            t % 1000000000LL,
         };
         return num;
     }
