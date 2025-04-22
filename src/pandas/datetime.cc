@@ -73,6 +73,7 @@ Datetime::Datetime(int year, int month, int day, int hour, int minute, int secon
     tm.tm_hour = hour;
     tm.tm_min = minute;
     tm.tm_sec = second;
+    tm.tm_isdst = -1;
 
     std::time_t tt = std::mktime(&tm);
     auto tp = std::chrono::system_clock::from_time_t(tt) + std::chrono::nanoseconds(nanosec);
