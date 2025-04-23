@@ -212,30 +212,21 @@ public:
         auto tp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(t));
         auto local_tp = zoned_time { current_zone(), tp }.get_local_time();
 
-        // 2. 获取年月日
-        auto ds = std::chrono::floor<days>(local_tp);
-        year_month_day ymd { ds };
-        auto y = int(ymd.year());
-        auto m = unsigned(ymd.month());
-        auto d = unsigned(ymd.day());
+        auto tp_day = std::chrono::floor<days>(local_tp);
+        year_month_day ymd { tp_day };
+        auto year = int(ymd.year());
+        auto month = unsigned(ymd.month());
+        auto day = unsigned(ymd.day());
 
-        // 将 local_time 转换为精度为天的时间点
-        local_time<nanoseconds> local_tp_ns = local_tp;
-
-        // 获取时分秒部分，减去天数部分
-        auto time_of_day = local_tp_ns - floor<days>(local_tp_ns);
-
-        // 使用 hh_mm_ss 来获取时、分、秒
+        auto time_of_day = local_tp - tp_day;
         hh_mm_ss time_in_day(time_of_day);
-
-        // 获取具体的时、分、秒数值
-        auto hours = time_in_day.hours().count();
-        auto minutes = time_in_day.minutes().count();
-        auto seconds = time_in_day.seconds().count();
-        auto nanoseconds = time_in_day.subseconds().count();
+        auto hour = time_in_day.hours().count();
+        auto minute = time_in_day.minutes().count();
+        auto second = time_in_day.seconds().count();
+        auto nanosecond = time_in_day.subseconds().count();
 
         Datetime::Number num = {
-            y, m, d, hours, minutes,seconds,nanoseconds
+            year, month, day, hour, minute, second, nanosecond
         };
         return num;
     }
