@@ -214,16 +214,16 @@ public:
 
         auto tp_day = std::chrono::floor<days>(local_tp);
         year_month_day ymd { tp_day };
-        auto year = int(ymd.year());
-        auto month = unsigned(ymd.month());
-        auto day = unsigned(ymd.day());
+        int year = int(ymd.year());
+        int month = unsigned(ymd.month());
+        int day = unsigned(ymd.day());
 
         auto time_of_day = local_tp - tp_day;
         hh_mm_ss time_in_day(time_of_day);
-        auto hour = time_in_day.hours().count();
-        auto minute = time_in_day.minutes().count();
-        auto second = time_in_day.seconds().count();
-        auto nanosecond = time_in_day.subseconds().count();
+        int hour = time_in_day.hours().count();
+        int minute = time_in_day.minutes().count();
+        int second = time_in_day.seconds().count();
+        long long nanosecond = time_in_day.subseconds().count();
 
         Datetime::Number num = {
             year, month, day, hour, minute, second, nanosecond

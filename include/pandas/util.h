@@ -29,12 +29,6 @@ auto add_first_element(const T& v, const std::tuple<Ts...>& t)
 /// @tparam current_level
 /// @param t
 /// @return
-template <int remove_level, int current_level, typename T>
-auto _remove_element(const std::tuple<T>& t)
-{
-    return t;
-}
-
 template <int remove_level, int current_level, typename T, typename... Args>
 auto _remove_element(const std::tuple<T, Args...>& t)
 {
@@ -43,6 +37,9 @@ auto _remove_element(const std::tuple<T, Args...>& t)
 
     } else if constexpr (sizeof...(Args) == 1 && remove_level == current_level + 1) {
         return std::tuple(std::get<0>(t));
+
+    } else if constexpr(remove_level < current_level) {
+        return t;
 
     } else {
         T v = std::get<0>(t);

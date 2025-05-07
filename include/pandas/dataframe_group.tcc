@@ -91,7 +91,7 @@ DataFrameGroup<KT> groupby(const Series<IT2, KT, INT2, DNT2>& sr)
         PANDAS_THROW(std::format("size not match: {}!={}", sr.size(), size<0>()));
     }
 
-    for (int i = 0; i < size<0>; i++) {
+    for (int i = 0; i < size<0>(); i++) {
         IT id = pidx->iloc(i);
         if (!sr.pidx->has(id)) {
             PANDAS_THROW(std::format("id not found: {}", pandas::to_string(id)));

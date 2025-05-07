@@ -34,21 +34,21 @@ DEFINE_DATAFRAMEVISITOR_OPERATOR(~)
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP) \
-    template <class T>                       \
-    DataFrame& operator OP(const T & val)    \
-    {                                        \
-        it_row.reset();                      \
-        it_col.reset();                      \
-        while (it_col.has_left()) {          \
-            int j = it_col.next();           \
-            it_row.reset();                  \
-            while (it_row.has_left()) {      \
-                int i = it_row.next();       \
-                iloc_ref(i, j) OP val;       \
-            }                                \
-        }                                    \
-        return *this;                        \
+#define DEFINE_DATAFRAMEVISITOR_OPERATOR(OP)    \
+    template <class T>                          \
+    DataFrame& operator OP(const T & val)       \
+    {                                           \
+        it_row.reset();                         \
+        it_col.reset();                         \
+        while (it_col.has_left()) {             \
+            int j = it_col.next();              \
+            it_row.reset();                     \
+            while (it_row.has_left()) {         \
+                int i = it_row.next();          \
+                this->df.iloc_ref(i, j) OP val; \
+            }                                   \
+        }                                       \
+        return *this;                           \
     }
 
 DEFINE_DATAFRAMEVISITOR_OPERATOR(+=)

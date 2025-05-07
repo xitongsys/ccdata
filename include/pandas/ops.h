@@ -8,8 +8,8 @@
 #include <tuple>
 #include <type_traits>
 
-#include "pandas/util.h"
 #include "pandas/error.h"
+#include "pandas/util.h"
 
 namespace pandas {
 
@@ -50,17 +50,6 @@ std::string to_string(const T& v)
     }
 }
 
-template <size_t id, class T>
-std::string _to_string(const std::tuple<T>& t)
-{
-    std::stringstream ss;
-    if constexpr (id == 0) {
-        ss << "(";
-    }
-    ss << to_string(std::get<0>(t)) + ")";
-    return ss.str();
-}
-
 template <size_t id, class T, class... Ts>
 std::string _to_string(const std::tuple<T, Ts...>& t)
 {
@@ -68,7 +57,12 @@ std::string _to_string(const std::tuple<T, Ts...>& t)
     if constexpr (id == 0) {
         ss << "(";
     }
-    ss << to_string(std::get<0>(t)) << "," << _to_string<id + 1, Ts...>(remove_first_element(t));
+    if constexpr (sizeof...(Ts) == 0) {
+        ss << to_string(std::get<0>(t));
+        ss << ")";
+    } else {
+        ss << to_string(std::get<0>(t)) << "," << _to_string<id + 1, Ts...>(remove_first_element(t));
+    }
     return ss.str();
 }
 
