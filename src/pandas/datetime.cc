@@ -65,19 +65,20 @@ Datetime::Datetime(long long nanosecs)
 }
 
 Datetime::Datetime(int year, int month, int day, int hour, int minute, int second, long long nanosec)
-{
-    std::tm tm = {};
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = minute;
-    tm.tm_sec = second;
-    tm.tm_isdst = -1;
+{   
+    std::chrono::year_month_day ymd{std::chrono::year{year}, std::chrono::month{(unsigned int)month}, std::chrono::day{(unsigned int)day}};
+    std::chrono::hh_mm_ss hms{std::chrono::hours{hour} + std::chrono::minutes{minute} + std::chrono::seconds{second} + std::chrono::nanoseconds{nanosec}};
+    std::chrono::sys_days sys_days = ymd;
+    auto total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(hms.hours()).count() +
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(hms.minutes()).count() +
+                    std::chrono::duration_cast<std::chrono::nanoseconds>(hms.seconds()).count() +
+                    hms.subseconds().count();
+    auto time_of_day_in_ns = std::chrono::nanoseconds(total_ns);
+    auto time_point = sys_days + time_of_day_in_ns;
 
-    std::time_t tt = std::mktime(&tm);
-    auto tp = std::chrono::system_clock::from_time_t(tt) + std::chrono::nanoseconds(nanosec);
-    t = std::chrono::duration_cast<std::chrono::nanoseconds>(tp.time_since_epoch()).count();
+    auto duration_since_epoch = time_point.time_since_epoch();
+    auto nanoseconds_since_epoch = std::chrono::duration_cast<std::chrono::nanoseconds>(duration_since_epoch).count();
+    t = nanoseconds_since_epoch;    
 }
 
 std::string Datetime::strftime(const std::string& fmt) const
