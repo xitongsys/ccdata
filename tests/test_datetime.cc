@@ -22,9 +22,7 @@ void test_datetime()
 
     Datetime dt3;
     dt3.strptime("20250102030405", "%Y%m%d%H%M%S");
-
     assert(dt3.to_string() == "2025-01-02 03:04:05.000000000");
-
     assert(dt3.date() == Datetime(2025, 1, 2));
 
     Series<Datetime, double> y("y");

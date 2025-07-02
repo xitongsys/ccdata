@@ -208,17 +208,15 @@ public:
     inline Datetime::Number number() const
     {
         using namespace std::chrono;
-
         auto tp = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(t));
-        auto local_tp = zoned_time { current_zone(), tp }.get_local_time();
-
-        auto tp_day = std::chrono::floor<days>(local_tp);
+        
+        auto tp_day = std::chrono::floor<days>(tp);
         year_month_day ymd { tp_day };
         int year = int(ymd.year());
         int month = unsigned(ymd.month());
         int day = unsigned(ymd.day());
 
-        auto time_of_day = local_tp - tp_day;
+        auto time_of_day = tp - tp_day;
         hh_mm_ss time_in_day(time_of_day);
         int hour = time_in_day.hours().count();
         int minute = time_in_day.minutes().count();
