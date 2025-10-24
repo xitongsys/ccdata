@@ -5,8 +5,8 @@
 template <class DT2>
 Series<IT, DT2, INT, DNT> map(std::function<DT2(const DT&)> const& func) const
 {
-    Array<IT, INT> ar_idx(pidx->get_name());
-    Array<DT, DNT> ar_val(get_name());
+    Array<IT,  INT> ar_idx(pidx->get_name());
+    Array<DT2, DNT> ar_val(get_name());
 
     for (int i = 0; i < size(); i++) {
         const IT& id = pidx->iloc(i);
