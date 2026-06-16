@@ -300,7 +300,7 @@ public:
             int j = pidx->loc_i(id);
             iids.push_back(j);
         }
-        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(std::move(iids)));
     }
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> loc(const Array<IT2, INT2>& ids)
@@ -393,7 +393,7 @@ public:
                 iids.push_back(i);
             }
         }
-        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(std::move(iids)));
     }
 
     Series sort_index(bool ascending = true) const
