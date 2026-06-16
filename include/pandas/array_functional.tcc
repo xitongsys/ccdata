@@ -352,26 +352,36 @@ double corr(const std::vector<T2>& y) const
     if (y.size() != size()) {
         PANDAS_THROW(std::format("size not match: {}!={}", y.size(), size()));
     }
+    size_t n = 0;
     double sum_y = 0, sum_x = 0;
-    for (int i = 0; i < y.size(); i++) {
-        sum_y += y[i];
-        sum_x += values[i];
-    }
+    double sum_xx = 0, sum_yy = 0, sum_xy = 0;
 
-    double mn_x = sum_x / size(), mn_y = sum_y / size();
-    double s_up = 0, s_down_x = 0, s_down_y = 0;
     for (int i = 0; i < size(); i++) {
         double xi = iloc(i);
         double yi = y[i];
         if (pandas::isnan<double>(xi) || pandas::isnan<double>(yi)) {
             continue;
         }
-        s_up += (xi - mn_x) * (yi - mn_y);
-        s_down_x += (xi - mn_x) * (xi - mn_x);
-        s_down_y += (yi - mn_y) * (yi - mn_y);
+        n++;
+        sum_x += xi;
+        sum_y += yi;
+        sum_xy += xi*yi;
+        sum_xx += xi*xi;
+        sum_yy += yi*yi;
     }
-    double c = s_up / std::sqrt(s_down_x * s_down_y);
-    return c;
+    
+    if(n < 2) {
+        return pandas::nan<double>();
+    }
+
+    double up = (n*sum_xy) - (sum_x*sum_y);
+    double down = std::sqrt((n*sum_xx - sum_x*sum_x)*(n*sum_yy - sum_y*sum_y));
+    
+    if(down == 0) {
+        return pandas::nan<double>();
+    }
+
+    return up / down;
 }
 
 template <class T2, class NT2>
