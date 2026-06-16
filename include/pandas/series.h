@@ -325,7 +325,7 @@ public:
             int j = pidx->loc_i(id);
             iids.push_back(j);
         }
-        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec(std::move(iids)));
     }
 
     /// @iloc
@@ -374,7 +374,7 @@ public:
                 iids.push_back(i);
             }
         }
-        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(iids));
+        return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(std::move(iids)));
     }
     template <class DT2, class NT2>
     SeriesVisitor<RangeVec<int>> loc_mask(const Array<DT2, NT2>& mask)
