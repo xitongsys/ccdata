@@ -231,8 +231,6 @@ void fun1()
     end = Datetime::now();
     cout << idx << endl
          << (end - bgn).total_seconds() << endl;
-
-    cout << ar.values[100] << endl;
 }
 
 int main()
