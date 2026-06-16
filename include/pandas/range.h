@@ -90,7 +90,7 @@ public:
     }
 
     RangeVec(std::vector<T>&& vs_)
-        : vs(vs_)
+        : vs(std::move(vs_))
         , cur(0)
     {
     }

@@ -61,9 +61,8 @@ public:
     }
 
     Array(std::vector<T>&& vals, const NT& name = NT {})
-        : Array(name)
+        : values(std::move(vals)), name(name)
     {
-        values = vals;
     }
 
     template <class T2>

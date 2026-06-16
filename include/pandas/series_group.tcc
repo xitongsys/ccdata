@@ -21,7 +21,7 @@ public:
     }
 
     SeriesGroup(SeriesGroup&& sg)
-        : sr(sg.sr)
+        : sr(std::move(sg.sr))
     {
         items = std::move(sg.items);
     }

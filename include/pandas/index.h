@@ -59,12 +59,13 @@ public:
     }
 
     Index(Array<T, NT>&& ar, bool flush_index = true)
-        : values(ar)
     {
         value2iid.reserve(ar.size());
         for (int i = 0; i < ar.size(); i++) {
             value2iid.emplace_back(std::pair { ar.iloc(i), i });
         }
+        values = std::move(ar);
+        
         if (flush_index) {
             std::sort(value2iid.begin(), value2iid.end());
         }
