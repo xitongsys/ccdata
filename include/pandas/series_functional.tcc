@@ -212,7 +212,7 @@ auto droplevel() const
 {
     using IT2 = decltype(pidx->template droplevel<level>().iloc(0));
     auto idx = Index<IT2, INT>(pidx->template droplevel<level>());
-    return Series<IT2, DT, INT, DNT>(idx, values);
+    return Series<IT2, DT, INT, DNT>(std::move(idx), values);
 }
 
 /// @brief duplicated
