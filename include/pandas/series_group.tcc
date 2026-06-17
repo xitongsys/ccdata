@@ -7,7 +7,7 @@ template <class KT>
 class SeriesGroup {
 public:
     Series& sr;
-    std::map<KT, SeriesVisitor<RangeVec<int>>> items;
+    std::unordered_map<KT, SeriesVisitor<RangeVec<int>>> items;
 
     SeriesGroup(Series& sr_)
         : sr(sr_)
@@ -90,10 +90,8 @@ SeriesGroup<KT> groupby(const std::vector<KT>& vs)
     SeriesGroup<KT> sg(*this);
     for (int i = 0; i < size(); i++) {
         const KT& key = vs[i];
-        if (sg.items.count(key) == 0) {
-            sg.items.emplace(key, SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>()));
-        }
-        (sg.items.find(key)->second).it._append(i);
+        auto [it, inserted] = sg.items.try_emplace(key, SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>()));
+        it->second.it._append(i);
     }
 
     return sg;
