@@ -16,7 +16,11 @@ namespace pandas {
 template <class T>
 bool isnan(const T& v)
 {
-    return std::isnan(v);
+    if constexpr (std::is_floating_point_v<T>) {
+        return std::isnan(v);
+    } else {
+        return false;
+    }
 }
 
 template <class T>

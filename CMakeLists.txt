@@ -11,7 +11,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /W4 /arch:AVX2 /W0")
-    include_directories("C:/app/boost/include/boost-1_87")
+    find_package(Boost REQUIRED)
+    include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
 
@@ -19,6 +20,7 @@ file(GLOB_RECURSE SOURCES "src/*.cc")
 add_library(ccdata STATIC ${SOURCES})
 set_property(TARGET ccdata PROPERTY CXX_STANDARD 20)
 target_include_directories(ccdata PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_include_directories(ccdata PRIVATE ${Boost_INCLUDE_DIRS})
 
 install(
     TARGETS ccdata
