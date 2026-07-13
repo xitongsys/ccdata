@@ -3,24 +3,32 @@ project ("ccdata")
 
 include_directories("include")
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -fPIC -w")
-
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -fPIC -w")
-
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /W4 /arch:AVX2 /W0")
-    find_package(Boost REQUIRED)
-    include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
-
 file(GLOB_RECURSE SOURCES "src/*.cc")
 add_library(ccdata STATIC ${SOURCES})
+
 set_property(TARGET ccdata PROPERTY CXX_STANDARD 20)
-target_include_directories(ccdata PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+target_include_directories(ccdata PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+# boost
+find_package(Boost REQUIRED)
 target_include_directories(ccdata PRIVATE ${Boost_INCLUDE_DIRS})
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /arch:AVX2 /W0")
+        
+    include_directories("C:/app/boost_1_91_0")
+
+    # mimalloc
+    find_package(mimalloc CONFIG REQUIRED)
+    target_link_libraries(ccdata mimalloc)
+    target_link_options(ccdata PRIVATE "/INCLUDE:mi_version")
+
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -fPIC -w")
+    
+endif()
+
 
 install(
     TARGETS ccdata
@@ -37,4 +45,4 @@ install(
 )
 
 enable_testing()
-add_subdirectory("tests")
+add_subdirectory("tests")  
