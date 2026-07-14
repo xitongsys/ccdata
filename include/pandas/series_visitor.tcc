@@ -67,9 +67,7 @@ public:
     {
         Array<DT, DNT> vals(sr.get_name());
         Array<IT, INT> idx(sr.pidx->get_name());
-        vals._reserve(1024);
-        idx._reserve(1024);
-
+        
         it.reset();
         auto& ids = sr.pidx->values.values;
         while (it.has_left()) {
@@ -79,7 +77,7 @@ public:
         }
 
         return Series<IT, DT, INT, DNT>(
-            Index<IT, INT>(std::move(idx), flush_index),
+            std::move(Index<IT, INT>(std::move(idx), flush_index)),
             std::move(vals));
     }
 

@@ -208,6 +208,18 @@ public:
         return dup;
     }
 
+    template <class DT2, class NT2, class DT3>
+    Array<T,NT> where(const Array<DT2, NT2>& mask, DT3 v)
+    {
+        Array<T,NT> ar(*this);
+        for(int i=0; i<ar.size(); i++){
+            if(!mask[i]) {
+                ar.iloc_ref(i) = v;
+            }
+        }
+        return ar;
+    }
+
     Array<T, NT> reverse()
     {
         Array<T, NT> ar = *this;
