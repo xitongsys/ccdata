@@ -100,8 +100,8 @@ public:
     Series(IDXTYPE&& idx, VALTYPE&& vals)
         :pidx(std::make_shared<Index<IT,INT>>(std::forward<IDXTYPE>(idx))), values(std::forward<VALTYPE>(vals))
     {
-        if (idx.size() != vals.size()) {
-            PANDAS_THROW(std::format("index values size not match: {}!={}", idx.size(), vals.size()));
+        if (pidx->size() != values.size()) {
+            PANDAS_THROW(std::format("index values size not match: {}!={}", pidx->size(), values.size()));
         }
     }
 
