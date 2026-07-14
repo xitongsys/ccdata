@@ -15,15 +15,13 @@ using namespace std;
 using namespace pandas;
 using namespace std::chrono;
 
-#define CHECK                                                                                  \
-    {                                                                                          \
-        std::cout << __LINE__ << ": " << (Datetime::now() - bgn).total_seconds() << std::endl; \
-        bgn = Datetime::now();                                                                 \
-    }
 
 void test01()
 {
-    Datetime bgn = Datetime::now();
+    auto TP = std::chrono::high_resolution_clock::now();
+    auto PRETP=TP;
+    #define COST PRETP=TP;TP=std::chrono::high_resolution_clock::now(); std::cout << __LINE__ << " COST: " << std::chrono::duration_cast<std::chrono::microseconds>(TP-PRETP).count()/1000.0 << "ms" << std::endl;
+
 
     using IT = Datetime;
 
@@ -38,34 +36,37 @@ void test01()
         ar_key._append(i % 6);
     }
 
-    CHECK
+    COST
 
-    Index idx(std::move(ar_idx));
+    Index idx(std::move(ar_idx),false);
 
-    CHECK
+    COST
 
     std::sort(idx.value2iid.begin(), idx.value2iid.end());
 
-    CHECK
+    COST
 
-    Series<IT, double> sr(std::move(ar_idx), std::move(ar_val));
+    Series<IT, double> sr(std::move(idx), std::move(ar_val));
 
-    CHECK
+    COST
 
     using ST = Series<IT, double>;
     using SV = ST::SeriesVisitor<RangeVec<int>>;
-    auto a = sr.groupby(ar_key).apply<IT, double, std::string, std::string>([](SV& sv) -> ST {
-        Datetime bgn = Datetime::now();
-        auto sr = sv.to_series();
-        CHECK
-        auto ds = sr.iloc(0, 5, 1).to_series();
-        CHECK
-        return ds;
-    });
 
-    CHECK
+    std::cout << sr.size() << "=====" << std::endl;
 
-    cout << a << endl;
+    std::vector<bool> mask(sr.size(), true);
+    COST
+    auto a = sr.loc_mask(mask);
+    COST
+    ST b(a.to_series(false));
+    COST
+
+    auto mask2 = b.values>10;
+    COST
+    auto c = b.where(mask2, pandas::nan<double>());
+    COST
+    
 }
 
 int main()

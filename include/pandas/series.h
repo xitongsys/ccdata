@@ -102,19 +102,18 @@ public:
         if (idx.size() != vals.size()) {
             PANDAS_THROW(std::format("index values size not match: {}!={}", idx.size(), vals.size()));
         }
-
         this->pidx = std::make_shared<Index<IT,INT>>(std::forward<IDXTYPE>(idx));
         values = std::forward<VALTYPE>(vals);
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
     Series(const Series<IT2, DT2, INT2, DNT2>& sr)
-        : pidx(std::make_shared<Index<IT, INT>>(*sr.pidx)), values(sr.values)
+        : pidx(sr.pidx), values(sr.values)
     {
     }
 
     Series(const Series& sr)
-        : pidx(std::make_shared<Index<IT, INT>>(*sr.pidx)), values(sr.values)
+        : pidx(sr.pidx), values(sr.values)
     {
     }
 
@@ -126,7 +125,7 @@ public:
     template <class IT2, class DT2, class INT2, class DNT2>
     Series& operator=(const Series<IT2, DT2, INT2, DNT2>& sr)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*pidx);
+        pidx = sr.pidx;
         values = sr.values;
         return *this;
     }
@@ -140,14 +139,22 @@ public:
 
     Series& operator=(const Series& sr)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*sr.pidx);
+        pidx = sr.pidx;
         values = sr.values;
         return *this;
     }
 
+    /// @brief IMPORTANT!!!
+    /// Series 所有的构造函数、赋值函数都不会拷贝pidx的底层数据，都是浅拷贝
+    /// 之所以这样是为了支持DataFrame中所有Series指向同一个 index
+    /// 在 DataFrame中对Series会有各种赋值操作，如果允许拷贝pidx底层数据，极易导致某个Series的pidx成了独立的
+    /// 所以如果要完全独立的Series，就要显示调用copy函数
+    /// @return 
     Series copy() const
     {
-        return Series(*this);
+        auto sr = Series(*this);
+        sr.pidx = std::make_shared<Index<IT, INT>>(*pidx);
+        return sr;
     }
 
     size_t size() const

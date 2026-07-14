@@ -96,16 +96,19 @@ void test_frame_groupby()
     df1._append_row(3, std::vector<double>({ 3, 3 }));
 
     auto dg = df1.groupby(std::vector<std::string>({ "t1", "t2", "t2" })).sum();
+    dg = dg.sort_values(dg.pidx->values);
     assert((dg.iloc(0, 0) == 1) && (dg.iloc(1, 1) == 5));
 
     df1._append_row(4, std::vector<double>({ pandas::nan<double>(), 1 }));
     auto dg2 = df1.groupby(df1.pidx->values).count();
+    dg2 = dg2.sort_values(dg2.pidx->values);
     assert(dg2.iloc(3, 0) == 0);
 
     Array<int> ar1({ 1, 1, 2, 2 });
     Array<std::string> ar2({ "a", "a", "b", "c" });
     auto ar3 = concat<1>(ar1, ar2);
     auto dg3 = df1.groupby(ar3).sum();
+    dg3 = dg3.sort_values(dg3.pidx->values);
     assert((dg3.iloc(0, 0) == 3) && (dg3.iloc(2, 0) == 0));
 
     cout << "[PASS] test_frame_groupby" << endl;
