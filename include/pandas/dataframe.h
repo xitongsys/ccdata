@@ -101,6 +101,17 @@ public:
         }
     }
 
+    DataFrame(Index<IT, INT>&& idx, std::vector<Array<DT, DNT>>&& cols)
+    {
+        pidx = std::make_shared<Index<IT, INT>>(std::move(idx));
+        for (auto& col : cols) {
+            Series<IT, DT, INT, DNT> sr(pidx, std::move(col));
+            values.emplace_back(std::move(sr));
+        }
+    }
+
+
+
     DataFrame(const std::vector<Series<IT, DT, INT, DNT>>& cols)
     {
         Array<IT, INT> ar_idx;
