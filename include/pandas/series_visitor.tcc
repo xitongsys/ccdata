@@ -63,7 +63,7 @@ public:
         return sr.iloc_ref(i);
     }
 
-    Series<IT, DT, INT, DNT> to_series()
+    Series<IT, DT, INT, DNT> to_series(bool flush_index = true)
     {
         Array<DT, DNT> vals(sr.get_name());
         Array<IT, INT> idx(sr.pidx->get_name());
@@ -79,7 +79,7 @@ public:
         }
 
         return Series<IT, DT, INT, DNT>(
-            Index<IT, INT>(std::move(idx)),
+            Index<IT, INT>(std::move(idx), flush_index),
             std::move(vals));
     }
 

@@ -20,7 +20,7 @@ public:
     {
     }
 
-    DataFrame to_frame()
+    DataFrame to_frame(bool flush_index = true)
     {
         Index<IT, INT> idx;
         it_row.reset();
@@ -32,7 +32,9 @@ public:
             idx._append(df.pidx->iloc(i), false);
             iids.push_back(i);
         }
-        idx._flush_index();
+        if(flush_index) {
+            idx._flush_index();
+        }
 
         std::vector<Array<DT, DNT>> srs;
         srs.reserve(df.template size<1>());
@@ -42,7 +44,7 @@ public:
             srs.emplace_back(df.iloc_ref<1>(j).iloc(iids).to_array());
         }
 
-        return DataFrame(idx, srs);
+        return DataFrame(std::move(idx), std::move(srs));
     }
 
     std::vector<SV> to_series_visitors()
