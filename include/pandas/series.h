@@ -109,21 +109,18 @@ public:
 
     template <class IT2, class DT2, class INT2, class DNT2>
     Series(const Series<IT2, DT2, INT2, DNT2>& sr)
+        : pidx(std::make_shared<Index<IT, INT>>(*sr.pidx)), values(sr.values)
     {
-        pidx = std::make_shared<Index<IT, INT>>(*sr.pidx);
-        values = sr.values;
     }
 
     Series(const Series& sr)
+        : pidx(std::make_shared<Index<IT, INT>>(*sr.pidx)), values(sr.values)
     {
-        pidx = sr.pidx;
-        values = sr.values;
     }
 
     Series(Series&& sr)
+        : pidx(sr.pidx), values(std::move(sr.values))
     {
-        pidx = sr.pidx;
-        values = std::move(sr.values);
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
@@ -143,16 +140,14 @@ public:
 
     Series& operator=(const Series& sr)
     {
-        pidx = sr.pidx;
+        pidx = std::make_shared<Index<IT, INT>>(*sr.pidx);
         values = sr.values;
         return *this;
     }
 
     Series copy() const
     {
-        Series sr = *this;
-        sr.pidx = std::make_shared<Index<IT, INT>>(*pidx);
-        return sr;
+        return Series(*this);
     }
 
     size_t size() const
@@ -476,7 +471,7 @@ public:
     template <class DT2, class NT2, class DT3>
     Series where(const Array<DT2, NT2>& mask, DT3 v)
     {
-        Series ds = copy();
+        Series ds(*this);
         ds.loc_mask(!mask) = v;
         return ds;
     }

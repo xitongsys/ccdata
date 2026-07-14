@@ -10,6 +10,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "pandas/ops.h"
 #include "pandas/string.h"
@@ -42,22 +43,14 @@ public:
 
     template <class T2, class NT2>
     Array(const Array<T2, NT2>& ar)
-        : Array(ar.name)
+        :name(ar.name), values(ar.values.begin(), ar.values.end())
     {
-        values.reserve(ar.size());
-        for (int i = 0; i < ar.size(); i++) {
-            values.push_back(ar.iloc(i));
-        }
     }
 
     template <class T2>
     Array(const std::vector<T2>& vals, const NT& name = NT {})
-        : Array(name)
+        :name(name), values(vals.begin(), vals.end())
     {
-        values.reserve(vals.size());
-        for (int i = 0; i < vals.size(); i++) {
-            values.push_back((T)(vals[i]));
-        }
     }
 
     Array(std::vector<T>&& vals, const NT& name = NT {})
@@ -67,27 +60,18 @@ public:
 
     template <class T2>
     Array(const std::initializer_list<T2>& vals, const NT& name = NT {})
-        : Array(name)
+        :name(name), values(vals.begin(), vals.end())
     {
-        for (const T2& v : vals) {
-            values.push_back((T)(v));
-        }
     }
 
     Array(const Array& ar)
-        : Array()
+        : name(ar.name), values(ar.values)
     {
-        values.reserve(ar.size());
-        for (int i = 0; i < ar.size(); i++) {
-            values.push_back(ar.iloc(i));
-        }
-        name = ar.get_name();
     }
 
     Array(Array&& ar)
+        : name(std::move(ar.name)), values(std::move(ar.values))
     {
-        values = std::move(ar.values);
-        name = std::move(ar.name);
     }
 
     template <class T2, class NT2>
@@ -104,11 +88,7 @@ public:
 
     Array& operator=(const Array& ar)
     {
-        values.clear();
-        values.reserve(ar.size());
-        for (int i = 0; i < ar.size(); i++) {
-            values.push_back(ar.iloc(i));
-        }
+        values = ar.values;
         name = ar.name;
         return *this;
     }
@@ -116,7 +96,7 @@ public:
     Array& operator=(Array&& ar)
     {
         values = std::move(ar.values);
-        name = ar.name;
+        name = std::move(ar.name);
         return *this;
     }
 

@@ -8,6 +8,7 @@
 #include <map>
 #include <optional>
 #include <vector>
+#include <chrono>
 
 #include "pandas/array.h"
 #include "pandas/iterator.h"
@@ -35,15 +36,13 @@ public:
     }
 
     Index(const Index& si)
+        : values(si.values), value2iid(si.value2iid)
     {
-        values = si.values;
-        value2iid = si.value2iid;
     }
 
     Index(Index&& ir)
+        : values(std::move(ir.values)), value2iid(std::move(ir.value2iid))
     {
-        values = std::move(ir.values);
-        value2iid = std::move(ir.value2iid);
     }
 
     Index(const Array<T, NT>& ar, bool flush_index = true)
