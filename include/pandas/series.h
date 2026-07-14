@@ -98,12 +98,11 @@ public:
 
     template<typename IDXTYPE, typename VALTYPE>
     Series(IDXTYPE&& idx, VALTYPE&& vals)
+        :pidx(std::make_shared<Index<IT,INT>>(std::forward<IDXTYPE>(idx))), values(std::forward<VALTYPE>(vals))
     {
         if (idx.size() != vals.size()) {
             PANDAS_THROW(std::format("index values size not match: {}!={}", idx.size(), vals.size()));
         }
-        this->pidx = std::make_shared<Index<IT,INT>>(std::forward<IDXTYPE>(idx));
-        values = std::forward<VALTYPE>(vals);
     }
 
     template <class IT2, class DT2, class INT2, class DNT2>
