@@ -213,7 +213,7 @@ public:
     {
         Array<T,NT> ar(*this);
         for(int i=0; i<ar.size(); i++){
-            if(!mask[i]) {
+            if(!mask.iloc(i)) {
                 ar.iloc_ref(i) = v;
             }
         }

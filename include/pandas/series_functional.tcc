@@ -225,7 +225,7 @@ Series<IT, char, INT, DNT> duplicated(const std::string& keep)
 
 Series drop_duplicates(const std::string& keep)
 {
-    return loc(!duplicated(keep)).to_series();
+    return loc_mask(!duplicated(keep).values).to_series();
 }
 
 DT sum() const

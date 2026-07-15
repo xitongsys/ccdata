@@ -447,7 +447,7 @@ public:
                 iids_col.push_back(j);
             }
 
-            return DataFrameVisitor<Range<int>, RangeVec<int>>(Range<int>(0, size<0>()), RangeVec<int>(iids_col));
+            return DataFrameVisitor<Range<int>, RangeVec<int>>(*this, Range<int>(0, size<0>()), RangeVec<int>(iids_col));
         }
     }
     template <int axis, class IT2, class INT2>
@@ -497,7 +497,7 @@ public:
             for (int j = 0; j < mask.size(); j++) {
                 iids_col.push_back(j);
             }
-            return DataFrameVisitor<Range<int>, RangeVec<int>>(Range<int>(0, size<0>()), RangeVec<int>(iids_col));
+            return DataFrameVisitor<Range<int>, RangeVec<int>>(*this, Range<int>(0, size<0>()), RangeVec<int>(iids_col));
         }
     }
 

@@ -53,15 +53,8 @@ Datetime Datetime::now()
     return Datetime(t);
 }
 
-Datetime::Datetime(const Datetime& dt)
+Datetime::Datetime(long long nanosecs) : t(nanosecs)
 {
-    t = dt.t;
-}
-
-Datetime::Datetime(long long nanosecs)
-{
-    // t = std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>(std::chrono::nanoseconds(nanosecs));
-    t = nanosecs;
 }
 
 Datetime::Datetime(int year, int month, int day, int hour, int minute, int second, long long nanosec)

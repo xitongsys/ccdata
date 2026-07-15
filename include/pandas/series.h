@@ -430,7 +430,7 @@ public:
     }
     Series iloc_inst(const std::vector<int>& iids, bool flush_index = true)
     {
-        return iloc<int>(iids, true);
+        return iloc_inst<int>(iids, flush_index);
     }
 
     /// @loc by mask

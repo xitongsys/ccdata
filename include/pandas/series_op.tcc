@@ -124,7 +124,7 @@ DEFINE_SERIES_OPERATOR(^=)
     Series<IT, char, INT, DNT> operator OP(const T2 & val) const                                            \
     {                                                                                                       \
         Array<char, DNT> values = this->values OP val;                                                      \
-        auto res = Series<IT, char, INT, DNT>(*pidx, values);                                               \
+        auto res = Series<IT, char, INT, DNT>(*pidx, std::move(values));                                    \
         return res;                                                                                         \
     }                                                                                                       \
                                                                                                             \
@@ -135,7 +135,7 @@ DEFINE_SERIES_OPERATOR(^=)
             PANDAS_THROW(std::format("size not match: {}!={}", vals.size(), size()));                       \
         }                                                                                                   \
         Array<char, DNT> ar = values OP vals;                                                               \
-        auto res = Series<IT, char, INT, DNT>(*pidx, ar);                                                   \
+        auto res = Series<IT, char, INT, DNT>(*pidx, std::move(ar));                                        \
         return res;                                                                                         \
     }                                                                                                       \
                                                                                                             \
@@ -172,12 +172,12 @@ DEFINE_SERIES_OPERATOR(!=)
 DEFINE_SERIES_OPERATOR(&&)
 DEFINE_SERIES_OPERATOR(||)
 
-#define DEFINE_SERIES_OPERATOR(OP)                            \
-    Series<IT, char, INT, DNT> operator OP() const            \
-    {                                                         \
-        Array<char, DNT> values = OP values;                  \
-        auto res = Series<IT, char, INT, DNT>(*pidx, values); \
-        return res;                                           \
+#define DEFINE_SERIES_OPERATOR(OP)                                       \
+    Series<IT, char, INT, DNT> operator OP() const                       \
+    {                                                                    \
+        Array<char, DNT> vals = OP this->values;                         \
+        auto res = Series<IT, char, INT, DNT>(*pidx, std::move(vals));   \
+        return res;                                                      \
     }
 
 DEFINE_SERIES_OPERATOR(!)

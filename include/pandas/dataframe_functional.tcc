@@ -276,7 +276,8 @@ template <int axis>
 auto corr()
 {
     if constexpr (axis == 1) {
-        DataFrame<DNT, double, std::string, DNT> df_corr(columns(), columns());
+        auto cols = columns();
+        DataFrame<DNT, double, std::string, DNT> df_corr(cols, cols, pandas::nan<double>());
         for (int i = 0; i < size<1>(); i++) {
             for (int j = i; j < size<1>(); j++) {
                 double c = iloc_ref<1>(i).values.corr(iloc_ref<1>(j).values);

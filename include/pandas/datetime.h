@@ -134,7 +134,7 @@ public:
         long long nanosec = 0);
 
     Datetime(long long nanosecs);
-    Datetime(const Datetime& dt);
+    Datetime(const Datetime& dt) = default;
 
     inline Datetime& operator=(const Datetime& dt)
     {

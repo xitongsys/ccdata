@@ -60,7 +60,7 @@ Array diff(int periods = 1) const
 /// @param offset
 Array& _shift(int offset)
 {
-    if (abs(offset) >= size()) {
+    if (std::abs(offset) >= size()) {
         for (int i = 0; i < size(); i++) {
             iloc_ref(i) = pandas::nan<T>();
         }

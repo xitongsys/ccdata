@@ -28,3 +28,18 @@ target_link_libraries(test01 PRIVATE ccdata)
 add_test(NAME Test01 COMMAND test01)
 set_property(TARGET test01 PROPERTY CXX_STANDARD 20)
 
+add_executable(test_array_comprehensive test_array_comprehensive.cc)
+target_link_libraries(test_array_comprehensive PRIVATE ccdata)
+add_test(NAME TestArrayComprehensive COMMAND test_array_comprehensive)
+set_property(TARGET test_array_comprehensive PROPERTY CXX_STANDARD 20)
+
+add_executable(test_series_comprehensive test_series_comprehensive.cc)
+target_link_libraries(test_series_comprehensive PRIVATE ccdata)
+add_test(NAME TestSeriesComprehensive COMMAND test_series_comprehensive)
+set_property(TARGET test_series_comprehensive PROPERTY CXX_STANDARD 20)
+
+add_executable(test_rolling test_rolling.cc)
+target_link_libraries(test_rolling PRIVATE ccdata)
+add_test(NAME TestRolling COMMAND test_rolling)
+set_property(TARGET test_rolling PROPERTY CXX_STANDARD 20)
+

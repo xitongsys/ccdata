@@ -69,6 +69,40 @@ void test_frame_operator()
 
 void test_frame_loc()
 {
+    DataFrame<int, double> df({ 10, 20, 30 }, { "a", "b" }, pandas::nan<double>());
+    df._fillna(1);
+
+    // loc<0> single row
+    auto row = df.loc<0>(10);
+    assert(row.size() == 2);
+    assert(row.iloc(0) == 1);
+
+    // loc<1> single column
+    auto col = df.loc<1>("a");
+    assert(col.size() == 3);
+    assert(col.get_name() == "a");
+
+    // loc<0> by vector
+    auto visitor = df.loc<0, int>(std::vector<int>({ 10, 30 }));
+    auto sub = visitor.to_frame();
+    assert(sub.size<0>() == 2);
+
+    // loc<1> by vector
+    auto visitor_col = df.loc<1, std::string>(std::vector<std::string>({ "b" }));
+    auto sub_col = visitor_col.to_frame();
+    assert(sub_col.size<1>() == 1);
+
+    // loc_mask<0>
+    auto masked = df.loc_mask<0>(std::vector<char>({ true, false, true }));
+    auto sub_masked = masked.to_frame();
+    assert(sub_masked.size<0>() == 2);
+    assert(sub_masked.pidx->iloc(0) == 10);
+    assert(sub_masked.pidx->iloc(1) == 30);
+
+    // loc_ref<1>
+    df.loc_ref<1>("a") = df.loc<1>("a") + 1;
+    assert(df.iloc(0, 0) == 2);
+
     cout << "[PASS] test_frame_loc" << endl;
 }
 
