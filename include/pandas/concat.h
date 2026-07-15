@@ -305,7 +305,7 @@ auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
     if constexpr (axis == 0) {
         std::vector<Array<IT, INT>> ar_idxs;
         std::vector<Array<DT, DNT>> ar_vals;
-        std::map<DNT, int> col2id;
+        std::unordered_map<DNT, int> col2id;
 
         for (const auto& df : dfs) {
             for (int j = 0; j < df.template size<1>(); j++) {

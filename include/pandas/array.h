@@ -161,7 +161,7 @@ public:
     {
         Array<char, NT> dup;
         dup._reserve(size());
-        std::map<T, int> mp;
+        std::unordered_map<T, int> mp;
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
                 T v = iloc(i);
