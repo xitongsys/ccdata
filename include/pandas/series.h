@@ -303,21 +303,55 @@ public:
         }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec(std::move(iids)));
     }
+    template <class IT2>
+    Series loc_inst(const std::vector<IT2>& ids, bool flush_index = true)
+    {
+        Array<IT,INT> idx(pidx->get_name());
+        Array<DT,DNT> vals(values.get_name());
+        for(IT2 id : ids){
+            int i = pidx->loc_i(id);
+            idx._append(pidx->iloc(i));
+            vals._append(values.iloc(i));
+        }
+        return Series(
+            std::move(Index<IT, INT>(std::move(idx), flush_index)),
+            std::move(vals)
+        );
+    }
+
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> loc(const Array<IT2, INT2>& ids)
     {
         return loc(ids.values);
     }
+    template <class IT2, class INT2>
+    Series loc_inst(const Array<IT2, INT2>& ids, bool flush_index = true)
+    {
+        return loc_inst(ids.values, flush_index);
+    }
+
     template <class IT2, class DT2, class INT2, class DNT2>
     SeriesVisitor<RangeVec<int>> loc(const Series<IT2, DT2, INT2, DNT2>& ids)
     {
         return loc(ids.values);
     }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series loc_inst(const Series<IT2, DT2, INT2, DNT2>& ids, bool flush_index = true)
+    {
+        return loc_inst(ids.values, flush_index);
+    }
+
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> loc(const Index<IT2, INT2>& ids)
     {
         return loc(ids.values);
     }
+    template <class IT2, class INT2>
+    Series loc_inst(const Index<IT2, INT2>& ids, bool flush_index = true)
+    {
+        return loc_inst(ids.values, flush_index);
+    }
+
     SeriesVisitor<RangeVec<int>> loc(const std::vector<IT>& ids)
     {
         std::vector<int> iids;
@@ -327,6 +361,10 @@ public:
             iids.push_back(j);
         }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec(std::move(iids)));
+    }
+    Series loc_inst(const std::vector<IT>& ids, bool flush_index = true)
+    {
+        return loc_inst<IT>(ids, flush_index);
     }
 
     /// @iloc
@@ -338,24 +376,61 @@ public:
     {
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
     }
+    template <class IT2>
+    Series iloc_inst(const std::vector<IT2>& iids, bool flush_index=true)
+    {
+        Array<IT,INT> ids(pidx->get_name());
+        Array<DT,DNT> vals(values.get_name());
+        for(int i : iids){
+            ids._append(pidx->iloc(i));
+            vals._append(values.iloc(i));
+        }
+        return Series(
+            std::move(Index<IT, INT>(std::move(ids), flush_index)),
+            std::move(vals)
+        );
+    }
+
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> iloc(const Array<IT2, INT2>& iids)
     {
-        return loc(iids.values);
+        return iloc(iids.values);
     }
+    template <class IT2, class INT2>
+    Series iloc_inst(const Array<IT2, INT2>& iids, bool flush_index=true)
+    {
+        return iloc_inst(iids.values, flush_index);
+    }
+
     template <class IT2, class DT2, class INT2, class DNT2>
     SeriesVisitor<RangeVec<int>> iloc(const Series<IT2, DT2, INT2, DNT2>& iids)
     {
-        return loc(iids.values);
+        return iloc(iids.values);
     }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series iloc_inst(const Series<IT2, DT2, INT2, DNT2>& iids, bool flush_index=true)
+    {
+        return iloc_inst(iids.values, flush_index);
+    }
+
     template <class IT2, class INT2>
     SeriesVisitor<RangeVec<int>> iloc(const Index<IT2, INT2>& iids)
     {
-        return loc(iids.values);
+        return iloc(iids.values);
     }
+    template <class IT2, class INT2>
+    SeriesVisitor<RangeVec<int>> iloc_inst(const Index<IT2, INT2>& iids, bool flush_index=true)
+    {
+        return iloc_inst(iids.values, flush_index);
+    }
+
     SeriesVisitor<RangeVec<int>> iloc(const std::vector<int>& iids)
     {
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec(iids));
+    }
+    Series iloc_inst(const std::vector<int>& iids, bool flush_index = true)
+    {
+        return iloc<int>(iids, true);
     }
 
     /// @loc by mask
@@ -377,11 +452,39 @@ public:
         }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(std::move(iids)));
     }
+    template <class DT2>
+    Series loc_mask_inst(const std::vector<DT2>& mask, bool flush_index = true)
+    {
+        if (mask.size() != size()) {
+            PANDAS_THROW(std::format("size not match: {}!={}", mask.size(), size()));
+        }
+
+        Array<IT,INT> ids(pidx->get_name());
+        Array<DT,DNT> vals(values.get_name());
+        
+        for (int i = 0; i < size(); i++) {
+            if (mask[i]) {
+                ids._append(pidx->iloc(i));
+                vals._append(values.iloc(i));
+            }
+        }
+        return Series(
+            std::move(Index<IT, INT>(std::move(ids), flush_index)),
+            std::move(vals)
+        );
+    }
+
     template <class DT2, class NT2>
     SeriesVisitor<RangeVec<int>> loc_mask(const Array<DT2, NT2>& mask)
     {
         return loc_mask(mask.values);
     }
+    template <class DT2, class NT2>
+    Series loc_mask_inst(const Array<DT2, NT2>& mask, bool flush_index = true)
+    {
+        return loc_mask_inst(mask.values, flush_index);
+    }
+
     template <class IT2, class DT2, class INT2, class DNT2>
     SeriesVisitor<RangeVec<int>> loc_mask(const Series<IT2, DT2, INT2, DNT2>& mask)
     {
@@ -395,6 +498,27 @@ public:
             }
         }
         return SeriesVisitor<RangeVec<int>>(*this, RangeVec<int>(std::move(iids)));
+    }
+    template <class IT2, class DT2, class INT2, class DNT2>
+    Series loc_mask_inst(const Series<IT2, DT2, INT2, DNT2>& mask, bool flush_index = true)
+    {
+        std::vector<int> iids;
+        iids.reserve(size());
+
+        Array<IT,INT> ids(pidx->get_name());
+        Array<DT,DNT> vals(values.get_name());
+
+        for (int i = 0; i < size(); i++) {
+            IT id = pidx->iloc(i);
+            if (mask.loc(id)) {
+                ids._append(pidx->iloc(i));
+                vals._append(values->iloc(i));
+            }
+        }
+        return Series(
+            std::move(Index<IT, INT>(std::move(ids), flush_index)),
+            std::move(vals)
+        );
     }
 
     Series sort_index(bool ascending = true) const
@@ -501,6 +625,7 @@ public:
 
 #include "pandas/series_functional.tcc"
 #include "pandas/series_group.tcc"
+#include "pandas/series_group_inst.tcc"
 #include "pandas/series_rolling.tcc"
 };
 

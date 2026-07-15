@@ -68,6 +68,25 @@ void test_series_groupby()
     cout << "[PASS] test_sereis_groupby" << endl;
 }
 
+void test_series_groupbyinst()
+{
+    Series<int, int> sr1(Index<int>(Range<int>(10, 0, -1)), Array<int>(Range<int>(0, 10).to_vec(), "sr1"));
+    Array<int> key1(Range<int>(0, 10).to_vec());
+    key1 %= 2;
+    auto dg1 = sr1.groupbyinst(key1).sum();
+    assert((dg1.iloc(0) == 20) && (dg1.iloc(1) == 25));
+
+    using SV = Series<int, int>::SeriesVisitor<RangeVec<int>>;
+
+    auto dg2 = sr1.groupbyinst(key1).apply<int, int, std::string, std::string>([](Series<int,int>& sv) -> Series<int, int> {
+        auto ds = sv.sort_values().iloc(std::vector<int>({ 0, 1 })).to_series();
+        return ds;
+    });
+    assert((dg2.iloc(0) == 0) && (dg2.iloc(2) == 1));
+
+    cout << "[PASS] test_sereis_groupbyinst" << endl;
+}
+
 void test_series_operator()
 {
     Series<int, double> sr(Index<int>(Array<int>({ 0, 1, 2 })), Array<double>({ 1, 2, 3 }, "sr"));
@@ -242,6 +261,7 @@ int main()
         test_series_loc();
         test_series_functional();
         test_series_groupby();
+        test_series_groupbyinst();
         test_series_sort();
         test_series_perf();
         fun1();
