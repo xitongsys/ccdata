@@ -8,7 +8,7 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/unordered_map.hpp>
+#include <boost/unordered/unordered_flat_map.hpp>
 
 #include "pandas/array.h"
 #include "pandas/datetime.h"

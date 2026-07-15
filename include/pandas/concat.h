@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/unordered/unordered_flat_map.hpp>
+
 #include "pandas/dataframe.h"
 #include "pandas/index.h"
 #include "pandas/series.h"
@@ -305,7 +307,7 @@ auto concat(const std::vector<DataFrame<IT, DT, INT, DNT>>& dfs)
     if constexpr (axis == 0) {
         std::vector<Array<IT, INT>> ar_idxs;
         std::vector<Array<DT, DNT>> ar_vals;
-        std::unordered_map<DNT, int> col2id;
+        boost::unordered_flat_map<DNT, int> col2id;
 
         for (const auto& df : dfs) {
             for (int j = 0; j < df.template size<1>(); j++) {

@@ -7,7 +7,7 @@ template <class KT>
 class SeriesGroupInst {
 public:
     Series& sr;
-    std::unordered_map<KT, Series> items;
+    boost::unordered_flat_map<KT, Series> items;
 
     SeriesGroupInst(Series& sr_)
         : sr(sr_)
@@ -85,7 +85,7 @@ SeriesGroupInst<KT> groupbyinst(const std::vector<KT>& vs, bool flush_index = tr
         PANDAS_THROW(std::format("size not match: {}!={}", vs.size(), size()));
     }
 
-    std::unordered_map<KT,std::pair<Array<IT,INT>, Array<DT,DNT>>> mp;
+    boost::unordered_flat_map<KT,std::pair<Array<IT,INT>, Array<DT,DNT>>> mp;
 
     SeriesGroupInst<KT> sg(*this);
     for (int i = 0; i < size(); i++) {

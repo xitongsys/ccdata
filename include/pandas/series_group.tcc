@@ -7,7 +7,7 @@ template <class KT>
 class SeriesGroup {
 public:
     Series& sr;
-    std::unordered_map<KT, SeriesVisitor<RangeVec<int>>> items;
+    boost::unordered_flat_map<KT, SeriesVisitor<RangeVec<int>>> items;
 
     SeriesGroup(Series& sr_)
         : sr(sr_)

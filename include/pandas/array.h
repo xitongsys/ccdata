@@ -12,6 +12,8 @@
 #include <vector>
 #include <chrono>
 
+#include <boost/unordered/unordered_flat_map.hpp>
+
 #include "pandas/ops.h"
 #include "pandas/string.h"
 #include "pandas/util.h"
@@ -161,7 +163,9 @@ public:
     {
         Array<char, NT> dup;
         dup._reserve(size());
-        std::unordered_map<T, int> mp;
+        boost::unordered_flat_map<T, int> mp;
+
+
         if (keep == "first") {
             for (int i = 0; i < size(); i++) {
                 T v = iloc(i);
