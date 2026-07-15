@@ -16,8 +16,6 @@ target_include_directories(ccdata PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /arch:AVX2 /W0")
-        
-    include_directories("C:/app/boost_1_91_0")
 
     # mimalloc
     find_package(mimalloc CONFIG REQUIRED)
